@@ -1,0 +1,29 @@
+﻿using System.ComponentModel;
+using Newtonsoft.Json;
+using Omp.Connector.Domain.Schema.Attributes;
+using Omp.Connector.Domain.Schema.Attributes.Examples;
+using Omp.Connector.Domain.Schema.Attributes.Regex;
+using Omp.Connector.Domain.Schema.Interfaces;
+
+namespace Omp.Connector.Domain.Schema.Base
+{
+    public abstract class Model<TMetaDataType> : IModel
+        where TMetaDataType : IMetaData
+    {
+        [Guid]
+        [GuidExamples]
+        [JsonProperty("id", Required = Required.DisallowNull, NullValueHandling = NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        public abstract string Namespace { get; set; }
+
+        [JsonSchemaSchema]
+        [SchemaExamples]
+        [JsonProperty("$schema", Required = Required.DisallowNull, NullValueHandling = NullValueHandling.Ignore)]
+        [Description("The $schema of the business object")]
+        public virtual string Schema { get; set; }
+
+        [JsonProperty("metadata", NullValueHandling = NullValueHandling.Ignore)]
+        public virtual TMetaDataType MetaData { get; set; }
+    }
+}

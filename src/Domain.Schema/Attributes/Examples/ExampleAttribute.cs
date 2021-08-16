@@ -1,0 +1,14 @@
+﻿using System.Collections;
+using NJsonSchema.Annotations;
+
+namespace Omp.Connector.Domain.Schema.Attributes.Examples
+{
+    public abstract class ExampleAttribute : JsonSchemaExtensionDataAttribute
+    {
+        private const string ExamplesKey = "examples";
+
+        protected ExampleAttribute(IEnumerable value) : base(ExamplesKey, value)
+        {
+        }
+    }
+}

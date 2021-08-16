@@ -2,8 +2,13 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <AssemblyName>OMP.OpcUa.Connector.$(MSBuildProjectName)</AssemblyName>
-    <RootNamespace>OMP.OpcUa.Connector.$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
+    <AssemblyName>OMP.Connector.$(MSBuildProjectName)</AssemblyName>
+    <RootNamespace>OMP.Connector.$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="NJsonSchema" Version="10.4.6" />
+  </ItemGroup>
 
 </Project>
