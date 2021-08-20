@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using Newtonsoft.Json;
 
-namespace Omp.Connector.Domain.Schema.Responses
+namespace OMP.Connector.Domain.Schema.Responses
 {
     public class ResponseStatus
     {

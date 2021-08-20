@@ -1,6 +1,6 @@
 ﻿using System;
 using FluentValidation;
-using Omp.Connector.Domain.Schema;
+using OMP.Connector.Domain.Schema;
 
 namespace OMP.Connector.Application.Validators
 {

@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
 using Newtonsoft.Json;
-using Omp.Connector.Domain.Schema.Interfaces;
+using OMP.Connector.Domain.Schema.Interfaces;
 
-namespace Omp.Connector.Domain.Schema.Request
+namespace OMP.Connector.Domain.Schema.Request
 {
     public class RequestPayload
     {

@@ -1,4 +1,4 @@
-﻿using Omp.Connector.Domain.Schema.Responses.Base;
+﻿using OMP.Connector.Domain.Schema.Responses.Base;
 
 namespace OMP.Connector.Application.Extensions
 {

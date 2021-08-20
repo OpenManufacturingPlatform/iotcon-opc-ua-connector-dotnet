@@ -1,6 +1,6 @@
-﻿using Omp.Connector.Domain.Schema.Interfaces;
+﻿using OMP.Connector.Domain.Schema.Interfaces;
 
-namespace Omp.Connector.Domain.Schema.Request.Base
+namespace OMP.Connector.Domain.Schema.Request.Base
 {
     public abstract class CommandRequest : Command, ICommandRequest { }
 }

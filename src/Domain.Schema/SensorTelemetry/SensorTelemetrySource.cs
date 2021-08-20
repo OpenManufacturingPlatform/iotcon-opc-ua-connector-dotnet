@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel;
 using Newtonsoft.Json;
-using Omp.Connector.Domain.Schema.Base;
+using OMP.Connector.Domain.Schema.Base;
 
-namespace Omp.Connector.Domain.Schema.SensorTelemetry
+namespace OMP.Connector.Domain.Schema.SensorTelemetry
 {
     public class SensorTelemetrySource : Source
     {

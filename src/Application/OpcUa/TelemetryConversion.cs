@@ -7,9 +7,9 @@ using AutoMapper;
 using OMP.Connector.Domain;
 using OMP.Connector.Domain.Models.OpcUa.Attributes;
 using OMP.Connector.Domain.OpcUa;
-using Omp.Connector.Domain.Schema.Interfaces;
-using Omp.Connector.Domain.Schema.SensorTelemetry;
-using Omp.Connector.Domain.Schema.SensorTelemetry.PrimitiveTypes.Base;
+using OMP.Connector.Domain.Schema.Interfaces;
+using OMP.Connector.Domain.Schema.SensorTelemetry;
+using OMP.Connector.Domain.Schema.SensorTelemetry.PrimitiveTypes.Base;
 using Opc.Ua;
 
 namespace OMP.Connector.Application.OpcUa

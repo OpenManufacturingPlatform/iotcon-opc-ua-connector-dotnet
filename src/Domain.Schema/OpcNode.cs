@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace Omp.Connector.Domain.Schema
+namespace OMP.Connector.Domain.Schema
 {
     public class OpcNode
     {

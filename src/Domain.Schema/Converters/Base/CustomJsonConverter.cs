@@ -2,7 +2,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace Omp.Connector.Domain.Schema.Converters.Base
+namespace OMP.Connector.Domain.Schema.Converters.Base
 {
     public abstract class CustomJsonConverter<TType> : JsonConverter where TType : class
     {

@@ -1,8 +1,8 @@
 ﻿using System;
-using Omp.Connector.Domain.Schema.Extentions;
-using Omp.Connector.Domain.Schema.Interfaces;
+using OMP.Connector.Domain.Schema.Extentions;
+using OMP.Connector.Domain.Schema.Interfaces;
 
-namespace Omp.Connector.Domain.Schema.Factories
+namespace OMP.Connector.Domain.Schema.Factories
 {
     public class ModelFactory
     {

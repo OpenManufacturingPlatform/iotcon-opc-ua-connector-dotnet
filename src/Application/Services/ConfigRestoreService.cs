@@ -11,15 +11,15 @@ using OMP.Connector.Domain.Configuration;
 using OMP.Connector.Domain.Extensions;
 using OMP.Connector.Domain.Models;
 using OMP.Connector.Domain.OpcUa;
-using Omp.Connector.Domain.Schema;
-using Omp.Connector.Domain.Schema.Enums;
-using Omp.Connector.Domain.Schema.Factories;
-using Omp.Connector.Domain.Schema.Interfaces;
-using Omp.Connector.Domain.Schema.Messages;
-using Omp.Connector.Domain.Schema.MetaData.Message;
-using Omp.Connector.Domain.Schema.Request;
-using Omp.Connector.Domain.Schema.Request.Subscription;
-using Omp.Connector.Domain.Schema.Responses.Subscription;
+using OMP.Connector.Domain.Schema;
+using OMP.Connector.Domain.Schema.Enums;
+using OMP.Connector.Domain.Schema.Factories;
+using OMP.Connector.Domain.Schema.Interfaces;
+using OMP.Connector.Domain.Schema.MetaData.Message;
+using OMP.Connector.Domain.Schema.Request;
+using OMP.Connector.Domain.Schema.Request.Subscription;
+using OMP.Connector.Domain.Schema.Responses.Subscription;
+using OMP.Connector.Domain.Schema.Messages;
 
 namespace OMP.Connector.Application.Services
 {

@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using AutoMapper;
 using OMP.Connector.Domain.Models.OpcUa.Attributes;
 using OMP.Connector.Domain.OpcUa;
-using Omp.Connector.Domain.Schema;
-using Omp.Connector.Domain.Schema.Enums;
-using Omp.Connector.Domain.Schema.Factories;
-using Omp.Connector.Domain.Schema.MetaData.Message;
-using Omp.Connector.Domain.Schema.SensorTelemetry;
+using OMP.Connector.Domain.Schema;
+using OMP.Connector.Domain.Schema.Enums;
+using OMP.Connector.Domain.Schema.Factories;
+using OMP.Connector.Domain.Schema.MetaData.Message;
+using OMP.Connector.Domain.Schema.SensorTelemetry;
 
 namespace OMP.Connector.Application.OpcUa
 {

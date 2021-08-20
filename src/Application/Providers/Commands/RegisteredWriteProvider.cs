@@ -4,7 +4,7 @@ using AutoMapper;
 using Microsoft.Extensions.Logging;
 using OMP.Connector.Domain.OpcUa;
 using Opc.Ua;
-using WriteRequest = Omp.Connector.Domain.Schema.Request.Control.WriteRequest;
+using WriteRequest =OMP.Connector.Domain.Schema.Request.Control.WriteRequest;
 
 namespace OMP.Connector.Application.Providers.Commands
 {

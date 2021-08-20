@@ -1,11 +1,11 @@
 ﻿using System.ComponentModel;
 using Newtonsoft.Json;
-using Omp.Connector.Domain.Schema.Attributes.Examples;
-using Omp.Connector.Domain.Schema.Attributes.Regex;
-using Omp.Connector.Domain.Schema.Interfaces;
-using Omp.Connector.Domain.Schema.MetaData.Message;
+using OMP.Connector.Domain.Schema.Attributes.Examples;
+using OMP.Connector.Domain.Schema.Attributes.Regex;
+using OMP.Connector.Domain.Schema.Interfaces;
+using OMP.Connector.Domain.Schema.MetaData.Message;
 
-namespace Omp.Connector.Domain.Schema.Base
+namespace OMP.Connector.Domain.Schema.Base
 {
     public abstract class Message<TPayload> : Model<MessageMetaData>, IMessage
     {

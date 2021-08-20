@@ -4,8 +4,8 @@ using AutoMapper;
 using Microsoft.Extensions.Logging;
 using OMP.Connector.Application.Providers.Commands.Base;
 using OMP.Connector.Domain.OpcUa;
-using Omp.Connector.Domain.Schema.Request.Control;
-using Omp.Connector.Domain.Schema.Responses.Control;
+using OMP.Connector.Domain.Schema.Request.Control;
+using OMP.Connector.Domain.Schema.Responses.Control;
 
 namespace OMP.Connector.Application.Providers.Commands
 {

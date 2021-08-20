@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using OMP.Connector.Application.Extensions;
-using Omp.Connector.Domain.Schema;
-using Omp.Connector.Domain.Schema.Enums;
-using Omp.Connector.Domain.Schema.Factories;
-using Omp.Connector.Domain.Schema.Interfaces;
-using Omp.Connector.Domain.Schema.Messages;
-using Omp.Connector.Domain.Schema.MetaData.Message;
-using Omp.Connector.Domain.Schema.Responses;
+using OMP.Connector.Domain.Schema;
+using OMP.Connector.Domain.Schema.Enums;
+using OMP.Connector.Domain.Schema.Factories;
+using OMP.Connector.Domain.Schema.Interfaces;
+using OMP.Connector.Domain.Schema.Messages;
+using OMP.Connector.Domain.Schema.MetaData.Message;
+using OMP.Connector.Domain.Schema.Responses;
+using OMP.Connector.Domain.Schema.Messages;
 
 namespace OMP.Connector.Application.OpcUa
 {
@@ -101,7 +102,7 @@ namespace OMP.Connector.Application.OpcUa
         {
             if (commandResponses is null || !commandResponses.Any()) return OpcUaResponseStatus.Bad;
             return commandResponses.All(response =>
-                (response as Omp.Connector.Domain.Schema.Responses.Base.CommandResponse).StatusIsGood())
+                (response as OMP.Connector.Domain.Schema.Responses.Base.CommandResponse).StatusIsGood())
                 ? OpcUaResponseStatus.Good
                 : OpcUaResponseStatus.Bad;
         }

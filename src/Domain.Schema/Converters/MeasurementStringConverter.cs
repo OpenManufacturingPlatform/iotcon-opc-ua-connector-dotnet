@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel;
 using System.Globalization;
-using Omp.Connector.Domain.Schema.SensorTelemetry;
+using OMP.Connector.Domain.Schema.SensorTelemetry;
 
-namespace Omp.Connector.Domain.Schema.Converters
+namespace OMP.Connector.Domain.Schema.Converters
 {
     public class MeasurementStringConverter : TypeConverter
     {

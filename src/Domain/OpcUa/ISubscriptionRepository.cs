@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using OMP.Connector.Domain.Models;
-using Omp.Connector.Domain.Schema;
+using OMP.Connector.Domain.Schema;
 
 namespace OMP.Connector.Domain.OpcUa
 {

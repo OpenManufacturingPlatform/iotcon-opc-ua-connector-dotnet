@@ -1,7 +1,7 @@
 ﻿
-using Omp.Connector.Domain.Schema.Enums;
+using OMP.Connector.Domain.Schema.Enums;
 
-namespace Omp.Connector.Domain.Schema.Abstraction.Relations
+namespace OMP.Connector.Domain.Schema.Abstraction.Relations
 {
     public class AllowedRelation
     {

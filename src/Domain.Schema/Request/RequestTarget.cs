@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using Newtonsoft.Json;
 
-namespace Omp.Connector.Domain.Schema.Request
+namespace OMP.Connector.Domain.Schema.Request
 {
     public class RequestTarget
     {

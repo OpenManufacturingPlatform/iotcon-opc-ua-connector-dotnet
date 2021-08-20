@@ -10,11 +10,11 @@ using OMP.Connector.Application.Providers.Commands.Base;
 using OMP.Connector.Domain.Configuration;
 using OMP.Connector.Domain.Extensions;
 using OMP.Connector.Domain.OpcUa;
-using Omp.Connector.Domain.Schema.Enums;
-using Omp.Connector.Domain.Schema.SensorTelemetry;
+using OMP.Connector.Domain.Schema.Enums;
+using OMP.Connector.Domain.Schema.SensorTelemetry;
 using Opc.Ua;
-using ReadRequest = Omp.Connector.Domain.Schema.Request.Control.ReadRequest;
-using ReadResponse = Omp.Connector.Domain.Schema.Responses.Control.ReadResponse;
+using ReadRequest =OMP.Connector.Domain.Schema.Request.Control.ReadRequest;
+using ReadResponse =OMP.Connector.Domain.Schema.Responses.Control.ReadResponse;
 
 namespace OMP.Connector.Application.Providers.Commands
 {

@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel;
-using Omp.Connector.Domain.Schema.Base;
-using Omp.Connector.Domain.Schema.Request;
+using OMP.Connector.Domain.Schema.Base;
+using OMP.Connector.Domain.Schema.Request;
 
-namespace Omp.Connector.Domain.Schema.Messages
+namespace OMP.Connector.Domain.Schema.Messages
 {
     [Description("Definition of OPC UA Command Request")]
     public class CommandRequest : Message<RequestPayload> { }

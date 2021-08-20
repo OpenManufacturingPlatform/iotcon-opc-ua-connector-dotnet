@@ -1,6 +1,6 @@
 ﻿using NJsonSchema.Annotations;
 
-namespace Omp.Connector.Domain.Schema.Attributes
+namespace OMP.Connector.Domain.Schema.Attributes
 {
     public class JsonSchemaSchemaAttribute : JsonSchemaExtensionDataAttribute
     {

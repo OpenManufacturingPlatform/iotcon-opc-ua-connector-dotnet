@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Omp.Connector.Domain.Schema.Interfaces
+namespace OMP.Connector.Domain.Schema.Interfaces
 {
     public interface IPrimitiveArray
     {

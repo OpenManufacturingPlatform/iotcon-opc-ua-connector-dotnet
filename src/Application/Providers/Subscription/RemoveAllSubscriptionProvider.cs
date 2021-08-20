@@ -8,9 +8,9 @@ using OMP.Connector.Application.Providers.Subscription.Base;
 using OMP.Connector.Domain.Configuration;
 using OMP.Connector.Domain.Extensions;
 using OMP.Connector.Domain.OpcUa;
-using Omp.Connector.Domain.Schema.Enums;
-using Omp.Connector.Domain.Schema.Request.Subscription;
-using Omp.Connector.Domain.Schema.Responses.Subscription;
+using OMP.Connector.Domain.Schema.Enums;
+using OMP.Connector.Domain.Schema.Request.Subscription;
+using OMP.Connector.Domain.Schema.Responses.Subscription;
 
 namespace OMP.Connector.Application.Providers.Subscription
 {

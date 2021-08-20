@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel;
 using System.Globalization;
-using Omp.Connector.Domain.Schema.Request.Control.WriteValues;
+using OMP.Connector.Domain.Schema.Request.Control.WriteValues;
 
-namespace Omp.Connector.Domain.Schema.Converters
+namespace OMP.Connector.Domain.Schema.Converters
 {
     public class WriteRequestStringValueConverter : TypeConverter
     {

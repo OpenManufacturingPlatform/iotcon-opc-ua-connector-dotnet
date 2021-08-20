@@ -1,7 +1,7 @@
 ﻿using NJsonSchema.Annotations;
-using Omp.Connector.Domain.Schema.Constants;
+using OMP.Connector.Domain.Schema.Constants;
 
-namespace Omp.Connector.Domain.Schema.Attributes
+namespace OMP.Connector.Domain.Schema.Attributes
 {
     public class TimeStampAttribute : JsonSchemaExtensionDataAttribute
     {

@@ -2,8 +2,8 @@
 using FluentValidation;
 using Microsoft.Extensions.Options;
 using OMP.Connector.Domain.Configuration;
-using Omp.Connector.Domain.Schema;
-using Omp.Connector.Domain.Schema.Messages;
+using OMP.Connector.Domain.Schema;
+using OMP.Connector.Domain.Schema.Messages;
 
 namespace OMP.Connector.Application.Validators
 {

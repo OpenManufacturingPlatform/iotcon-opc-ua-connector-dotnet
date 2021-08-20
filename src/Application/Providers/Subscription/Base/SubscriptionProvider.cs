@@ -10,9 +10,9 @@ using OMP.Connector.Domain;
 using OMP.Connector.Domain.Configuration;
 using OMP.Connector.Domain.Extensions;
 using OMP.Connector.Domain.Providers;
-using Omp.Connector.Domain.Schema;
-using Omp.Connector.Domain.Schema.Interfaces;
-using Omp.Connector.Domain.Schema.Request.Subscription.Base;
+using OMP.Connector.Domain.Schema;
+using OMP.Connector.Domain.Schema.Interfaces;
+using OMP.Connector.Domain.Schema.Request.Subscription.Base;
 using Opc.Ua.Client;
 
 namespace OMP.Connector.Application.Providers.Subscription.Base

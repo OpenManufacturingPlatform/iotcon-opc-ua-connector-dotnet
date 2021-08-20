@@ -6,8 +6,8 @@ using OMP.Connector.Domain.Configuration;
 using OMP.Connector.Domain.Models.Telemetry;
 using OMP.Connector.Domain.OpcUa;
 using OMP.Connector.Domain.Providers;
-using Omp.Connector.Domain.Schema.Interfaces;
-using Omp.Connector.Domain.Schema.Request.Subscription;
+using OMP.Connector.Domain.Schema.Interfaces;
+using OMP.Connector.Domain.Schema.Request.Subscription;
 
 namespace OMP.Connector.Application.Factories
 {

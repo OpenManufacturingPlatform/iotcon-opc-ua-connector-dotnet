@@ -2,10 +2,10 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
-using Omp.Connector.Domain.Schema.Converters;
-using Omp.Connector.Domain.Schema.Interfaces;
+using OMP.Connector.Domain.Schema.Converters;
+using OMP.Connector.Domain.Schema.Interfaces;
 
-namespace Omp.Connector.Domain.Schema.SensorTelemetry
+namespace OMP.Connector.Domain.Schema.SensorTelemetry
 {
     [Description("Sensor measurement")]
     public class SensorMeasurement : ISensorTelemetryPayloadData, IMeasurementValue

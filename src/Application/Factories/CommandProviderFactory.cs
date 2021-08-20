@@ -8,8 +8,8 @@ using OMP.Connector.Application.Providers.Commands;
 using OMP.Connector.Domain.Configuration;
 using OMP.Connector.Domain.OpcUa;
 using OMP.Connector.Domain.Providers.Commands;
-using Omp.Connector.Domain.Schema.Interfaces;
-using Omp.Connector.Domain.Schema.Request.Control;
+using OMP.Connector.Domain.Schema.Interfaces;
+using OMP.Connector.Domain.Schema.Request.Control;
 
 namespace OMP.Connector.Application.Factories
 {

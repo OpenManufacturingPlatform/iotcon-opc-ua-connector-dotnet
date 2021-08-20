@@ -1,7 +1,7 @@
 ﻿using System.Linq;
-using Omp.Connector.Domain.Schema;
-using Omp.Connector.Domain.Schema.Enums;
-using Omp.Connector.Domain.Schema.Messages;
+using OMP.Connector.Domain.Schema;
+using OMP.Connector.Domain.Schema.Enums;
+using OMP.Connector.Domain.Schema.Messages;
 
 namespace OMP.Connector.Domain.Models.Telemetry
 {

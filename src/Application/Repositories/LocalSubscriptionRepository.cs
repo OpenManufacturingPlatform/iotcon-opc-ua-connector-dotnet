@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using OMP.Connector.Domain.Models;
 using OMP.Connector.Domain.OpcUa;
-using Omp.Connector.Domain.Schema;
+using OMP.Connector.Domain.Schema;
 
 namespace OMP.Connector.Application.Repositories
 {

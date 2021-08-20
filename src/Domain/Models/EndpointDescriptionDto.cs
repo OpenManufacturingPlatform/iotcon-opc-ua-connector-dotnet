@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using Newtonsoft.Json;
-using Omp.Connector.Domain.Schema;
+using OMP.Connector.Domain.Schema;
 
 namespace OMP.Connector.Domain.Models
 {

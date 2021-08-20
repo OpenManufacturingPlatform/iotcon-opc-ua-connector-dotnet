@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
-using Omp.Connector.Domain.Schema.Attributes.Examples;
-using Omp.Connector.Domain.Schema.Interfaces;
+using OMP.Connector.Domain.Schema.Attributes.Examples;
+using OMP.Connector.Domain.Schema.Interfaces;
 
-namespace Omp.Connector.Domain.Schema.MetaData.Message
+namespace OMP.Connector.Domain.Schema.MetaData.Message
 {
     public class MessageMetaData : IMetaData
     {

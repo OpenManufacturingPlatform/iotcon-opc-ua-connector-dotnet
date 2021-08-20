@@ -1,4 +1,4 @@
-﻿namespace Omp.Connector.Domain.Schema.Extentions
+﻿namespace OMP.Connector.Domain.Schema.Extentions
 {
     public static class StringExtensions
     {

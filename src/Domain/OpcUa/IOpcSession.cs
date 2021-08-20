@@ -4,8 +4,8 @@ using System.Threading.Tasks;
 using OMP.Connector.Domain.Models.Command.Requests.Basic.NodeCommands;
 using Opc.Ua;
 using Opc.Ua.Client;
-using BrowseRequest = Omp.Connector.Domain.Schema.Request.Control.BrowseRequest;
-using BrowseResponse = Omp.Connector.Domain.Schema.Responses.Control.BrowseResponse;
+using BrowseRequest = OMP.Connector.Domain.Schema.Request.Control.BrowseRequest;
+using BrowseResponse = OMP.Connector.Domain.Schema.Responses.Control.BrowseResponse;
 
 namespace OMP.Connector.Domain.OpcUa
 {

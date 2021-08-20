@@ -11,12 +11,12 @@ using OMP.Connector.Domain.Models;
 using OMP.Connector.Domain.Models.Telemetry;
 using OMP.Connector.Domain.OpcUa;
 using OMP.Connector.Domain.OpcUa.Services;
-using Omp.Connector.Domain.Schema.Enums;
-using Omp.Connector.Domain.Schema.Factories;
-using Omp.Connector.Domain.Schema.Interfaces;
-using Omp.Connector.Domain.Schema.Messages;
-using Omp.Connector.Domain.Schema.Request;
-using Omp.Connector.Domain.Schema.Request.Subscription;
+using OMP.Connector.Domain.Schema.Enums;
+using OMP.Connector.Domain.Schema.Factories;
+using OMP.Connector.Domain.Schema.Interfaces;
+using OMP.Connector.Domain.Schema.Request;
+using OMP.Connector.Domain.Schema.Request.Subscription;
+using OMP.Connector.Domain.Schema.Messages;
 
 namespace OMP.Connector.Application.Services
 {

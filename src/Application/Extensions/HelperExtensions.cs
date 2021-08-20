@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
 using OMP.Connector.Domain;
-using Omp.Connector.Domain.Schema.Messages;
 using Opc.Ua.Client;
+using OMP.Connector.Domain.Schema.Messages;
 
 namespace OMP.Connector.Application.Extensions
 {

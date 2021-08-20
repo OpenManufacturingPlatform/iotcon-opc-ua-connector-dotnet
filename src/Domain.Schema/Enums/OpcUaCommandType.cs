@@ -2,7 +2,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace Omp.Connector.Domain.Schema.Enums
+namespace OMP.Connector.Domain.Schema.Enums
 {
     [JsonConverter(typeof(StringEnumConverter))]
     public enum OpcUaCommandType

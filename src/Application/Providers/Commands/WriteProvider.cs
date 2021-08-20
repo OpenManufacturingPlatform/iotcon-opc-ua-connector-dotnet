@@ -8,10 +8,10 @@ using OMP.Connector.Application.Providers.Commands.Base;
 using OMP.Connector.Domain.Extensions;
 using OMP.Connector.Domain.Models.Command.Requests.Basic.NodeCommands;
 using OMP.Connector.Domain.OpcUa;
-using Omp.Connector.Domain.Schema.Enums;
+using OMP.Connector.Domain.Schema.Enums;
 using Opc.Ua;
-using WriteRequest = Omp.Connector.Domain.Schema.Request.Control.WriteRequest;
-using WriteResponse = Omp.Connector.Domain.Schema.Responses.Control.WriteResponse;
+using WriteRequest =OMP.Connector.Domain.Schema.Request.Control.WriteRequest;
+using WriteResponse =OMP.Connector.Domain.Schema.Responses.Control.WriteResponse;
 
 namespace OMP.Connector.Application.Providers.Commands
 {

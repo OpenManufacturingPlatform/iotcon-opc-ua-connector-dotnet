@@ -2,7 +2,7 @@
 using System.Linq;
 using Newtonsoft.Json;
 
-namespace Omp.Connector.Domain.Schema.Extentions
+namespace OMP.Connector.Domain.Schema.Extentions
 {
     public static class PropertyNameHelper
     {

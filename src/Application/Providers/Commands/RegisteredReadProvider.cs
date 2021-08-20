@@ -6,7 +6,7 @@ using Microsoft.Extensions.Options;
 using OMP.Connector.Domain.Configuration;
 using OMP.Connector.Domain.OpcUa;
 using Opc.Ua;
-using ReadRequest = Omp.Connector.Domain.Schema.Request.Control.ReadRequest;
+using ReadRequest =OMP.Connector.Domain.Schema.Request.Control.ReadRequest;
 
 namespace OMP.Connector.Application.Providers.Commands
 {

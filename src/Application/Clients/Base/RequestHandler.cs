@@ -14,11 +14,12 @@ using OMP.Connector.Domain.Configuration;
 using OMP.Connector.Domain.Enums;
 using OMP.Connector.Domain.Extensions;
 using OMP.Connector.Domain.OpcUa;
-using Omp.Connector.Domain.Schema.Interfaces;
-using Omp.Connector.Domain.Schema.Messages;
-using Omp.Connector.Domain.Schema.Request.Control.Base;
-using Omp.Connector.Domain.Schema.Request.Discovery.Base;
-using Omp.Connector.Domain.Schema.Request.Subscription.Base;
+using OMP.Connector.Domain.Schema.Interfaces;
+using OMP.Connector.Domain.Schema.Messages;
+using OMP.Connector.Domain.Schema.Request.Control.Base;
+using OMP.Connector.Domain.Schema.Request.Discovery.Base;
+using OMP.Connector.Domain.Schema.Request.Subscription.Base;
+using OMP.Connector.Domain.Schema.Messages;
 
 namespace OMP.Connector.Application.Clients.Base
 {

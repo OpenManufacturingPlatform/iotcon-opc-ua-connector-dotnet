@@ -1,6 +1,6 @@
-﻿using Omp.Connector.Domain.Schema.Responses.Base;
+﻿using OMP.Connector.Domain.Schema.Responses.Base;
 
-namespace Omp.Connector.Domain.Schema.Responses.Subscription
+namespace OMP.Connector.Domain.Schema.Responses.Subscription
 {
     public class RemoveSubscriptionsResponse : CommandResponse {}
 }

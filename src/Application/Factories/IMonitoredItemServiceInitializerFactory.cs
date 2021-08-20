@@ -1,6 +1,6 @@
 ﻿using OMP.Connector.Domain;
 using OMP.Connector.Domain.Models.Telemetry;
-using Omp.Connector.Domain.Schema;
+using OMP.Connector.Domain.Schema;
 using Opc.Ua.Client;
 
 namespace OMP.Connector.Application.Factories

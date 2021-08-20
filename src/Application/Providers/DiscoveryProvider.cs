@@ -10,7 +10,7 @@ using OMP.Connector.Domain.Extensions;
 using OMP.Connector.Domain.Models.OpcUa;
 using OMP.Connector.Domain.OpcUa;
 using OMP.Connector.Domain.Providers;
-using Omp.Connector.Domain.Schema.Request.Discovery;
+using OMP.Connector.Domain.Schema.Request.Discovery;
 using Opc.Ua;
 using Opc.Ua.Client;
 

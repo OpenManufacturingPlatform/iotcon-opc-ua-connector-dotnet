@@ -1,4 +1,4 @@
-﻿namespace Omp.Connector.Domain.Schema.Attributes.Examples
+﻿namespace OMP.Connector.Domain.Schema.Attributes.Examples
 {
     public class NamespaceExamplesAttribute : ExampleAttribute
     {

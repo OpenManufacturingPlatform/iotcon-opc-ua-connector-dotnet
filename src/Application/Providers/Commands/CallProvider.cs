@@ -8,11 +8,11 @@ using OMP.Connector.Application.OpcUa;
 using OMP.Connector.Application.Providers.Commands.Base;
 using OMP.Connector.Domain.Extensions;
 using OMP.Connector.Domain.OpcUa;
-using Omp.Connector.Domain.Schema;
-using Omp.Connector.Domain.Schema.Enums;
+using OMP.Connector.Domain.Schema;
+using OMP.Connector.Domain.Schema.Enums;
 using Opc.Ua;
-using CallRequest = Omp.Connector.Domain.Schema.Request.Control.CallRequest;
-using CallResponse = Omp.Connector.Domain.Schema.Responses.Control.CallResponse;
+using CallRequest =OMP.Connector.Domain.Schema.Request.Control.CallRequest;
+using CallResponse =OMP.Connector.Domain.Schema.Responses.Control.CallResponse;
 
 namespace OMP.Connector.Application.Providers.Commands
 {

@@ -1,10 +1,10 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Omp.Connector.Domain.Schema.Converters.Base;
-using Omp.Connector.Domain.Schema.Extentions;
-using Omp.Connector.Domain.Schema.SensorTelemetry;
+using OMP.Connector.Domain.Schema.Converters.Base;
+using OMP.Connector.Domain.Schema.Extentions;
+using OMP.Connector.Domain.Schema.SensorTelemetry;
 
-namespace Omp.Connector.Domain.Schema.Converters
+namespace OMP.Connector.Domain.Schema.Converters
 {
     public class SensorPayloadConverter : CustomJsonConverter<SensorTelemetryPayload>
     {
