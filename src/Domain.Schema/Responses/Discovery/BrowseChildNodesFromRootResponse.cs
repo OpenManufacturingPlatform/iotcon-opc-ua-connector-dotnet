@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
 using Newtonsoft.Json;
-using Omp.Connector.Domain.Schema.Responses.Discovery.Base;
+using OMP.Connector.Domain.Schema.Responses.Discovery.Base;
 
-namespace Omp.Connector.Domain.Schema.Responses.Discovery
+namespace OMP.Connector.Domain.Schema.Responses.Discovery
 {
     public class BrowseChildNodesFromRootResponse: DiscoveryResponse
     {

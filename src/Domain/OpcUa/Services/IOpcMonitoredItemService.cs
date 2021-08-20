@@ -1,6 +1,6 @@
 ﻿using System;
 using OMP.Connector.Domain.Models.Telemetry;
-using Omp.Connector.Domain.Schema;
+using OMP.Connector.Domain.Schema;
 
 namespace OMP.Connector.Domain.OpcUa.Services
 {

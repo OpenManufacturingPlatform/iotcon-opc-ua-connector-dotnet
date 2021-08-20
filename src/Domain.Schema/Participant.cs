@@ -1,10 +1,10 @@
 ﻿using System.ComponentModel;
 using Newtonsoft.Json;
-using Omp.Connector.Domain.Schema.Attributes.Examples;
-using Omp.Connector.Domain.Schema.Attributes.Regex;
-using Omp.Connector.Domain.Schema.Enums;
+using OMP.Connector.Domain.Schema.Attributes.Examples;
+using OMP.Connector.Domain.Schema.Attributes.Regex;
+using OMP.Connector.Domain.Schema.Enums;
 
-namespace Omp.Connector.Domain.Schema
+namespace OMP.Connector.Domain.Schema
 {
     public class Participant
     {

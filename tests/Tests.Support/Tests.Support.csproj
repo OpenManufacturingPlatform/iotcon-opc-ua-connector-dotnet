@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <IsPackable>false</IsPackable>
+    <AssemblyName>OMP.Connector.$(MSBuildProjectName)</AssemblyName>
+    <RootNamespace>OMP.Connector.$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NSubstitute" Version="4.2.2" />
+    <PackageReference Include="OPCFoundation.NetStandard.Opc.Ua" Version="1.4.366.38" />
+  </ItemGroup>
+
+</Project>

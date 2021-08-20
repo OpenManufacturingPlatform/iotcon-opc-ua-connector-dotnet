@@ -1,4 +1,4 @@
-﻿namespace Omp.Connector.Domain.Schema.Constants
+﻿namespace OMP.Connector.Domain.Schema.Constants
 {
     public class RegexConstants
     {

@@ -1,10 +1,10 @@
 ﻿using System.ComponentModel;
 using Newtonsoft.Json;
-using Omp.Connector.Domain.Schema.Converters;
-using Omp.Connector.Domain.Schema.Interfaces;
-using Omp.Connector.Domain.Schema.Request.Control.Base;
+using OMP.Connector.Domain.Schema.Converters;
+using OMP.Connector.Domain.Schema.Interfaces;
+using OMP.Connector.Domain.Schema.Request.Control.Base;
 
-namespace Omp.Connector.Domain.Schema.Request.Control
+namespace OMP.Connector.Domain.Schema.Request.Control
 {
     public class WriteRequest : NodeCommandRequest
     {

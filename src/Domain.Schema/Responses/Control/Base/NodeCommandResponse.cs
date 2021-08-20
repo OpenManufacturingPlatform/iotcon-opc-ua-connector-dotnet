@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel;
 using Newtonsoft.Json;
-using Omp.Connector.Domain.Schema.Responses.Base;
+using OMP.Connector.Domain.Schema.Responses.Base;
 
-namespace Omp.Connector.Domain.Schema.Responses.Control.Base
+namespace OMP.Connector.Domain.Schema.Responses.Control.Base
 {
     public abstract class NodeCommandResponse : CommandResponse
     {

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using Omp.Connector.Domain.Schema.Abstraction.Relations;
+using OMP.Connector.Domain.Schema.Abstraction.Relations;
 
-namespace Omp.Connector.Domain.Schema.Interfaces
+namespace OMP.Connector.Domain.Schema.Interfaces
 {
     public interface IBusinessObject : IModel
     {

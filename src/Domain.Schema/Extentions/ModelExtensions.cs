@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
-using Omp.Connector.Domain.Schema.Interfaces;
+using OMP.Connector.Domain.Schema.Interfaces;
 
-namespace Omp.Connector.Domain.Schema.Extentions
+namespace OMP.Connector.Domain.Schema.Extentions
 {
     public static class ModelExtensions
     {

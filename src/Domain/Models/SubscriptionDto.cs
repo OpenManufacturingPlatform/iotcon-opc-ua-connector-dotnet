@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using Newtonsoft.Json;
-using Omp.Connector.Domain.Schema;
-using Omp.Connector.Domain.Schema.Attributes.Examples;
-using Omp.Connector.Domain.Schema.Attributes.Regex;
+using OMP.Connector.Domain.Schema;
+using OMP.Connector.Domain.Schema.Attributes.Examples;
+using OMP.Connector.Domain.Schema.Attributes.Regex;
 
 namespace OMP.Connector.Domain.Models
 {

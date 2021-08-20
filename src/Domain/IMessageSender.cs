@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using OMP.Connector.Domain.Models;
-using Omp.Connector.Domain.Schema.Messages;
-using Omp.Connector.Domain.Schema.SensorTelemetry;
+using OMP.Connector.Domain.Schema.Messages;
+using OMP.Connector.Domain.Schema.SensorTelemetry;
 
 namespace OMP.Connector.Domain
 {

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using Omp.Connector.Domain.Schema.Request.Control.WriteValues.PrimitiveTypes.Base;
+using OMP.Connector.Domain.Schema.Request.Control.WriteValues.PrimitiveTypes.Base;
 
-namespace Omp.Connector.Domain.Schema.Request.Control.WriteValues.PrimitiveTypes
+namespace OMP.Connector.Domain.Schema.Request.Control.WriteValues.PrimitiveTypes
 {
     public class WriteRequestBoolArray : WriteRequestPrimitiveArray<bool>
     {

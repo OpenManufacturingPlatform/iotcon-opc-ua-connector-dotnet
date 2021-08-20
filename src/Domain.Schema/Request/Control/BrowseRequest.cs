@@ -1,6 +1,6 @@
-﻿using Omp.Connector.Domain.Schema.Request.Control.Base;
+﻿using OMP.Connector.Domain.Schema.Request.Control.Base;
 
-namespace Omp.Connector.Domain.Schema.Request.Control
+namespace OMP.Connector.Domain.Schema.Request.Control
 {
     public class BrowseRequest : NodeCommandRequest { }
 }

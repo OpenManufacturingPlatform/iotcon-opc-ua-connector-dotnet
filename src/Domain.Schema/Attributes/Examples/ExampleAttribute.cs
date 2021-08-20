@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using NJsonSchema.Annotations;
 
-namespace Omp.Connector.Domain.Schema.Attributes.Examples
+namespace OMP.Connector.Domain.Schema.Attributes.Examples
 {
     public abstract class ExampleAttribute : JsonSchemaExtensionDataAttribute
     {

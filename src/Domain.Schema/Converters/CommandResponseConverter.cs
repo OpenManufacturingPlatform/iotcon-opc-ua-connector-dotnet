@@ -1,15 +1,15 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Omp.Connector.Domain.Schema.Converters.Base;
-using Omp.Connector.Domain.Schema.Enums;
-using Omp.Connector.Domain.Schema.Extentions;
-using Omp.Connector.Domain.Schema.Interfaces;
-using Omp.Connector.Domain.Schema.Responses.Base;
-using Omp.Connector.Domain.Schema.Responses.Control;
-using Omp.Connector.Domain.Schema.Responses.Discovery;
-using Omp.Connector.Domain.Schema.Responses.Subscription;
+using OMP.Connector.Domain.Schema.Converters.Base;
+using OMP.Connector.Domain.Schema.Enums;
+using OMP.Connector.Domain.Schema.Extentions;
+using OMP.Connector.Domain.Schema.Interfaces;
+using OMP.Connector.Domain.Schema.Responses.Base;
+using OMP.Connector.Domain.Schema.Responses.Control;
+using OMP.Connector.Domain.Schema.Responses.Discovery;
+using OMP.Connector.Domain.Schema.Responses.Subscription;
 
-namespace Omp.Connector.Domain.Schema.Converters
+namespace OMP.Connector.Domain.Schema.Converters
 {
     public class CommandResponseConverter : CustomJsonConverter<ICommandResponse>
     {

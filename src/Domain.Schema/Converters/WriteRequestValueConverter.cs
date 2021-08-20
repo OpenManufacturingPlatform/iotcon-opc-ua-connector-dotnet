@@ -1,12 +1,12 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Omp.Connector.Domain.Schema.Converters.Base;
-using Omp.Connector.Domain.Schema.Helpers;
-using Omp.Connector.Domain.Schema.Interfaces;
-using Omp.Connector.Domain.Schema.Request.Control.WriteValues;
-using Omp.Connector.Domain.Schema.Request.Control.WriteValues.PrimitiveTypes.Base;
+using OMP.Connector.Domain.Schema.Converters.Base;
+using OMP.Connector.Domain.Schema.Helpers;
+using OMP.Connector.Domain.Schema.Interfaces;
+using OMP.Connector.Domain.Schema.Request.Control.WriteValues;
+using OMP.Connector.Domain.Schema.Request.Control.WriteValues.PrimitiveTypes.Base;
 
-namespace Omp.Connector.Domain.Schema.Converters
+namespace OMP.Connector.Domain.Schema.Converters
 {
     public class WriteRequestValueConverter : CustomJsonConverter<IWriteRequestValue>
     {

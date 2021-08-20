@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using Newtonsoft.Json;
 
-namespace Omp.Connector.Domain.Schema.Base
+namespace OMP.Connector.Domain.Schema.Base
 {
     public abstract class Source
     {

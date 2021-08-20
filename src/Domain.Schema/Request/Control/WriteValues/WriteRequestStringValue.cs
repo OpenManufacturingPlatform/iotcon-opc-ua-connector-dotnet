@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel;
-using Omp.Connector.Domain.Schema.Converters;
-using Omp.Connector.Domain.Schema.Interfaces;
+using OMP.Connector.Domain.Schema.Converters;
+using OMP.Connector.Domain.Schema.Interfaces;
 
-namespace Omp.Connector.Domain.Schema.Request.Control.WriteValues
+namespace OMP.Connector.Domain.Schema.Request.Control.WriteValues
 {
     [TypeConverter(typeof(WriteRequestStringValueConverter))]
     public class WriteRequestStringValue : IWriteRequestValue

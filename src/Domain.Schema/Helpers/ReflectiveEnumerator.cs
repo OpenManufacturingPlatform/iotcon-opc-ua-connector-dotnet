@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace Omp.Connector.Domain.Schema.Helpers
+namespace OMP.Connector.Domain.Schema.Helpers
 {
     public static class ReflectiveEnumerator
     {

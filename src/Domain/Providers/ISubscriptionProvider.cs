@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using Omp.Connector.Domain.Schema.Interfaces;
+using OMP.Connector.Domain.Schema.Interfaces;
 using Opc.Ua.Client;
 
 namespace OMP.Connector.Domain.Providers

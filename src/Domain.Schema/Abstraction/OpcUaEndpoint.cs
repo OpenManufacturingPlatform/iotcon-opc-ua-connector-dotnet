@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using Newtonsoft.Json;
 
-namespace Omp.Connector.Domain.Schema.Abstraction
+namespace OMP.Connector.Domain.Schema.Abstraction
 {
     public class OpcUaEndpoint
     {

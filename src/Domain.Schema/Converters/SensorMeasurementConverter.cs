@@ -1,12 +1,12 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Omp.Connector.Domain.Schema.Converters.Base;
-using Omp.Connector.Domain.Schema.Helpers;
-using Omp.Connector.Domain.Schema.Interfaces;
-using Omp.Connector.Domain.Schema.SensorTelemetry;
-using Omp.Connector.Domain.Schema.SensorTelemetry.PrimitiveTypes.Base;
+using OMP.Connector.Domain.Schema.Converters.Base;
+using OMP.Connector.Domain.Schema.Helpers;
+using OMP.Connector.Domain.Schema.Interfaces;
+using OMP.Connector.Domain.Schema.SensorTelemetry;
+using OMP.Connector.Domain.Schema.SensorTelemetry.PrimitiveTypes.Base;
 
-namespace Omp.Connector.Domain.Schema.Converters
+namespace OMP.Connector.Domain.Schema.Converters
 {
     public class SensorMeasurementConverter : CustomJsonConverter<IMeasurementValue>
     {

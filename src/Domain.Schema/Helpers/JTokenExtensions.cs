@@ -1,7 +1,7 @@
 ﻿using System;
 using Newtonsoft.Json.Linq;
 
-namespace Omp.Connector.Domain.Schema.Helpers
+namespace OMP.Connector.Domain.Schema.Helpers
 {
     public static class JTokenExtensions
     {

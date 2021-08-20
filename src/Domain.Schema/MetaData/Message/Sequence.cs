@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using Newtonsoft.Json;
 
-namespace Omp.Connector.Domain.Schema.MetaData.Message
+namespace OMP.Connector.Domain.Schema.MetaData.Message
 {
     public class Sequence
     {
