@@ -1,10 +1,17 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
-    <AssemblyName>OMP.OpcUa.Connector.$(MSBuildProjectName)</AssemblyName>
-    <RootNamespace>OMP.OpcUa.Connector.$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>OMP.Connector.$(MSBuildProjectName)</AssemblyName>
+    <RootNamespace>OMP.Connector.$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="States\**" />
+    <EmbeddedResource Remove="States\**" />
+    <None Remove="States\**" />
+  </ItemGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -16,6 +23,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Domain\Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="10.1.1" />
+    <PackageReference Include="FluentValidation" Version="10.3.1" />
+    <PackageReference Include="OPCFoundation.NetStandard.Opc.Ua" Version="1.4.366.38" />
   </ItemGroup>
 
 </Project>
