@@ -1,0 +1,34 @@
+site:
+  title: OPC UA Connector
+  url: https://openmanufacturingplatform.github.io/iotcon-opc-ua-connector-dotnet/
+  start_page: specification::index.adoc
+content:
+  sources:
+    - url: .
+      branches: HEAD
+      start_path: src
+      tags: '*'
+ui:
+  bundle:
+    url: https://github.com/OpenManufacturingPlatform/sds-antora-ui/releases/download/v1.0.0/sds-antora-ui-bundle-1.0.0.zip
+    snapshot: true
+  supplemental_files:
+  - path: ui.yml
+    contents: |
+      static_files: [ .nojekyll ]
+  - path: .nojekyll
+runtime:
+  cache_dir: ./.cache/antora
+asciidoc:
+  attributes:
+    doctype: book
+    sectanchors: true
+    idprefix: ''
+    idseparator: '-'
+    stem: 'asciimath'
+    ok: 'icon:check-circle[role="green",size="2x"]'
+    nok: 'icon:times-circle[role="red",size="2x"]'
+    opc-ua-connector-version: 1.0.0@
+    opc-ua-connector-full-name: OPC UA Connector
+    omp: Open Manufacturing Platform
+    omp-abbr: OMP

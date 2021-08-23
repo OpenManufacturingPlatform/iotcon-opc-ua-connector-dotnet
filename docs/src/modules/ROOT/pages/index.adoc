@@ -1,0 +1,37 @@
+////
+Copyright (c) 2021 BMW Group
+
+See the AUTHORS file(s) distributed with this work for additional information regarding authorship. 
+
+This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
+If a copy of the MPL was not distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/
+SPDX-License-Identifier: MPL-2.0
+////
+
+:page-partial:
+:sectnums:
+
+[[introduction]]
+= Introduction
+
+The {opc-ua-connector-full-name} provides a framework for connecting manufacturing devices to the cloud (IoT).
+
+It unlocks a myriad of possibilities to extend and evolve manufacturing processes.
+
+At the core of the {opc-ua-connector-full-name}, the following features are available:
+
+==== Commands   
+ . xref:commands/read-command.adoc[Read node value]
+ . xref:commands/write-command.adoc[Write node value]
+ . xref:commands/call-command.adoc[Call node (method)]
+ . xref:commands/browse-command.adoc[Browse node (all node attributes)]
+
+==== Telemetry
+ . xref:telemetry/create-subscription.adoc[Create Subscription]
+ . xref:telemetry/remove-all-subscriptions.adoc[Remove All Subscriptions]
+ . xref:telemetry/remove-subscription.adoc[Remove Subscription]
+
+The {opc-ua-connector-full-name} offers connectivity support for the following brokers
+ 
+ . Kafka
+ . MQTT

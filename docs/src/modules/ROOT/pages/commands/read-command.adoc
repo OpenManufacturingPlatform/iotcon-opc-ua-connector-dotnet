@@ -1,0 +1,33 @@
+////
+Copyright (c) 2021 BMW Group
+
+See the AUTHORS file(s) distributed with this work for additional information regarding authorship. 
+
+This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
+If a copy of the MPL was not distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/
+SPDX-License-Identifier: MPL-2.0
+////
+
+:hardbreaks:
+
+[[read-command]]
+= Read Command
+
+The read command returns the value of the specified node.
+
+[[registered-read]]
+== Registered read
+
+Registered read and write operations is an OPC UA feature that optimizes and speeds up repetitive read and write operations performed regularly on the same nodes.
+To take adtvantage of this OPC UA feature, registered nodes should be enabled in the OPC UA Connector settings.
+When enabled, the OPC UA Connector handles the setup with the OPC UA server transparently; there is no difference in the request and response messages sent to and received from the OPC UA Connector.
+
+[[read-request]]
+== Read Request
+
+[[read-response]]
+== Read Response
+
+=== Scalar
+
+=== Array

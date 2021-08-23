@@ -1,0 +1,37 @@
+////
+Copyright (c) 2021 BMW Group
+
+See the AUTHORS file(s) distributed with this work for additional information regarding authorship. 
+
+This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
+If a copy of the MPL was not distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/
+SPDX-License-Identifier: MPL-2.0
+////
+
+:hardbreaks:
+
+[[configuration]]
+= Configuration
+
+The OPC UA Connector offers support for these brokers:
+
+. Kafka
+. MQTT
+
+To enable connectivity with a Kafka broker, set the KafkaBootstrapServers setting.
+Omission of the KafkaBootstrapServers assumes a configuration with MQTT connectivity.
+
+
+[[settings]]
+== Settings
+
+[[common-settings]]
+=== Common Settings
+These settings are available to both Kafka and MQTT configurations:
+
+[[kafka-settings]]
+=== Kafka Settings
+. KafkaBootstrapServers
+
+[[mqtt-settings]]
+=== MQTT Settings

@@ -329,3 +329,8 @@ ASALocalRun/
 # MFractors (Xamarin productivity tool) working folder 
 .mfractor/
 /Console/OpcUaConnector.EventHubMessageGenerator
+
+# Gradle and Antora Build Files
+docs/.gradle/
+docs/build/
+docs/.cache/
