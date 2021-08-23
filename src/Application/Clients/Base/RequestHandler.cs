@@ -19,7 +19,6 @@ using OMP.Connector.Domain.Schema.Messages;
 using OMP.Connector.Domain.Schema.Request.Control.Base;
 using OMP.Connector.Domain.Schema.Request.Discovery.Base;
 using OMP.Connector.Domain.Schema.Request.Subscription.Base;
-using OMP.Connector.Domain.Schema.Messages;
 
 namespace OMP.Connector.Application.Clients.Base
 {

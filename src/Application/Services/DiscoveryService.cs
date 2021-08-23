@@ -19,10 +19,9 @@ using OMP.Connector.Domain.Schema.Interfaces;
 using OMP.Connector.Domain.Schema.Messages;
 using OMP.Connector.Domain.Schema.Request.Discovery;
 using OMP.Connector.Domain.Schema.Responses.Discovery;
-using BrowseChildNodesRequest =OMP.Connector.Domain.Schema.Request.Discovery.BrowseChildNodesRequest;
-using BrowseChildNodesResponse =OMP.Connector.Domain.Schema.Responses.Discovery.BrowseChildNodesResponse;
-using ServerDiscoveryResponse =OMP.Connector.Domain.Schema.Responses.Discovery.ServerDiscoveryResponse;
-using OMP.Connector.Domain.Schema.Messages;
+using BrowseChildNodesRequest = OMP.Connector.Domain.Schema.Request.Discovery.BrowseChildNodesRequest;
+using BrowseChildNodesResponse = OMP.Connector.Domain.Schema.Responses.Discovery.BrowseChildNodesResponse;
+using ServerDiscoveryResponse = OMP.Connector.Domain.Schema.Responses.Discovery.ServerDiscoveryResponse;
 
 namespace OMP.Connector.Application.Services
 {

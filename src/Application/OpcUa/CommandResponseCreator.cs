@@ -9,7 +9,6 @@ using OMP.Connector.Domain.Schema.Interfaces;
 using OMP.Connector.Domain.Schema.Messages;
 using OMP.Connector.Domain.Schema.MetaData.Message;
 using OMP.Connector.Domain.Schema.Responses;
-using OMP.Connector.Domain.Schema.Messages;
 
 namespace OMP.Connector.Application.OpcUa
 {

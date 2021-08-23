@@ -15,7 +15,6 @@ using OMP.Connector.Domain.OpcUa.Services;
 using OMP.Connector.Domain.Schema.Interfaces;
 using OMP.Connector.Domain.Schema.Messages;
 using Opc.Ua;
-using OMP.Connector.Domain.Schema.Messages;
 
 namespace OMP.Connector.Application.Services
 {
