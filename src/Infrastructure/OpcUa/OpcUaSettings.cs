@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Opc.Ua;
 
-namespace OMP.Connector.Infrastructure.Kafka
+namespace OMP.Connector.Infrastructure.OpcUa
 {
     public record OpcUaSettings //: IOpcUaSettings
     {
@@ -27,34 +27,34 @@ namespace OMP.Connector.Infrastructure.Kafka
 
         public bool EnableRegisteredNodes { get; set; } = false;
 
-        [Required] 
+        [Required]
         public int DefaultServerBrowseDepth { get; set; }
 
-        [Required] 
+        [Required]
         public int NodeBrowseDepth { get; set; }
 
-        [Required] 
+        [Required]
         public int SubscriptionBatchSize { get; set; } = 1000;
 
-        [Required] 
+        [Required]
         public int ReadBatchSize { get; set; } = 1000;
 
-        [Required] 
+        [Required]
         public int RegisterNodeBatchSize { get; set; } = 1000;
 
-        [Required] 
+        [Required]
         public string CertificateStoreTypeName { get; set; } = CertificateStoreType.Directory;
 
-        [Required] 
+        [Required]
         public string IssuerCertStorePath { get; set; } = "pki/issuer";
 
-        [Required] 
+        [Required]
         public string TrustedCertStorePath { get; set; } = "pki/trusted";
 
-        [Required] 
+        [Required]
         public string RejectedCertStorePath { get; set; } = "pki/rejected";
 
-        [Required] 
+        [Required]
         public string OwnCertStorePath { get; set; } = "CurrentUser\\UA_MachineDefault";
 
         public uint OpcNodeMask => (uint)NodeClass.Object |

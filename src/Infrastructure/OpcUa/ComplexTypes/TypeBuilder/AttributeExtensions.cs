@@ -32,10 +32,10 @@ using System;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.Serialization;
-using OMP.Connector.Infrastructure.Kafka.ComplexTypes.Types;
+using OMP.Connector.Infrastructure.OpcUa.ComplexTypes.Types;
 using Opc.Ua;
 
-namespace OMP.Connector.Infrastructure.Kafka.ComplexTypes.TypeBuilder
+namespace OMP.Connector.Infrastructure.OpcUa.ComplexTypes.TypeBuilder
 {
     /// <summary>
     /// Extensions to build attributes for the complex type builder.

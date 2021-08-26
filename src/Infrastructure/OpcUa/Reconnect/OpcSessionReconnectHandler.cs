@@ -1,9 +1,10 @@
 ﻿using System;
 using OMP.Connector.Domain.OpcUa;
 using OMP.Connector.Domain.OpcUa.Services;
+using OMP.Connector.Infrastructure.OpcUa.Reconnect;
 using Opc.Ua.Client;
 
-namespace OMP.Connector.Infrastructure.Kafka.Reconnect
+namespace OMP.Connector.Infrastructure.OpcUa.Reconnect
 {
     public class OpcSessionReconnectHandler : IOpcSessionReconnectHandler
     {

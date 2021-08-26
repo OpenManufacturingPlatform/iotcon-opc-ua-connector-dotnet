@@ -30,7 +30,7 @@
 
 using System;
 
-namespace OMP.Connector.Infrastructure.Kafka.ComplexTypes.TypeBuilder
+namespace OMP.Connector.Infrastructure.OpcUa.ComplexTypes.TypeBuilder
 {
     /// <summary>
     /// Factory function for the default complex type builder

@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using OMP.Connector.Infrastructure.Kafka;
+using OMP.Connector.Infrastructure.OpcUa;
 
 namespace OMP.Connector.EdgeModule.Settings.Module
 {

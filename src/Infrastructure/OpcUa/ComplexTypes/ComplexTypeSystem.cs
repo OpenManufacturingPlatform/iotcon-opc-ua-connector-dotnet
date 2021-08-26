@@ -34,12 +34,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Xml;
 using OMP.Connector.Domain;
-using OMP.Connector.Infrastructure.Kafka.ComplexTypes.TypeBuilder;
+using OMP.Connector.Infrastructure.OpcUa.ComplexTypes.TypeBuilder;
 using Opc.Ua;
 using Opc.Ua.Client;
 using static Opc.Ua.Utils;
 
-namespace OMP.Connector.Infrastructure.Kafka.ComplexTypes
+namespace OMP.Connector.Infrastructure.OpcUa.ComplexTypes
 {
     /// <summary>
     /// Manages the custom types of a server for a client session.

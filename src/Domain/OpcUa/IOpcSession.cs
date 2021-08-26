@@ -9,30 +9,32 @@ using BrowseResponse = OMP.Connector.Domain.Schema.Responses.Control.BrowseRespo
 
 namespace OMP.Connector.Domain.OpcUa
 {
-    public interface IOpcSession: IDisposable
+    public interface IOpcSession : IDisposable
     {
+        Session Session { get; }
+
         Task ConnectAsync(EndpointDescription endpointDescription);
 
         Task ConnectAsync(string opcUaServerUrl);
 
         Task UseAsync(Action<Session, IComplexTypeSystem> action);
 
-        public IEnumerable<KeyValuePair<string, NodeId>> GetRegisteredNodeIds(IEnumerable<string> nodeIds);
+        IEnumerable<KeyValuePair<string, NodeId>> GetRegisteredNodeIds(IEnumerable<string> nodeIds);
 
-        public TNode GetNode<TNode>(NodeId nodeId) where TNode : class;
+        TNode GetNode<TNode>(NodeId nodeId) where TNode : class;
 
-        public Task<Type> LoadTypeAsync(NodeId nodeId);
+        Task<Type> LoadTypeAsync(NodeId nodeId);
 
-        public IEnumerable<Subscription> Subscriptions { get; }
+        IEnumerable<Subscription> Subscriptions { get; }
 
-        public Task<IEnumerable<BrowseResponse>> BrowseNodesAsync(
+        Task<IEnumerable<BrowseResponse>> BrowseNodesAsync(
             IEnumerable<(NodeId NodeId, BrowseRequest Command)> nodeIdCommands,
             Func<BrowseRequest, BrowseResponse> constructResultFunc);
 
-        public void ReadNodes(List<NodeId> nodeIds, int batchSize, List<object> values, List<ServiceResult> errors);
+        void ReadNodes(List<NodeId> nodeIds, int batchSize, List<object> values, List<ServiceResult> errors);
 
-        public StatusCodeCollection WriteNodes(WriteValueCollection writeValues);
+        StatusCodeCollection WriteNodes(WriteValueCollection writeValues);
 
-        public void ConvertToOpcUaTypedValues(IEnumerable<WriteRequestWrapper> writeValues);
+        void ConvertToOpcUaTypedValues(IEnumerable<WriteRequestWrapper> writeValues);
     }
 }

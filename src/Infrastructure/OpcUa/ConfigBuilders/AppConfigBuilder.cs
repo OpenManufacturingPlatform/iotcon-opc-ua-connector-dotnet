@@ -5,9 +5,10 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OMP.Connector.Domain.Configuration;
 using OMP.Connector.Domain.Extensions;
+using OMP.Connector.Infrastructure.OpcUa;
 using Opc.Ua;
 
-namespace OMP.Connector.Infrastructure.Kafka.ConfigBuilders
+namespace OMP.Connector.Infrastructure.OpcUa.ConfigBuilders
 {
     public class AppConfigBuilder : IAppConfigBuilder
     {

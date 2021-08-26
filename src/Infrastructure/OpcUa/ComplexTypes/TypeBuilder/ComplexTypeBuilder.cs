@@ -32,10 +32,10 @@ using System;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using OMP.Connector.Infrastructure.Kafka.ComplexTypes.Types;
+using OMP.Connector.Infrastructure.OpcUa.ComplexTypes.Types;
 using Opc.Ua;
 
-namespace OMP.Connector.Infrastructure.Kafka.ComplexTypes.TypeBuilder
+namespace OMP.Connector.Infrastructure.OpcUa.ComplexTypes.TypeBuilder
 {
     /// <summary>
     /// Build an assembly with custom enum types and 

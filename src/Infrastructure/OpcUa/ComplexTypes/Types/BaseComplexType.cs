@@ -37,10 +37,10 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Xml;
 using OMP.Connector.Domain.OpcUa;
-using OMP.Connector.Infrastructure.Kafka.ComplexTypes.TypeBuilder;
+using OMP.Connector.Infrastructure.OpcUa.ComplexTypes.TypeBuilder;
 using Opc.Ua;
 
-namespace OMP.Connector.Infrastructure.Kafka.ComplexTypes.Types
+namespace OMP.Connector.Infrastructure.OpcUa.ComplexTypes.Types
 {
     [Serializable]
     public class BaseComplexType :

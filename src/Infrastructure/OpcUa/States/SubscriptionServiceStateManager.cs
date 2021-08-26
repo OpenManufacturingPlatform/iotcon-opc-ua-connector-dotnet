@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using OMP.Connector.Domain.OpcUa;
 using OMP.Connector.Domain.OpcUa.Services;
 
-namespace OMP.Connector.Infrastructure.Kafka.States
+namespace OMP.Connector.Infrastructure.OpcUa.States
 {
     public class SubscriptionServiceStateManager : ISubscriptionServiceStateManager
     {
@@ -14,9 +14,9 @@ namespace OMP.Connector.Infrastructure.Kafka.States
 
         public SubscriptionServiceStateManager(ISubscriptionServiceFactory subscriptionServiceFactory)
         {
-            this._subscriptionServices = new ConcurrentDictionary<string, ISubscriptionService>();
-            this._semaphoreSlim = new SemaphoreSlim(1);
-            this._subscriptionServiceFactory = subscriptionServiceFactory;
+            _subscriptionServices = new ConcurrentDictionary<string, ISubscriptionService>();
+            _semaphoreSlim = new SemaphoreSlim(1);
+            _subscriptionServiceFactory = subscriptionServiceFactory;
         }
 
         public async Task<ISubscriptionService> GetSubscriptionServiceInstanceAsync(string opcUaServerUrl, CancellationToken cancellationToken)
@@ -26,18 +26,18 @@ namespace OMP.Connector.Infrastructure.Kafka.States
 
             try
             {
-                await this._semaphoreSlim.WaitAsync(cancellationToken).ConfigureAwait(false);
+                await _semaphoreSlim.WaitAsync(cancellationToken).ConfigureAwait(false);
 
-                if (this._subscriptionServices.TryGetValue(opcUaServerUrl, out var service)) { return service; }
+                if (_subscriptionServices.TryGetValue(opcUaServerUrl, out var service)) { return service; }
 
-                service = this._subscriptionServiceFactory.Create();
-                await this.AddServiceToDictionaryAsync(opcUaServerUrl, service, cancellationToken);
+                service = _subscriptionServiceFactory.Create();
+                await AddServiceToDictionaryAsync(opcUaServerUrl, service, cancellationToken);
 
                 return service;
             }
             finally
             {
-                this._semaphoreSlim.Release();
+                _semaphoreSlim.Release();
             }
         }
 
@@ -54,7 +54,7 @@ namespace OMP.Connector.Infrastructure.Kafka.States
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                serviceAddedToDictionary = this._subscriptionServices.TryAdd(endpointUrlKey, service);
+                serviceAddedToDictionary = _subscriptionServices.TryAdd(endpointUrlKey, service);
 
                 if (!serviceAddedToDictionary)
                     await Task.Delay(1000, cancellationToken);
@@ -63,9 +63,9 @@ namespace OMP.Connector.Infrastructure.Kafka.States
 
         public void Dispose()
         {
-            this._subscriptionServices.Clear();
-            this._subscriptionServices = null;
-            this._semaphoreSlim?.Dispose();
+            _subscriptionServices.Clear();
+            _subscriptionServices = null;
+            _semaphoreSlim?.Dispose();
         }
     }
 }

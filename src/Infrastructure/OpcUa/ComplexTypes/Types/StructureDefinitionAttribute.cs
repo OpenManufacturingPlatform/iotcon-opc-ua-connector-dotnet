@@ -31,7 +31,7 @@
 using System;
 using Opc.Ua;
 
-namespace OMP.Connector.Infrastructure.Kafka.ComplexTypes.Types
+namespace OMP.Connector.Infrastructure.OpcUa.ComplexTypes.Types
 {
     /// <summary>
     /// Attribute for a base complex type structure definition.

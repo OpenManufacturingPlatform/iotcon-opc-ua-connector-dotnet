@@ -84,6 +84,7 @@ namespace OMP.Connector.Domain.Configuration
         public int RegisterNodeBatchSize { get; set; }
         public int AwaitSessionLockTimeoutSeconds { get; set; } = 3;
         public int OperationTimeoutInSeconds { get; set; } = 10;
+        public int ReconnectIntervalInSeconds { get; set; }
 
         public uint NodeMask => (uint)NodeClass.Object |
                                           (uint)NodeClass.Variable |

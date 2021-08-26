@@ -9,7 +9,7 @@ using OMP.Connector.Domain.OpcUa;
 using Opc.Ua;
 using Opc.Ua.Client;
 
-namespace OMP.Connector.Infrastructure.Kafka.States
+namespace OMP.Connector.Infrastructure.OpcUa.States
 {
     public class RegisteredNodeStateManager : IRegisteredNodeStateManager
     {
@@ -20,34 +20,34 @@ namespace OMP.Connector.Infrastructure.Kafka.States
 
         public RegisteredNodeStateManager(Session session, ILogger<RegisteredNodeStateManager> logger, int registerNodeBatchSize)
         {
-            this._registeredNodes = new ConcurrentDictionary<string, NodeId>();
-            this._session = session;
-            this._logger = logger;
-            this._batchSize = registerNodeBatchSize;
+            _registeredNodes = new ConcurrentDictionary<string, NodeId>();
+            _session = session;
+            _logger = logger;
+            _batchSize = registerNodeBatchSize;
         }
 
         public IEnumerable<KeyValuePair<string, NodeId>> GetRegisteredNodeIds(IEnumerable<string> nodeIds)
         {
             IEnumerable<KeyValuePair<string, NodeId>> newlyRegisteredNodes = null;
 
-            var existingRegisteredNodes = this._registeredNodes
+            var existingRegisteredNodes = _registeredNodes
                 .Distinct()
                 .Where(pair => nodeIds.Any(nodeId => nodeId.Equals(pair.Key)))
                 .ToList();
 
             var nodesNotRegistered = nodeIds
                 .Distinct()
-                .Where(key => !this._registeredNodes.Any(pair => key.Equals(pair.Key)))
+                .Where(key => !_registeredNodes.Any(pair => key.Equals(pair.Key)))
                 .ToList();
 
             if (nodesNotRegistered.Any())
             {
                 var nodeIdsToRegister = new NodeIdCollection(nodesNotRegistered.Select(x => NodeId.Parse(x)));
-                var registeredNodeIds = this.RegisterNodeIds(nodeIdsToRegister);
+                var registeredNodeIds = RegisterNodeIds(nodeIdsToRegister);
                 var mergedList = nodesNotRegistered.Zip(registeredNodeIds, (i, j) => (i, j));
                 foreach (var (nodeId, registeredNodeId) in mergedList)
                 {
-                    this._registeredNodes.TryAdd(nodeId, registeredNodeId);
+                    _registeredNodes.TryAdd(nodeId, registeredNodeId);
                 }
                 newlyRegisteredNodes = nodesNotRegistered.Zip(registeredNodeIds, (key, registeredNodeId)
                     => new KeyValuePair<string, NodeId>(key, registeredNodeId));
@@ -61,13 +61,13 @@ namespace OMP.Connector.Infrastructure.Kafka.States
             var registeredNodeIds = new NodeIdCollection();
             try
             {
-                var batchHandler = new BatchHandler<NodeId>(this._batchSize, this.RegisterBatch(registeredNodeIds));
+                var batchHandler = new BatchHandler<NodeId>(_batchSize, RegisterBatch(registeredNodeIds));
                 batchHandler.RunBatches(nodeIdsToRegister);
-                this._logger.Information($"Registered {nodeIdsToRegister.Count} nodes.");
+                _logger.Information($"Registered {nodeIdsToRegister.Count} nodes.");
             }
             catch (Exception e)
             {
-                this._logger.LogTrace(e, $"Could not register nodes : {this.NodeIdsToConcatenatedString(nodeIdsToRegister, ", ")}. Using original nodeIds.");
+                _logger.LogTrace(e, $"Could not register nodes : {NodeIdsToConcatenatedString(nodeIdsToRegister, ", ")}. Using original nodeIds.");
                 registeredNodeIds = nodeIdsToRegister;
             }
             return registeredNodeIds;
@@ -80,13 +80,13 @@ namespace OMP.Connector.Infrastructure.Kafka.States
                 try
                 {
                     var nodeIdColl = new NodeIdCollection(items);
-                    this._session.RegisterNodes(null, nodeIdColl, out NodeIdCollection batchRegisteredNodeIds);
+                    _session.RegisterNodes(null, nodeIdColl, out NodeIdCollection batchRegisteredNodeIds);
                     registeredNodeIds.AddRange(batchRegisteredNodeIds);
-                    this._logger.Trace($"Registered new nodeIds: {this.NodeIdsToConcatenatedString(batchRegisteredNodeIds, ", ")}");
+                    _logger.Trace($"Registered new nodeIds: {NodeIdsToConcatenatedString(batchRegisteredNodeIds, ", ")}");
                 }
                 catch (ServiceResultException sre)
                 {
-                    this._logger.Error(sre, $"Failed to register nodes for batch with {items.Count()} items: ");
+                    _logger.Error(sre, $"Failed to register nodes for batch with {items.Count()} items: ");
                     throw;
                 }
             };
@@ -103,32 +103,32 @@ namespace OMP.Connector.Infrastructure.Kafka.States
         {
             try
             {
-                this._session = session;
+                _session = session;
 
-                var nodesToRegister = this._registeredNodes.Select(node => node.Key);
-                this._registeredNodes.Clear();
+                var nodesToRegister = _registeredNodes.Select(node => node.Key);
+                _registeredNodes.Clear();
 
                 if (nodesToRegister.Any())
                 {
                     var nodeIdsToRegister = new NodeIdCollection(nodesToRegister.Select(x => NodeId.Parse(x)));
-                    var registeredNodeIds = this.RegisterNodeIds(nodeIdsToRegister);
+                    var registeredNodeIds = RegisterNodeIds(nodeIdsToRegister);
                     var mergedList = nodesToRegister.Zip(registeredNodeIds, (i, j) => (i, j));
                     foreach (var (nodeId, registeredNodeId) in mergedList)
                     {
-                        this._registeredNodes.TryAdd(nodeId, registeredNodeId);
+                        _registeredNodes.TryAdd(nodeId, registeredNodeId);
                     }
-                    this._logger.Trace($"Restored {nodesToRegister.Count()} registered node ids.");
+                    _logger.Trace($"Restored {nodesToRegister.Count()} registered node ids.");
                 }
             }
             catch (Exception ex)
             {
-                this._logger.Error(ex, $"Could not restore registered node ids: {ex.Message}");
+                _logger.Error(ex, $"Could not restore registered node ids: {ex.Message}");
             }
         }
 
         public void Dispose()
         {
-            this._registeredNodes.Clear();
+            _registeredNodes.Clear();
         }
     }
 }

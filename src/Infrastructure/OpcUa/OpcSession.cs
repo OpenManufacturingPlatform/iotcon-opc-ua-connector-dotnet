@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
@@ -20,17 +19,15 @@ using OMP.Connector.Domain.Schema;
 using OMP.Connector.Domain.Schema.Enums;
 using OMP.Connector.Domain.Schema.Interfaces;
 using OMP.Connector.Domain.Schema.Request.Control.WriteValues;
-using OMP.Connector.Infrastructure.Kafka.ComplexTypes;
-using OMP.Connector.Infrastructure.Kafka.Reconnect;
-using OMP.Connector.Infrastructure.Kafka.States;
+using OMP.Connector.Infrastructure.OpcUa.ComplexTypes;
+using OMP.Connector.Infrastructure.OpcUa.Reconnect;
+using OMP.Connector.Infrastructure.OpcUa.States;
 using Opc.Ua;
 using Opc.Ua.Client;
 using BrowseRequest = OMP.Connector.Domain.Schema.Request.Control.BrowseRequest;
 using BrowseResponse = OMP.Connector.Domain.Schema.Responses.Control.BrowseResponse;
 
-[assembly: InternalsVisibleTo("IoTPE.Connector.Application.Tests")]
-
-namespace OMP.Connector.Infrastructure.Kafka
+namespace OMP.Connector.Infrastructure.OpcUa
 {
     public class OpcSession : IOpcSession
     {
@@ -39,7 +36,6 @@ namespace OMP.Connector.Infrastructure.Kafka
         private readonly ILoggerFactory _loggerFactory;
         private readonly ILogger _logger;
         private readonly ApplicationConfiguration _applicationConfiguration;
-        private readonly int _reconnectInterval;
         private bool _disposed;
         private SemaphoreSlim _opcSessionSemaphore;
         private CancellationTokenSource _sessionCancellationTokenSource;
@@ -61,21 +57,21 @@ namespace OMP.Connector.Infrastructure.Kafka
             IMapper mapper
             )
         {
-            this._opcUaSettings = connectorConfiguration.Value.OpcUa;
-            this._opcSessionReconnectHandlerFactory = opcSessionReconnectHandlerFactory;
-            this._loggerFactory = loggerFactory;
-            this._logger = this._loggerFactory.CreateLogger<OpcSession>();
-            this._applicationConfiguration = applicationConfiguration;
-            this._endpointConfiguration = EndpointConfiguration.Create(applicationConfiguration);
-            this._mapper = mapper;
+            _opcUaSettings = connectorConfiguration.Value.OpcUa;
+            _opcSessionReconnectHandlerFactory = opcSessionReconnectHandlerFactory;
+            _loggerFactory = loggerFactory;
+            _logger = _loggerFactory.CreateLogger<OpcSession>();
+            _applicationConfiguration = applicationConfiguration;
+            _endpointConfiguration = EndpointConfiguration.Create(applicationConfiguration);
+            _mapper = mapper;
         }
 
-        public IEnumerable<Subscription> Subscriptions => this._session.Subscriptions;
+        public IEnumerable<Subscription> Subscriptions => _session.Subscriptions;
 
-        internal Session Session
+        public Session Session
         {
-            get => this._session;
-            set => this._session = value;
+            get => _session;
+            set => _session = value;
         }
 
         #region [Public Members]
@@ -83,95 +79,95 @@ namespace OMP.Connector.Infrastructure.Kafka
         {
             try
             {
-                this._opcSessionSemaphore = new SemaphoreSlim(1);
-                this._sessionCancellationTokenSource = new CancellationTokenSource();
+                _opcSessionSemaphore = new SemaphoreSlim(1);
+                _sessionCancellationTokenSource = new CancellationTokenSource();
 
-                var locked = await this.LockSessionAsync().ConfigureAwait(false);
+                var locked = await LockSessionAsync().ConfigureAwait(false);
 
                 if (!locked) { return; }
 
-                this._sessionName = Guid.NewGuid();
-                var endPointConfiguration = EndpointConfiguration.Create(this._applicationConfiguration);
+                _sessionName = Guid.NewGuid();
+                var endPointConfiguration = EndpointConfiguration.Create(_applicationConfiguration);
                 var configuredEndpoint = new ConfiguredEndpoint(endpointDescription.Server, endPointConfiguration);
                 configuredEndpoint.Update(endpointDescription);
 
-                this._session = await Session.Create(
-                    this._applicationConfiguration,
+                _session = await Session.Create(
+                    _applicationConfiguration,
                     configuredEndpoint,
                     true,
-                    this._sessionName.ToString(),
+                    _sessionName.ToString(),
                     100000,
                     default,
                     default);
 
-                this._session.KeepAlive += this.SessionOnKeepAlive;
-                this._session.OperationTimeout = (int)TimeSpan.FromSeconds(this._opcUaSettings.OperationTimeoutInSeconds).TotalMilliseconds;
+                _session.KeepAlive += SessionOnKeepAlive;
+                _session.OperationTimeout = (int)TimeSpan.FromSeconds(_opcUaSettings.OperationTimeoutInSeconds).TotalMilliseconds;
 
-                await this.LoadComplexTypeSystemAsync();
+                await LoadComplexTypeSystemAsync();
 
-                this._registeredNodeStateManager ??= this._opcUaSettings.EnableRegisteredNodes
-                    ? new RegisteredNodeStateManager(this._session, this._loggerFactory.CreateLogger<RegisteredNodeStateManager>(), this._opcUaSettings.RegisterNodeBatchSize)
+                _registeredNodeStateManager ??= _opcUaSettings.EnableRegisteredNodes
+                    ? new RegisteredNodeStateManager(_session, _loggerFactory.CreateLogger<RegisteredNodeStateManager>(), _opcUaSettings.RegisterNodeBatchSize)
                     : null;
             }
             finally
             {
-                this.ReleaseSession();
+                ReleaseSession();
             }
         }
 
         public async Task ConnectAsync(string opcUaServerUrl)
         {
-            var endpointDescriptionCollection = this.GetEndpoints(opcUaServerUrl);
+            var endpointDescriptionCollection = GetEndpoints(opcUaServerUrl);
             var endpointDescriptions = endpointDescriptionCollection.OrderByDescending(e => e.SecurityLevel);
             foreach (var endpointDescription in endpointDescriptions)
             {
                 try
                 {
-                    await this.ConnectAsync(endpointDescription);
+                    await ConnectAsync(endpointDescription);
 
                     var message =
                         $"Session created to Endpoint with: [{endpointDescription.EndpointUrl}] with SecurityMode: [{endpointDescription.SecurityMode}] and Level: [{endpointDescription.SecurityLevel}]";
-                    this._logger.Information(message);
+                    _logger.Information(message);
                     break;
                 }
                 catch (Exception e)
                 {
                     var message =
                         $"Unable to create Session to Endpoint with: [{endpointDescription.EndpointUrl}] with SecurityMode: [{endpointDescription.SecurityMode}] and Level: [{endpointDescription.SecurityLevel}] = {e.Message}::{e.InnerException?.Message}";
-                    this._logger.Warning(message);
+                    _logger.Warning(message);
                 }
             }
 
-            if (this._session == default)
+            if (_session == default)
                 throw new Exception($"Unable to create a session to OPC Server: [{endpointDescriptionCollection.FirstOrDefault()?.EndpointUrl}] on all its endpoints");
         }
 
         public async Task UseAsync(Action<Session, IComplexTypeSystem> action)
         {
-            var locked = await this.LockSessionAsync().ConfigureAwait(false);
+            var locked = await LockSessionAsync().ConfigureAwait(false);
 
             if (!locked)
                 throw new Exception("Could not obtain session lock. Action could not be executed.");
 
             try
             {
-                if (this._session.Disposed || !this._session.Connected)
+                if (_session.Disposed || !_session.Connected)
                     throw new Exception("Not Connected");
 
-                action.Invoke(this._session, this._complexTypeSystem);
+                action.Invoke(_session, _complexTypeSystem);
             }
             finally
             {
-                this.ReleaseSession();
+                ReleaseSession();
             }
         }
 
         public IEnumerable<KeyValuePair<string, NodeId>> GetRegisteredNodeIds(IEnumerable<string> nodeIds)
-            => this._registeredNodeStateManager.GetRegisteredNodeIds(nodeIds);
+            => _registeredNodeStateManager.GetRegisteredNodeIds(nodeIds);
 
         public TNode GetNode<TNode>(NodeId nodeId) where TNode : class
         {
-            return this._session.NodeCache.Find(nodeId) as TNode;
+            return _session.NodeCache.Find(nodeId) as TNode;
         }
 
         public async Task<Type> LoadTypeAsync(NodeId nodeId)
@@ -179,12 +175,12 @@ namespace OMP.Connector.Infrastructure.Kafka
             if (nodeId == null)
                 return null;
 
-            return await this._complexTypeSystem.LoadType(nodeId);
+            return await _complexTypeSystem.LoadType(nodeId);
         }
 
         public void Dispose()
         {
-            this.Dispose(true);
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
 
@@ -200,21 +196,21 @@ namespace OMP.Connector.Infrastructure.Kafka
                 var browseResult = constructResultFunc.Invoke(command);
                 try
                 {
-                    var node = this._session.ReadNode(nodeId);
-                    browseResult.Node = this._mapper.Map<BrowsedOpcNode>(node);
+                    var node = _session.ReadNode(nodeId);
+                    browseResult.Node = _mapper.Map<BrowsedOpcNode>(node);
                     browseResult.Message = ServiceResult.Create(StatusCodes.Good, default, default).ToString();
                     browseResult.OpcUaCommandType = OpcUaCommandType.Browse;
 
-                    this._logger.Debug(
+                    _logger.Debug(
                         $"Executed {command.GetType().Name} on NodeId: [{command.NodeId}]" +
-                        $" and Endpoint: [{this._session.Endpoint.EndpointUrl}] " +
+                        $" and Endpoint: [{_session.Endpoint.EndpointUrl}] " +
                         $"with Node: {JsonConvert.SerializeObject(browseResult.Node)}");
                 }
                 catch (Exception e)
                 {
                     var message = e.GetMessage();
                     browseResult.Message = message;
-                    this._logger.Error(message);
+                    _logger.Error(message);
                 }
 
                 browsedResults.Add(browseResult);
@@ -225,15 +221,15 @@ namespace OMP.Connector.Infrastructure.Kafka
         public void ReadNodes(List<NodeId> nodeIds, int batchSize, List<object> values, List<ServiceResult> errors)
         {
             var omitExpectedTypes = nodeIds.Select(_ => (Type)null).ToList();
-            var batchHandler = new BatchHandler<NodeId>(batchSize, this.ReadBatch(this._session, values, errors, omitExpectedTypes));
+            var batchHandler = new BatchHandler<NodeId>(batchSize, ReadBatch(_session, values, errors, omitExpectedTypes));
             batchHandler.RunBatches(nodeIds.ToList());
 
-            this._logger.Debug($"Executed Read commands. Endpoint: [{this._session.Endpoint.EndpointUrl}]");
+            _logger.Debug($"Executed Read commands. Endpoint: [{_session.Endpoint.EndpointUrl}]");
         }
 
         public StatusCodeCollection WriteNodes(WriteValueCollection writeValues)
         {
-            this._session.Write(default, writeValues, out var statusCodeCollection, out _);
+            _session.Write(default, writeValues, out var statusCodeCollection, out _);
             return statusCodeCollection;
         }
 
@@ -242,8 +238,8 @@ namespace OMP.Connector.Infrastructure.Kafka
             var writeCommandsArray = writeRequests as WriteRequestWrapper[] ?? writeRequests.ToArray();
             var dataTypeIds = GetCommandReadValueIdsByAttribute(writeCommandsArray, Attributes.DataType);
             var valueRankIds = GetCommandReadValueIdsByAttribute(writeCommandsArray, Attributes.ValueRank);
-            var dataTypesCollection = this.ReadDataValueCollection(this._session, dataTypeIds);
-            var valueRanksCollection = this.ReadDataValueCollection(this._session, valueRankIds);
+            var dataTypesCollection = ReadDataValueCollection(_session, dataTypeIds);
+            var valueRanksCollection = ReadDataValueCollection(_session, valueRankIds);
             var commandsTuple = writeCommandsArray.Zip(dataTypesCollection).Zip(valueRanksCollection);
 
             foreach (var ((command, dataType), rank) in commandsTuple)
@@ -256,16 +252,16 @@ namespace OMP.Connector.Infrastructure.Kafka
                     switch (valueRank)
                     {
                         case ValueRanks.Scalar:
-                            this.ParseCommandScalarValueAsync(command, dataType, this._session).GetAwaiter().GetResult();
+                            ParseCommandScalarValueAsync(command, dataType, _session).GetAwaiter().GetResult();
                             break;
                         case ValueRanks.OneDimension:
-                            this.ParseCommandArrayValueAsync(command, dataType).GetAwaiter().GetResult();
+                            ParseCommandArrayValueAsync(command, dataType).GetAwaiter().GetResult();
                             break;
                     }
                 }
                 catch (Exception ex)
                 {
-                    this._logger.Error(ex, $"Error occurred while parsing the write command value for node: {command.NodeId}");
+                    _logger.Error(ex, $"Error occurred while parsing the write command value for node: {command.NodeId}");
                 }
             }
         }
@@ -276,31 +272,31 @@ namespace OMP.Connector.Infrastructure.Kafka
         #region [Protected Members]
         protected virtual void Dispose(bool disposing)
         {
-            if (this._disposed || !disposing) return;
+            if (_disposed || !disposing) return;
 
-            this._logger.Trace($"Closing and disposing session: {this._session?.Endpoint?.EndpointUrl}");
+            _logger.Trace($"Closing and disposing session: {_session?.Endpoint?.EndpointUrl}");
 
-            this._sessionCancellationTokenSource?.Cancel();
-            this._sessionCancellationTokenSource?.Dispose();
+            _sessionCancellationTokenSource?.Cancel();
+            _sessionCancellationTokenSource?.Dispose();
 
-            this._reconnectHandler?.Dispose();
+            _reconnectHandler?.Dispose();
 
-            this._opcSessionSemaphore?.Dispose();
-            this._opcSessionSemaphore = null;
+            _opcSessionSemaphore?.Dispose();
+            _opcSessionSemaphore = null;
 
-            this._registeredNodeStateManager?.Dispose();
-            this._registeredNodeStateManager = null;
+            _registeredNodeStateManager?.Dispose();
+            _registeredNodeStateManager = null;
 
-            this._complexTypeSystem = null;
+            _complexTypeSystem = null;
 
-            if (this._session == null) return;
+            if (_session == null) return;
 
-            this._session.KeepAlive -= this.SessionOnKeepAlive;
-            this._session.RemoveSubscriptions(this._session.Subscriptions.ToList());
-            this._session.Close();
-            this._session.Dispose();
+            _session.KeepAlive -= SessionOnKeepAlive;
+            _session.RemoveSubscriptions(_session.Subscriptions.ToList());
+            _session.Close();
+            _session.Dispose();
 
-            this._disposed = true;
+            _disposed = true;
         }
         #endregion
 
@@ -308,22 +304,22 @@ namespace OMP.Connector.Infrastructure.Kafka
 
         private async Task LoadComplexTypeSystemAsync()
         {
-            if (this._complexTypeSystem == null)
+            if (_complexTypeSystem == null)
             {
-                this._logger.Trace("Loading OPC UA complex type system...");
-                this._complexTypeSystem = new ComplexTypeSystem(this._session);
-                await this._complexTypeSystem.Load();
-                this._logger.Trace("Finished loading OPC UA complex type system.");
+                _logger.Trace("Loading OPC UA complex type system...");
+                _complexTypeSystem = new ComplexTypeSystem(_session);
+                await _complexTypeSystem.Load();
+                _logger.Trace("Finished loading OPC UA complex type system.");
             }
         }
 
         private EndpointDescriptionCollection GetEndpoints(string endpointAddress)
         {
             var uri = new Uri(endpointAddress);
-            using var discoveryClient = DiscoveryClient.Create(uri, this._endpointConfiguration);
+            using var discoveryClient = DiscoveryClient.Create(uri, _endpointConfiguration);
             var endpoints = discoveryClient.GetEndpoints(default);
 
-            this._logger.Debug($"Discovered [{endpoints.Count}] endpoints for Server: [{endpointAddress}]");
+            _logger.Debug($"Discovered [{endpoints.Count}] endpoints for Server: [{endpointAddress}]");
             return endpoints;
         }
 
@@ -331,79 +327,79 @@ namespace OMP.Connector.Infrastructure.Kafka
         {
             try
             {
-                if (session.SessionName != this._session.SessionName)
+                if (session.SessionName != _session.SessionName)
                     return;
 
-                if (!ReferenceEquals(session, this._session))
-                    this._session = session;
+                if (!ReferenceEquals(session, _session))
+                    _session = session;
 
                 // start reconnect sequence on communication error.
                 if (e != null && !ServiceResult.IsBad(e.Status))
                     return;
 
-                this._logger.Warning($"Communication error: [{e?.Status}] on Endpoint: [{session.Endpoint?.EndpointUrl}]");
+                _logger.Warning($"Communication error: [{e?.Status}] on Endpoint: [{session.Endpoint?.EndpointUrl}]");
 
-                if (this._reconnectInterval <= 0)
+                if (_opcUaSettings.ReconnectIntervalInSeconds <= 0)
                     return;
 
-                if (this.IsReconnectHandlerHealthy())
+                if (IsReconnectHandlerHealthy())
                     return;
 
-                var locked = this.LockSessionAsync().GetAwaiter().GetResult();
+                var locked = LockSessionAsync().GetAwaiter().GetResult();
                 if (!locked) { return; }
 
-                this.DisposeUnHealthyReconnectHandler();
+                DisposeUnHealthyReconnectHandler();
 
-                this._reconnectHandler = this._opcSessionReconnectHandlerFactory.Create();
-                this._reconnectHandler.BeginReconnect(this, this._session, this._reconnectInterval, this._registeredNodeStateManager, this.ServerReconnectComplete);
+                _reconnectHandler = _opcSessionReconnectHandlerFactory.Create();
+                _reconnectHandler.BeginReconnect(this, _session, _opcUaSettings.ReconnectIntervalInSeconds, _registeredNodeStateManager, ServerReconnectComplete);
             }
             catch (Exception ex)
             {
-                this._logger.Error(ex);
+                _logger.Error(ex);
             }
         }
 
         private bool IsReconnectHandlerHealthy()
-            => this._reconnectHandler is { IsHealthy: true };
+            => _reconnectHandler is { IsHealthy: true };
 
         private void DisposeUnHealthyReconnectHandler()
         {
-            if (this._reconnectHandler is null)
+            if (_reconnectHandler is null)
                 return;
 
-            if (!this._reconnectHandler.IsHealthy)
-                this._reconnectHandler.Dispose();
+            if (!_reconnectHandler.IsHealthy)
+                _reconnectHandler.Dispose();
         }
 
         private void ServerReconnectComplete(object sender, EventArgs e)
         {
             try
             {
-                this._logger.Information($"Server successfully reconnected: {this._session?.Endpoint?.EndpointUrl}");
+                _logger.Information($"Server successfully reconnected: {_session?.Endpoint?.EndpointUrl}");
 
-                if (!ReferenceEquals(sender, this._reconnectHandler))
+                if (!ReferenceEquals(sender, _reconnectHandler))
                     return;
 
-                this._reconnectHandler?.Dispose();
-                this._reconnectHandler = null;
+                _reconnectHandler?.Dispose();
+                _reconnectHandler = null;
             }
             catch (Exception ex)
             {
-                this._logger.Error(ex);
+                _logger.Error(ex);
             }
             finally
             {
-                this.ReleaseSession();
+                ReleaseSession();
             }
         }
 
         private async Task<bool> LockSessionAsync()
         {
-            this._logger.Trace($"Locking session on Endpoint: [{this._session?.Endpoint?.EndpointUrl}]");
+            _logger.Trace($"Locking session on Endpoint: [{_session?.Endpoint?.EndpointUrl}]");
             bool result;
             try
             {
-                result = await this._opcSessionSemaphore.WaitAsync(TimeSpan.FromSeconds(this._opcUaSettings.AwaitSessionLockTimeoutSeconds), this._sessionCancellationTokenSource.Token).ConfigureAwait(false);
+                result = await _opcSessionSemaphore.WaitAsync(TimeSpan.FromSeconds(_opcUaSettings.AwaitSessionLockTimeoutSeconds), _sessionCancellationTokenSource.Token).ConfigureAwait(false);
             }
             catch
             {
@@ -415,15 +411,15 @@ namespace OMP.Connector.Infrastructure.Kafka
 
         private void ReleaseSession()
         {
-            this._opcSessionSemaphore?.Release();
-            this._logger.Trace($"Releasing session on Endpoint: [{this._session?.Endpoint?.EndpointUrl}]");
+            _opcSessionSemaphore?.Release();
+            _logger.Trace($"Releasing session on Endpoint: [{_session?.Endpoint?.EndpointUrl}]");
         }
 
         private Action<NodeId[]> ReadBatch(Session session, List<object> values, List<ServiceResult> errors, List<Type> omitExpectedTypes)
         {
             return (items) =>
             {
-                this._logger.Trace($"Reading {items.Length} nodes...");
+                _logger.Trace($"Reading {items.Length} nodes...");
                 session.ReadValues(
                     items,
                     omitExpectedTypes.Take(items.Length).ToList(),
@@ -458,7 +454,7 @@ namespace OMP.Connector.Infrastructure.Kafka
 
         private async Task ParseCommandArrayValueAsync(WriteRequestWrapper command, DataValue dataValue)
         {
-            var (dataTypeId, builtInType) = this.GetBuiltInType(dataValue.Value);
+            var (dataTypeId, builtInType) = GetBuiltInType(dataValue.Value);
 
             if (IsArrayOfPrimitiveType(command.Value, out var primitiveArray))
             {
@@ -466,14 +462,14 @@ namespace OMP.Connector.Infrastructure.Kafka
                 if (array.GetType() == typeof(decimal[])) //decimal is used to accommodate special edge case for UInt64 values
                 {
                     var systemType = TypeInfo.GetSystemType(builtInType, -1);
-                    command.Value = this.CastDecimalArrayToIntegerArray((decimal[]) array, systemType);
+                    command.Value = CastDecimalArrayToIntegerArray((decimal[])array, systemType);
                 }
                 else
                     command.Value = TypeInfo.Cast(array, builtInType);
             }
             else
             {
-                await this.CreateOpcUaStructArrayAsync(command, (NodeId)dataValue.Value);
+                await CreateOpcUaStructArrayAsync(command, (NodeId)dataValue.Value);
             }
         }
 
@@ -481,14 +477,14 @@ namespace OMP.Connector.Infrastructure.Kafka
         {
             return targetType switch
             {
-                { } when targetType == typeof(Byte) => this.CastArray(array, Convert.ToByte),
-                { } when targetType == typeof(SByte) => this.CastArray(array, Convert.ToSByte),
-                { } when targetType == typeof(Int16) => this.CastArray(array, Convert.ToInt16),
-                { } when targetType == typeof(Int32) => this.CastArray(array, Convert.ToInt32),
-                { } when targetType == typeof(Int64) => this.CastArray(array, Convert.ToInt64),
-                { } when targetType == typeof(UInt16) => this.CastArray(array, Convert.ToUInt16),
-                { } when targetType == typeof(UInt32) => this.CastArray(array, Convert.ToUInt32),
-                { } when targetType == typeof(UInt64) => this.CastArray(array, Convert.ToUInt64),
+                { } when targetType == typeof(byte) => CastArray(array, Convert.ToByte),
+                { } when targetType == typeof(sbyte) => CastArray(array, Convert.ToSByte),
+                { } when targetType == typeof(short) => CastArray(array, Convert.ToInt16),
+                { } when targetType == typeof(int) => CastArray(array, Convert.ToInt32),
+                { } when targetType == typeof(long) => CastArray(array, Convert.ToInt64),
+                { } when targetType == typeof(ushort) => CastArray(array, Convert.ToUInt16),
+                { } when targetType == typeof(uint) => CastArray(array, Convert.ToUInt32),
+                { } when targetType == typeof(ulong) => CastArray(array, Convert.ToUInt64),
                 _ => array
             };
         }
@@ -502,7 +498,7 @@ namespace OMP.Connector.Infrastructure.Kafka
         {
             if (typeof(IPrimitiveArray).IsAssignableFrom(value.GetType()))
             {
-                primitiveArray = (value as IPrimitiveArray);
+                primitiveArray = value as IPrimitiveArray;
                 return true;
             }
 
@@ -512,7 +508,7 @@ namespace OMP.Connector.Infrastructure.Kafka
 
         private async Task ParseCommandScalarValueAsync(WriteRequestWrapper command, DataValue dataValue, Session session)
         {
-            var (dataTypeId, builtInType) = this.GetBuiltInType(dataValue.Value);
+            var (dataTypeId, builtInType) = GetBuiltInType(dataValue.Value);
             if (builtInType == BuiltInType.Null)
             {
                 builtInType = GetSuperTypeAsBuiltInType(session, dataTypeId);
@@ -532,10 +528,10 @@ namespace OMP.Connector.Infrastructure.Kafka
             var dataTypeNode = session.NodeCache.Find(dataTypeId);
             var superTypeNode = (NodeId)(dataTypeNode as Node)?.GetSuperType(session.TypeTree);
             var builtInType = TypeInfo.GetBuiltInType(superTypeNode);
-            
+
             if (builtInType == BuiltInType.Null)
                 builtInType = GetSuperTypeAsBuiltInType(session, superTypeNode);
-            
+
             return builtInType;
         }
 
@@ -549,9 +545,9 @@ namespace OMP.Connector.Infrastructure.Kafka
         {
             if (command.Value is WriteRequestValues values)
             {
-                var structType = await this.LoadStructTypeAsync(dataTypeId).ConfigureAwait(false);
+                var structType = await LoadStructTypeAsync(dataTypeId).ConfigureAwait(false);
                 var dictionary = values.ToDictionary(x => x.Key, y => y.Value as object);
-                return this.BuildOpcUaStruct(structType, dictionary);
+                return BuildOpcUaStruct(structType, dictionary);
             }
             else
             {
@@ -562,13 +558,13 @@ namespace OMP.Connector.Infrastructure.Kafka
 
         private async Task<Array> CreateOpcUaStructArrayAsync(WriteRequestWrapper command, NodeId dataTypeId)
         {
-            var structType = await this.LoadStructTypeAsync(dataTypeId).ConfigureAwait(false);
-            return this.BuildOpcUaStructArray(structType, this.UnboxStructArray(command.Value));
+            var structType = await LoadStructTypeAsync(dataTypeId).ConfigureAwait(false);
+            return BuildOpcUaStructArray(structType, UnboxStructArray(command.Value));
         }
 
         private async Task<Type> LoadStructTypeAsync(NodeId dataTypeId)
         {
-            return await this.LoadTypeAsync(dataTypeId);
+            return await LoadTypeAsync(dataTypeId);
         }
 
         private List<IDictionary<string, object>> UnboxStructArray(object listObject)
@@ -603,7 +599,7 @@ namespace OMP.Connector.Infrastructure.Kafka
                 {
                     if (typeof(Array).IsAssignableFrom(propInfo.PropertyType))
                     {
-                        value = this.BuildOpcUaStructArray(propInfo.PropertyType.GetElementType(), this.UnboxStructArray(value));
+                        value = BuildOpcUaStructArray(propInfo.PropertyType.GetElementType(), UnboxStructArray(value));
                     }
                     else if (propInfo.PropertyType.FullName != null && propInfo.PropertyType.FullName.StartsWith(Constants.NativeOpcUaNameSpace))
                     {
@@ -646,7 +642,7 @@ namespace OMP.Connector.Infrastructure.Kafka
             var structArray = Array.CreateInstance(structType, structs.Count);
             for (var i = 0; i < structs.Count; i++)
             {
-                structArray.SetValue(this.BuildOpcUaStruct(structType, structs[i]), i);
+                structArray.SetValue(BuildOpcUaStruct(structType, structs[i]), i);
             }
             return structArray;
         }

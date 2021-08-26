@@ -1,4 +1,4 @@
-namespace OMP.Connector.Infrastructure.Kafka.ComplexTypes.Types
+namespace OMP.Connector.Infrastructure.OpcUa.ComplexTypes.Types
 {
     public enum StructureBaseDataType
     {

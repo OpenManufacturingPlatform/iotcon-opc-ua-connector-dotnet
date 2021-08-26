@@ -34,7 +34,7 @@ using System.Linq;
 using System.Xml;
 using Opc.Ua;
 
-namespace OMP.Connector.Infrastructure.Kafka.ComplexTypes
+namespace OMP.Connector.Infrastructure.OpcUa.ComplexTypes
 {
     /// <summary>
     /// Extensions to convert binary schema type definitions to DataTypeDefinitions.

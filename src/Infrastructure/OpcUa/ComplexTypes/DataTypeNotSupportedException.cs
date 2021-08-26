@@ -1,7 +1,7 @@
 using System;
 using Opc.Ua;
 
-namespace OMP.Connector.Infrastructure.Kafka.ComplexTypes
+namespace OMP.Connector.Infrastructure.OpcUa.ComplexTypes
 {
     /// <summary>
     /// DataType is not supported due to structure or value rank.

@@ -8,10 +8,10 @@ using Microsoft.Extensions.Options;
 using OMP.Connector.Application.Extensions;
 using OMP.Connector.Domain.Configuration;
 using OMP.Connector.Domain.OpcUa;
-using OMP.Connector.Infrastructure.Kafka.Reconnect;
+using OMP.Connector.Infrastructure.OpcUa.Reconnect;
 using Opc.Ua;
 
-namespace OMP.Connector.Infrastructure.Kafka.States
+namespace OMP.Connector.Infrastructure.OpcUa.States
 {
     public class SessionPoolStateManager : ISessionPoolStateManager
     {
@@ -31,13 +31,13 @@ namespace OMP.Connector.Infrastructure.Kafka.States
             ApplicationConfiguration applicationConfiguration,
             IMapper mapper)
         {
-            this._sessionPool = new ConcurrentDictionary<string, IOpcSession>();
-            this._semaphoreSlim = new SemaphoreSlim(1);
-            this._opcUaSettingOptions = connectorConfiguration;
-            this._opcSessionReconnectHandlerFactory = opcSessionReconnectHandlerFactory;
-            this._loggerFactory = loggerFactory;
-            this._applicationConfiguration = applicationConfiguration;
-            this._mapper = mapper;
+            _sessionPool = new ConcurrentDictionary<string, IOpcSession>();
+            _semaphoreSlim = new SemaphoreSlim(1);
+            _opcUaSettingOptions = connectorConfiguration;
+            _opcSessionReconnectHandlerFactory = opcSessionReconnectHandlerFactory;
+            _loggerFactory = loggerFactory;
+            _applicationConfiguration = applicationConfiguration;
+            _mapper = mapper;
         }
 
         public Task CleanupStaleSessionsAsync()
@@ -50,20 +50,20 @@ namespace OMP.Connector.Infrastructure.Kafka.States
         {
             try
             {
-                await this._semaphoreSlim.WaitAsync(cancellationToken).ConfigureAwait(false);
+                await _semaphoreSlim.WaitAsync(cancellationToken).ConfigureAwait(false);
 
                 opcUaServerUrl = opcUaServerUrl.ToValidBaseEndpointUrl();
 
-                if (this._sessionPool.TryGetValue(opcUaServerUrl, out IOpcSession session)) { return session; }
+                if (_sessionPool.TryGetValue(opcUaServerUrl, out IOpcSession session)) { return session; }
 
-                session = await this.OpenNewSessionAsync(opcUaServerUrl);
-                await this.AddSessionToDictionaryAsync(opcUaServerUrl, session, cancellationToken);
+                session = await OpenNewSessionAsync(opcUaServerUrl);
+                await AddSessionToDictionaryAsync(opcUaServerUrl, session, cancellationToken);
 
                 return session;
             }
             finally
             {
-                this._semaphoreSlim.Release();
+                _semaphoreSlim.Release();
             }
         }
 
@@ -74,7 +74,7 @@ namespace OMP.Connector.Infrastructure.Kafka.States
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                sessionAddedToDictionary = this._sessionPool.TryAdd(key, session);
+                sessionAddedToDictionary = _sessionPool.TryAdd(key, session);
 
                 if (!sessionAddedToDictionary)
                 {
@@ -86,34 +86,34 @@ namespace OMP.Connector.Infrastructure.Kafka.States
         private async Task<IOpcSession> OpenNewSessionAsync(string opcUaServerUrl)
         {
             var session = new OpcSession(
-                this._opcUaSettingOptions,
-                this._opcSessionReconnectHandlerFactory,
-                this._loggerFactory,
-                this._applicationConfiguration,
-                this._mapper);
+                _opcUaSettingOptions,
+                _opcSessionReconnectHandlerFactory,
+                _loggerFactory,
+                _applicationConfiguration,
+                _mapper);
             await session.ConnectAsync(opcUaServerUrl);
             return session;
         }
 
         public void Dispose()
         {
-            this.Dispose(true);
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
 
         protected void Dispose(bool disposing)
         {
-            if (this._disposed) { return; }
+            if (_disposed) { return; }
             if (disposing)
             {
-                foreach (var keyValue in this._sessionPool)
+                foreach (var keyValue in _sessionPool)
                 {
                     keyValue.Value.Dispose();
                 }
-                this._sessionPool.Clear();
-                this._semaphoreSlim?.Dispose();
+                _sessionPool.Clear();
+                _semaphoreSlim?.Dispose();
             }
-            this._disposed = true;
+            _disposed = true;
         }
     }
 }

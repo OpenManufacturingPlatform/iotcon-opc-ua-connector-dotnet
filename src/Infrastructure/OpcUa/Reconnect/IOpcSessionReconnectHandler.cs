@@ -2,7 +2,7 @@
 using OMP.Connector.Domain.OpcUa;
 using Opc.Ua.Client;
 
-namespace OMP.Connector.Infrastructure.Kafka.Reconnect
+namespace OMP.Connector.Infrastructure.OpcUa.Reconnect
 {
     public interface IOpcSessionReconnectHandler : IDisposable
     {

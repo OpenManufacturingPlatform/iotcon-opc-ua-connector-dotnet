@@ -17,9 +17,9 @@ using OMP.Connector.EdgeModule.DI;
 using OMP.Connector.EdgeModule.Jobs;
 using OMP.Connector.EdgeModule.MapperProfiles;
 using OMP.Connector.EdgeModule.Settings.Module;
-using OMP.Connector.Infrastructure.Kafka.ConfigBuilders;
-using OMP.Connector.Infrastructure.Kafka.Reconnect;
-using OMP.Connector.Infrastructure.Kafka.States;
+using OMP.Connector.Infrastructure.OpcUa.ConfigBuilders;
+using OMP.Connector.Infrastructure.OpcUa.Reconnect;
+using OMP.Connector.Infrastructure.OpcUa.States;
 using Quartz;
 
 namespace OMP.Connector.EdgeModule

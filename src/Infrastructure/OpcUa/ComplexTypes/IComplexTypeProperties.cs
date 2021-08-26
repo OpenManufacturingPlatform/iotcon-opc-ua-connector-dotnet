@@ -31,7 +31,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace OMP.Connector.Infrastructure.Kafka.ComplexTypes
+namespace OMP.Connector.Infrastructure.OpcUa.ComplexTypes
 {
     /// <summary>
     /// Interface to access properties of a complex type.

@@ -1,4 +1,6 @@
-﻿namespace OMP.Connector.Infrastructure.Kafka.Reconnect
+﻿using OMP.Connector.Infrastructure.OpcUa.Reconnect;
+
+namespace OMP.Connector.Infrastructure.OpcUa.Reconnect
 {
     public interface IOpcSessionReconnectHandlerFactory
     {

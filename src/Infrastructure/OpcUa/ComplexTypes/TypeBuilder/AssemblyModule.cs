@@ -32,7 +32,7 @@ using System;
 using System.Reflection;
 using System.Reflection.Emit;
 
-namespace OMP.Connector.Infrastructure.Kafka.ComplexTypes.TypeBuilder
+namespace OMP.Connector.Infrastructure.OpcUa.ComplexTypes.TypeBuilder
 {
     /// <summary>
     /// Use a single assembly and module builder instance to build the type system.

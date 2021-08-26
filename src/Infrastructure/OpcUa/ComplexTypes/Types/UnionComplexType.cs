@@ -34,7 +34,7 @@ using System.Reflection;
 using System.Text;
 using Opc.Ua;
 
-namespace OMP.Connector.Infrastructure.Kafka.ComplexTypes.Types
+namespace OMP.Connector.Infrastructure.OpcUa.ComplexTypes.Types
 {
     public class UnionComplexType : BaseComplexType
     {
