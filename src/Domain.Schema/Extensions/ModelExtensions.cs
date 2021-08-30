@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using OMP.Connector.Domain.Schema.Interfaces;
 
-namespace OMP.Connector.Domain.Schema.Extentions
+namespace OMP.Connector.Domain.Schema.Extenions
 {
     public static class ModelExtensions
     {

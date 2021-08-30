@@ -16,7 +16,6 @@ using OMP.Connector.Domain.Providers;
 using OMP.Connector.EdgeModule.DI;
 using OMP.Connector.EdgeModule.Jobs;
 using OMP.Connector.EdgeModule.MapperProfiles;
-using OMP.Connector.EdgeModule.Settings.Module;
 using OMP.Connector.Infrastructure.OpcUa.ConfigBuilders;
 using OMP.Connector.Infrastructure.OpcUa.Reconnect;
 using OMP.Connector.Infrastructure.OpcUa.States;
@@ -28,8 +27,6 @@ namespace OMP.Connector.EdgeModule
     {
         public static IServiceProvider Bootstrap(HostBuilderContext hostingContext, IServiceCollection serviceCollection)
         {
-            serviceCollection.AddOptions<OpcConnectorModuleSettings>();
-
             serviceCollection.Configure<ConnectorConfiguration>(hostingContext.Configuration);
 
             serviceCollection.AddSingleton<IConfigureOptions<ConnectorConfiguration>, ConfigureConnectorSettings>();

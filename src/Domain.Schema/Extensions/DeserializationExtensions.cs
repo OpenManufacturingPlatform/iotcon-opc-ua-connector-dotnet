@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace OMP.Connector.Domain.Schema.Extentions
+namespace OMP.Connector.Domain.Schema.Extenions
 {
     public static class DeserializationExtensions
     {

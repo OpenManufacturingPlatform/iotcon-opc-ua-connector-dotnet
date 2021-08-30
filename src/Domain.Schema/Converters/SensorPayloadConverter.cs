@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using OMP.Connector.Domain.Schema.Converters.Base;
-using OMP.Connector.Domain.Schema.Extentions;
+using OMP.Connector.Domain.Schema.Extenions;
 using OMP.Connector.Domain.Schema.SensorTelemetry;
 
 namespace OMP.Connector.Domain.Schema.Converters

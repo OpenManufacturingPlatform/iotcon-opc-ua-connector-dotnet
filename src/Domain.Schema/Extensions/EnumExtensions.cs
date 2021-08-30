@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Runtime.Serialization;
 
-namespace OMP.Connector.Domain.Schema.Extentions
+namespace OMP.Connector.Domain.Schema.Extenions
 {
     public static class EnumExtensions
     {

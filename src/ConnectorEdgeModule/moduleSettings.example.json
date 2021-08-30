@@ -1,6 +1,4 @@
 ﻿{
-  "RootDirectory": null,
-  "KeyVaultBaseUrl": null,
   "DisableSubscriptionRestoreService": true,
   "EnableMessageFilter": false,
   "ConnectorId": "###",

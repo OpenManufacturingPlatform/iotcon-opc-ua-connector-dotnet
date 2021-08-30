@@ -1,5 +1,5 @@
 ﻿using System;
-using OMP.Connector.Domain.Schema.Extentions;
+using OMP.Connector.Domain.Schema.Extenions;
 using OMP.Connector.Domain.Schema.Interfaces;
 
 namespace OMP.Connector.Domain.Schema.Factories

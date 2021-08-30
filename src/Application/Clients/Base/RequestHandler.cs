@@ -43,7 +43,6 @@ namespace OMP.Connector.Application.Clients.Base
             IDiscoveryService discoveryService,
             IOptions<ConnectorConfiguration> connectorConfiguration,
             CommandRequestValidator commandRequestValidator)
-            //RoutingSettingsValidator routingSettingsValidator)
         {
             this.Logger = logger;
             this.MessageSender = messageSender;
@@ -53,9 +52,6 @@ namespace OMP.Connector.Application.Clients.Base
             this.DiscoveryService = discoveryService;
             this._connectorConfiguration = connectorConfiguration.Value;
             this.RequestValidator = commandRequestValidator;
-
-            //throw new NotImplementedException("FIX: ValidateRoutingSettings(routingSettings, routingSettingsValidator);");
-//            ValidateRoutingSettings(routingSettings, routingSettingsValidator);
         }
 
         public virtual async Task OnMessageReceivedAsync(CommandRequest commandMessage)

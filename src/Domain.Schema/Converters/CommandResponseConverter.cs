@@ -2,7 +2,7 @@
 using Newtonsoft.Json.Linq;
 using OMP.Connector.Domain.Schema.Converters.Base;
 using OMP.Connector.Domain.Schema.Enums;
-using OMP.Connector.Domain.Schema.Extentions;
+using OMP.Connector.Domain.Schema.Extenions;
 using OMP.Connector.Domain.Schema.Interfaces;
 using OMP.Connector.Domain.Schema.Responses.Base;
 using OMP.Connector.Domain.Schema.Responses.Control;
