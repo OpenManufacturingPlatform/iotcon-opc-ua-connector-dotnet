@@ -1,0 +1,26 @@
+////
+Copyright (c) 2021 BMW Group
+
+See the AUTHORS file(s) distributed with this work for additional information regarding authorship. 
+
+This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
+If a copy of the MPL was not distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/
+SPDX-License-Identifier: MPL-2.0
+////
+
+.Specification
+* xref:index.adoc[Introduction]
+* xref:architecture.adoc[Architecture]
+* Commands
+  ** xref:commands/read-command.adoc[Read]
+  ** xref:commands/write-command.adoc[Write]
+  ** xref:commands/call-command.adoc[Call]
+  ** xref:commands/browse-command.adoc[Browse]
+* Telemetry
+  ** xref:telemetry/create-subscription.adoc[Create Subscription]
+  ** xref:telemetry/remove-all-subscriptions.adoc[Remove All Subscriptions]
+  ** xref:telemetry/remove-subscription.adoc[Remove Subscription]
+* Discovery
+  ** xref:discovery/discover.adoc[Discover]
+* Installation
+  ** xref:installation/configuration.adoc[Configuration]
