@@ -69,9 +69,23 @@ goto fail
 
 set CLASSPATH=%APP_HOME%\gradle\wrapper\gradle-wrapper.jar
 
+set noproxy=
+set args=
+FOR %%x IN (%*) DO (
+    IF [%%x] == [/noproxy] (
+	set noproxy=true
+	IF exist gradle.properties ren gradle.properties gradle.properties.disabled
+    )
+    IF NOT [%%x] == [/noproxy] (
+     set "args=%%x"
+    )
+)
+IF NOT defined noproxy (
+    IF exist gradle.properties.disabled ren gradle.properties.disabled gradle.properties
+)
 
 @rem Execute Gradle
-"%JAVA_EXE%" %DEFAULT_JVM_OPTS% %JAVA_OPTS% %GRADLE_OPTS% "-Dorg.gradle.appname=%APP_BASE_NAME%" -classpath "%CLASSPATH%" org.gradle.wrapper.GradleWrapperMain %*
+"%JAVA_EXE%" %DEFAULT_JVM_OPTS% %JAVA_OPTS% %GRADLE_OPTS% "-Djava.net.useSystemProxies=true" "-Dorg.gradle.appname=%APP_BASE_NAME%" -classpath "%CLASSPATH%" org.gradle.wrapper.GradleWrapperMain %args%
 
 :end
 @rem End local scope for the variables with windows NT shell

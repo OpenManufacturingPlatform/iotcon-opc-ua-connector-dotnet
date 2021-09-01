@@ -111,35 +111,50 @@ val downloadAntoraSiteGeneratorLunr = tasks.register<NpmTask>("downloadAntoraSit
     onlyIf { !file("${project.buildDir}/node_modules/antora-site-generator-lunr/lib/index.js").exists() }
 }
 
+val downloadProxyAgent = tasks.register<NpmTask>("downloadProxyAgent") {
+    setArgs(listOf("install", "global-agent"))
+    onlyIf { !file("${project.buildDir}/node_modules/global-agent/bootstrap.js").exists() }
+}
+
 val downloadPlantUml = tasks.register<NpmTask>("downloadPlantUml") {
     setArgs(listOf("install", "asciidoctor-plantuml"))
     onlyIf { !file("${project.buildDir}/node_modules/asciidoctor-plantuml/package.json").exists() }
 }
 
+var gitIsInitiated = false
+
+val checkIfGitInitiated = task("checkIfGitInitiated") {
+    gitIsInitiated = file("${project.projectDir}/.git").exists()
+}
+
 val gitInitRepo = tasks.register<Exec>("gitInitRepo") {
+    setDependsOn(listOf(checkIfGitInitiated))
     commandLine = listOf("git", "init", "${project.projectDir}")
+    onlyIf { !gitIsInitiated }
 }
 
 val gitAdd = tasks.register<Exec>("gitAdd") {
     setDependsOn(listOf(gitInitRepo))
     commandLine = listOf("git", "add", "${project.projectDir}/.gitignore")
+    onlyIf { !gitIsInitiated }
 }
 
 val gitCommit = tasks.register<Exec>("gitCommit") {
     setDependsOn(listOf(gitAdd))
     commandLine = listOf("git", "commit", "-m", "initialized repo")
+    onlyIf { !gitIsInitiated }
 }
 
 tasks.register<NodeTask>("antora") {
-    setDependsOn(listOf(downloadAntoraCli, downloadAntoraSiteGeneratorLunr, downloadPlantUml, gitCommit))
+    setDependsOn(listOf(downloadAntoraCli, downloadAntoraSiteGeneratorLunr, downloadPlantUml, downloadProxyAgent, gitCommit))
     setScript(file("${project.buildDir}/node_modules/@antora/cli/bin/antora"))
-    setArgs(listOf("--generator", "antora-site-generator-lunr", "site.yml", "--stacktrace"))
+    setArgs(listOf("-r", "./global-proxy-support.js", "--generator", "antora-site-generator-lunr", "site.yml", "--stacktrace"))
     setWorkingDir(project.projectDir)
 }
 
-tasks.register<NodeTask>("antoraLocal") {
+tasks.register<NodeTask>("antora-noproxy") {
     setDependsOn(listOf(downloadAntoraCli, downloadAntoraSiteGeneratorLunr, downloadPlantUml, gitCommit))
     setScript(file("${project.buildDir}/node_modules/@antora/cli/bin/antora"))
-    setArgs(listOf("--generator", "antora-site-generator-lunr", "site-local.yml", "--stacktrace"))
+    setArgs(listOf("--generator", "antora-site-generator-lunr", "site.yml", "--stacktrace"))
     setWorkingDir(project.projectDir)
 }
