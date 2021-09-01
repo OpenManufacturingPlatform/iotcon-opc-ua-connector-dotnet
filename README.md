@@ -13,7 +13,7 @@ That's why the OMP IoT Connectivity Working Group saw the need for a connector s
 
 The OPC UA Edge Connector is hosted on the Edge Level and can connect to the cloud level and the production asset level. Southbound to the production asset level it connects via the OPC UA Client/Server protocol. Northbound it connects to a message broker like MQTT or Kafka, which is in the cloud level or in the edge level, either on the same edge node for local processing of the data or centrally in the plant data center. The OPC UA connector is a containerized software and can run on an Edge Node like an industrial PC or a container platform.
 
-![Infrastructural View](images\infrastructural-view.PNG)
+![Infrastructural View](images/infrastructural-view.PNG)
 
 ## Application View
 
@@ -21,10 +21,10 @@ The OPC UA Edge Connector is controlled by messages. Therefor it consumes JSON m
 
 A special function has the telemetry topic. Notifications of monitored items resulting from an active subscription are sent to the telemetry topic. 
 
-![Application View](images\application-view.PNG)
+![Application View](images/application-view.PNG)
 
 ## Operational View
 
 In the configuration phase of the OPC UA Edge Connector a configuration needs to be applied. The configuration contains for example information about the message broker endpoints. The software is logging by default to the console. The user needs to bring a appropriate Monitoring Service and Management Service in place to be control, observe and operate the software centrally and in large scale.  
 
-![Operational View](images\operational-view.PNG)
+![Operational View](images/operational-view.PNG)
