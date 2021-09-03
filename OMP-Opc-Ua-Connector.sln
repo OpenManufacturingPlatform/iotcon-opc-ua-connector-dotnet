@@ -34,7 +34,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kafka", "src\Infrastructure
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConnectorEdgeModule", "src\ConnectorEdgeModule\ConnectorEdgeModule.csproj", "{0A9E698D-162B-4803-9DA3-E6498E829711}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application.Tests", "tests\Application.Tests\Application.Tests.csproj", "{840837CF-019C-4C3D-BA3D-DE751BBAA587}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Application.Tests", "tests\Application.Tests\Application.Tests.csproj", "{840837CF-019C-4C3D-BA3D-DE751BBAA587}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MQTT", "src\Infrastructure\MQTT\MQTT.csproj", "{2772284B-030F-45F3-A908-6256E1BA0A2A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -116,6 +118,14 @@ Global
 		{840837CF-019C-4C3D-BA3D-DE751BBAA587}.DebugMqtt|Any CPU.Build.0 = Debug|Any CPU
 		{840837CF-019C-4C3D-BA3D-DE751BBAA587}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{840837CF-019C-4C3D-BA3D-DE751BBAA587}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2772284B-030F-45F3-A908-6256E1BA0A2A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2772284B-030F-45F3-A908-6256E1BA0A2A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2772284B-030F-45F3-A908-6256E1BA0A2A}.DebugKafka|Any CPU.ActiveCfg = Debug|Any CPU
+		{2772284B-030F-45F3-A908-6256E1BA0A2A}.DebugKafka|Any CPU.Build.0 = Debug|Any CPU
+		{2772284B-030F-45F3-A908-6256E1BA0A2A}.DebugMqtt|Any CPU.ActiveCfg = Debug|Any CPU
+		{2772284B-030F-45F3-A908-6256E1BA0A2A}.DebugMqtt|Any CPU.Build.0 = Debug|Any CPU
+		{2772284B-030F-45F3-A908-6256E1BA0A2A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2772284B-030F-45F3-A908-6256E1BA0A2A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -133,6 +143,7 @@ Global
 		{44CE56C7-719F-43EF-996A-7B88DA7F01EB} = {45155A97-3609-4B83-8EE0-F4378B7AAD29}
 		{0A9E698D-162B-4803-9DA3-E6498E829711} = {9E2FDA85-FF37-4E8C-B6E1-056CE77C0EE2}
 		{840837CF-019C-4C3D-BA3D-DE751BBAA587} = {13F26BFD-6110-48EC-B78D-E299903A91EE}
+		{2772284B-030F-45F3-A908-6256E1BA0A2A} = {45155A97-3609-4B83-8EE0-F4378B7AAD29}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A0CE2A75-8CEA-40E8-B1DF-E77D1204B110}
