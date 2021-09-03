@@ -1,7 +1,7 @@
-﻿using OMP.Connector.Application.Repositories;
+﻿using NUnit.Framework;
+using OMP.Connector.Application.Repositories;
 using OMP.Connector.Domain.Models;
 using OMP.Connector.Domain.Schema;
-using NUnit.Framework;
 
 namespace OMP.Connector.Application.Tests.Repositories
 {
@@ -10,9 +10,9 @@ namespace OMP.Connector.Application.Tests.Repositories
     {
         private const string EndpointUrl = "url";
         private const string EndpointUrlDifferent = "url/DifferentEndpoint";
-        
+
         private readonly LocalEndpointDescriptionRepository _repository;
-        
+
         public LocalEndpointDescriptionRepositoryTests()
         {
             this._repository = new LocalEndpointDescriptionRepository();
@@ -42,14 +42,14 @@ namespace OMP.Connector.Application.Tests.Repositories
                 EndpointUrl = EndpointUrl,
                 ServerDetails = updateDetails
             });
-            
+
             // Test
             var actualEndpointDescriptionDto = this._repository.GetByEndpointUrl(EndpointUrl);
-            
+
             // Verify
             Assert.AreEqual(updateDetails, actualEndpointDescriptionDto.ServerDetails);
         }
-        
+
         [Test]
         public void Should_Preserve_Details_When_Different_Urls_Used()
         {

@@ -55,7 +55,7 @@ namespace OMP.Connector.Application.Tests.Services
 
             commandProvider
                 .ExecuteAsync()
-                .Returns(new[] {readResponse});
+                .Returns(new[] { readResponse });
 
             var commandProcessorFactory = Substitute.For<ICommandProviderFactory>();
             commandProcessorFactory
@@ -134,7 +134,7 @@ namespace OMP.Connector.Application.Tests.Services
             // Arrange
             var commandProcessorFactory = Substitute.For<ICommandProviderFactory>();
             commandProcessorFactory
-                .GetProcessors(Arg.Any<IEnumerable<ICommandRequest>>(),Arg.Any<IOpcSession>())
+                .GetProcessors(Arg.Any<IEnumerable<ICommandRequest>>(), Arg.Any<IOpcSession>())
                 .Throws(new T());
 
             var command = CommandHelper.CreateReadCommandRequest(TestConstants.NodeId, TestConstants.SchemaUrl);

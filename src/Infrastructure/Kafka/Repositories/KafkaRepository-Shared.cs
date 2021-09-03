@@ -55,19 +55,23 @@ namespace OMP.Device.Connector.Kafka.Repositories
             var result = _configurationPersister.SaveConfigurationAsync(newConfig, default).GetAwaiter().GetResult();
 
             return result.Match(
-                success => {
+                success =>
+                {
                     _logger.LogTrace($"{nameof(KafkaRepository)} successfully updated the configuration on the Topic");
                     return true;
                 },
-                partialSuccess => {
+                partialSuccess =>
+                {
                     _logger.LogTrace($"{nameof(KafkaRepository)} attempted to update config, wich partially succeeded: Result = {partialSuccess.Message}");
                     return false;
                 },
-                messageToLarge => {
+                messageToLarge =>
+                {
                     _logger.LogTrace($"{nameof(KafkaRepository)} attempted to update config, wich failed [message too large]: Result = {messageToLarge.Error}");
                     return false;
                 },
-                errorResult => {
+                errorResult =>
+                {
                     _logger.LogTrace($"{nameof(KafkaRepository)} attempted to update config, wich failed: Result = {errorResult.Error}");
                     return false;
                 });

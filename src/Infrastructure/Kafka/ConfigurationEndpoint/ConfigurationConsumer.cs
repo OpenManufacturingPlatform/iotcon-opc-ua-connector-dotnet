@@ -7,7 +7,7 @@ using OMP.Device.Connector.Kafka.Serialization;
 
 namespace OMP.Device.Connector.Kafka.ConfigurationEndpoint
 {
-    public class ConfigurationConsumer:  CustomKafkaConsumer<string, AppConfigDto>, IConfigurationConsumer
+    public class ConfigurationConsumer : CustomKafkaConsumer<string, AppConfigDto>, IConfigurationConsumer
     {
         public ConfigurationConsumer(
             KafkaConfig kafkaConfig,

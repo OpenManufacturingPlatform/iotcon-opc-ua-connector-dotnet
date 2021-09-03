@@ -11,7 +11,7 @@ using OMP.Connector.Domain.Schema.Request.Subscription;
 
 namespace OMP.Connector.Application.Factories
 {
-    public class SubscriptionProviderFactory: ISubscriptionProviderFactory
+    public class SubscriptionProviderFactory : ISubscriptionProviderFactory
     {
         private readonly ISubscriptionRepository _subscriptionRepository;
         private readonly IEndpointDescriptionRepository _endpointDescriptionRepository;
@@ -25,7 +25,7 @@ namespace OMP.Connector.Application.Factories
             ILoggerFactory loggerFactory,
             IOptions<ConnectorConfiguration> connectorConfiguration,
             MonitoredItemServiceInitializerFactoryDelegate monitoredItemServiceInitializerFactory,
-            MonitoredItemValidator monitoredItemValidator, 
+            MonitoredItemValidator monitoredItemValidator,
             IEndpointDescriptionRepository endpointDescriptionRepository)
         {
             this._subscriptionRepository = dataManagementService;
@@ -40,8 +40,8 @@ namespace OMP.Connector.Application.Factories
             => command switch
             {
                 { } when command is CreateSubscriptionsRequest createCommand => this.CreateSubscriptionProvider(createCommand, telemetryMessageMetadata),
-                { } when command is RemoveAllSubscriptionsRequest deleteCommand => this.CreateRemoveAllSubscriptionProvider( deleteCommand),
-                { } when command is RemoveSubscriptionsRequest removeItemsCommand =>this.CreateRemoveSubscriptionProvider(removeItemsCommand),
+                { } when command is RemoveAllSubscriptionsRequest deleteCommand => this.CreateRemoveAllSubscriptionProvider(deleteCommand),
+                { } when command is RemoveSubscriptionsRequest removeItemsCommand => this.CreateRemoveSubscriptionProvider(removeItemsCommand),
                 _ => default
             };
 

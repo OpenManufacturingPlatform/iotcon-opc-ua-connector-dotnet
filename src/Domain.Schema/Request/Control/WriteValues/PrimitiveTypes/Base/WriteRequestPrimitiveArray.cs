@@ -5,12 +5,12 @@ using OMP.Connector.Domain.Schema.Interfaces;
 namespace OMP.Connector.Domain.Schema.Request.Control.WriteValues.PrimitiveTypes.Base
 {
     public class WriteRequestPrimitiveArray<TType> : List<TType>, IWriteRequestValue, IPrimitiveArray
-        where TType: IComparable, IEquatable<TType>
+        where TType : IComparable, IEquatable<TType>
     {
-        public WriteRequestPrimitiveArray(IEnumerable<TType> items) 
+        public WriteRequestPrimitiveArray(IEnumerable<TType> items)
             => this.AddRange(items);
 
-        Array IPrimitiveArray.ToArray() 
+        Array IPrimitiveArray.ToArray()
             => this.ToArray();
     }
 }

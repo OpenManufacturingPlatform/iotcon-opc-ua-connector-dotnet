@@ -2,5 +2,5 @@
 
 namespace OMP.Connector.Domain.Schema.Responses.Subscription
 {
-    public class RemoveSubscriptionsResponse : CommandResponse {}
+    public class RemoveSubscriptionsResponse : CommandResponse { }
 }

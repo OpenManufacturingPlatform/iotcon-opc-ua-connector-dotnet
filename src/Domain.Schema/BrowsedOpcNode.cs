@@ -4,34 +4,34 @@ namespace OMP.Connector.Domain.Schema
 {
     public class BrowsedOpcNode : OpcNode
     {
-        [JsonProperty("nodeType")] 
+        [JsonProperty("nodeType")]
         public string NodeType { get; set; }
 
-        [JsonProperty("dataType")] 
+        [JsonProperty("dataType")]
         public string DataType { get; set; }
 
-        [JsonProperty("value")] 
+        [JsonProperty("value")]
         public string Value { get; set; }
 
-        [JsonProperty("valueRank")] 
+        [JsonProperty("valueRank")]
         public string ValueRank { get; set; }
 
-        [JsonProperty("arrayDimensions")] 
+        [JsonProperty("arrayDimensions")]
         public ArrayDimensions ArrayDimensions { get; set; }
 
-        [JsonProperty("accessLevel")] 
+        [JsonProperty("accessLevel")]
         public string AccessLevel { get; set; }
 
-        [JsonProperty("userAccessLevel")] 
+        [JsonProperty("userAccessLevel")]
         public string UserAccessLevel { get; set; }
 
         [JsonProperty("minimumSamplingInterval")]
         public string MinimumSamplingInterval { get; set; }
 
-        [JsonProperty("historizing")] 
+        [JsonProperty("historizing")]
         public bool Historizing { get; set; }
 
-        [JsonProperty("childNodes")] 
+        [JsonProperty("childNodes")]
         public BrowsedOpcNode[] ChildNodes { get; set; }
     }
 }

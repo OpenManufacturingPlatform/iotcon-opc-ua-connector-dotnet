@@ -2,5 +2,5 @@
 
 namespace OMP.Connector.Domain.Schema.Responses.Discovery.Base
 {
-    public abstract class DiscoveryResponse : CommandResponse {}
+    public abstract class DiscoveryResponse : CommandResponse { }
 }

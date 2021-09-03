@@ -3,7 +3,7 @@ using OMP.Device.Connector.Kafka.Common.Consumers;
 
 namespace OMP.Device.Connector.Kafka.ConfigurationEndpoint
 {
-    public interface IConfigurationConsumer: ICustomKafkaConsumer<string, AppConfigDto>
+    public interface IConfigurationConsumer : ICustomKafkaConsumer<string, AppConfigDto>
     {
 
     }

@@ -1,5 +1,4 @@
-﻿using System;
-using Confluent.Kafka;
+﻿using Confluent.Kafka;
 
 namespace OMP.Device.Connector.Kafka.Common.Producers.Handlers
 {

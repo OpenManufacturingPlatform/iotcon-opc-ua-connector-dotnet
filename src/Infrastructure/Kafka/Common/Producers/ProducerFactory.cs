@@ -11,7 +11,7 @@ using OMP.Device.Connector.Kafka.TelemetryEndpoint;
 
 namespace OMP.Device.Connector.Kafka.Common.Producers
 {
-    public class ProducerFactory: IProducerFactory
+    public class ProducerFactory : IProducerFactory
     {
         private readonly ConnectorConfiguration _connectorConfiguration;
         private readonly ILoggerFactory _loggerFactory;

@@ -128,7 +128,7 @@ namespace OMP.Connector.Application.Tests.Repositories
             // Verify
             var actualSubscriptionDto = this._repository.GetAllByEndpointUrl(EndpointUrl);
 
-            var actualSubscriptionList = actualSubscriptionDto.ToList();            
+            var actualSubscriptionList = actualSubscriptionDto.ToList();
             Assert.That(actualSubscriptionList.Count(), Is.EqualTo(1));
 
             var singleSubscription = actualSubscriptionList.First();
@@ -318,7 +318,7 @@ namespace OMP.Connector.Application.Tests.Repositories
             });
 
             // Test
-            var deleteItems = new List<OpcUaMonitoredItem> {itemsNodeA};
+            var deleteItems = new List<OpcUaMonitoredItem> { itemsNodeA };
             var actualDeletionSuccessful = this._repository.DeleteMonitoredItems(EndpointUrl, deleteItems);
 
             // Verify
@@ -340,7 +340,7 @@ namespace OMP.Connector.Application.Tests.Repositories
             Assert.That(serverBSubscriptionList.Count(), Is.EqualTo(1));
             Assert.AreEqual(1, serverBSubscriptionList.First().MonitoredItems.Count);
         }
-        
+
         [Test]
         public void Should_Delete_Whole_Subscription_If_No_Item_Left()
         {
@@ -392,7 +392,7 @@ namespace OMP.Connector.Application.Tests.Repositories
             });
 
             // Test
-            var deleteItems = new List<OpcUaMonitoredItem> {itemsNodeA};
+            var deleteItems = new List<OpcUaMonitoredItem> { itemsNodeA };
             var actualDeletionSuccessful = this._repository.DeleteMonitoredItems(EndpointUrlDifferent, deleteItems);
 
             // Verify
@@ -411,7 +411,7 @@ namespace OMP.Connector.Application.Tests.Repositories
             var subscriptionServerB = subscriptionDtos.Where(dto => dto.EndpointUrl == EndpointUrlDifferent);
             Assert.IsEmpty(subscriptionServerB);
         }
-        
+
         [Test]
         public void Should_Delete_Subscription_Identified_By_Endpoint_And_PublishingInterval()
         {
@@ -480,7 +480,7 @@ namespace OMP.Connector.Application.Tests.Repositories
 
             var subscriptionServerA = subscriptionDtos.Where(dto => dto.EndpointUrl == EndpointUrl);
             Assert.IsEmpty(subscriptionServerA);
-            
+
             var subscriptionServerB = subscriptionDtos.Where(dto => dto.EndpointUrl == EndpointUrlDifferent);
             Assert.That(subscriptionServerB.Count(), Is.EqualTo(1));
         }

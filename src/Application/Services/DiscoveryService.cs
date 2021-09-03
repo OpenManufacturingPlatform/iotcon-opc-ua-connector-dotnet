@@ -157,18 +157,18 @@ namespace OMP.Connector.Application.Services
             if (request == default)
                 throw new ArgumentException($"{nameof(ServerDiscoveryRequest)} can not be null");
 
-                var response = await this.ExecuteAsync(commandRequest.GetEndpointUrl());
+            var response = await this.ExecuteAsync(commandRequest.GetEndpointUrl());
 
-                var endpointDescription = new EndpointDescriptionDto
-                {
-                    EndpointUrl = commandRequest.GetEndpointUrl(),
-                    ServerDetails = request.ServerDetails
-                };
-                var endpointUpdateSuccess = this._endpointDescriptionRepository.Add(endpointDescription);
-                if (!endpointUpdateSuccess)
-                    response.Message = "Bad: Configuration update error";
+            var endpointDescription = new EndpointDescriptionDto
+            {
+                EndpointUrl = commandRequest.GetEndpointUrl(),
+                ServerDetails = request.ServerDetails
+            };
+            var endpointUpdateSuccess = this._endpointDescriptionRepository.Add(endpointDescription);
+            if (!endpointUpdateSuccess)
+                response.Message = "Bad: Configuration update error";
 
-                return response;
+            return response;
         }
 
         private static async Task<bool> IpAddressExistsAsync(string ipAddress)

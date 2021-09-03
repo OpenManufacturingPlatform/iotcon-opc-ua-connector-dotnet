@@ -76,7 +76,7 @@ namespace OMP.Connector.Application.OpcUa
                 elementType = typeof(Guid);
             }
 
-            var type = typeof(PrimitiveSensorMeasurements<>).MakeGenericType(new [] { elementType });
+            var type = typeof(PrimitiveSensorMeasurements<>).MakeGenericType(new[] { elementType });
             return (IMeasurementValue)Activator.CreateInstance(type, array);
         }
 

@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 
 namespace OMP.Device.Connector.Kafka.Serialization
 {
-    public class JsonSerializerFactory: ISerializerFactory
+    public class JsonSerializerFactory : ISerializerFactory
     {
         private readonly ILoggerFactory _loggerFactory;
 

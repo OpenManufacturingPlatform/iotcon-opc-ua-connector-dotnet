@@ -5,7 +5,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OMP.Connector.Domain.Configuration;
 using OMP.Connector.Domain.Extensions;
-using OMP.Connector.Infrastructure.OpcUa;
 using Opc.Ua;
 
 namespace OMP.Connector.Infrastructure.OpcUa.ConfigBuilders
@@ -17,7 +16,7 @@ namespace OMP.Connector.Infrastructure.OpcUa.ConfigBuilders
 
         public AppConfigBuilder(ILogger<AppConfigBuilder> logger, IOptions<ConnectorConfiguration> connectorConfiguration)
         {
-            this._opcUaSettings= connectorConfiguration.Value.OpcUa.GetConfig<OpcUaSettings>();
+            this._opcUaSettings = connectorConfiguration.Value.OpcUa.GetConfig<OpcUaSettings>();
             this._logger = logger;
         }
 

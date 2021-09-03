@@ -23,7 +23,7 @@ namespace OMP.Device.Connector.Kafka.ConfigurationEndpoint
             : base(kafkaConfig, configuration, logger, serializerFactory, kafkaEventHandlerFactory)
         { }
 
-        public Task<OneOf<PublishSucceeded, PublishPartialSucceeded, PublishedFailedMessageSizeTooLarge,PublishFailed>> SaveConfigurationAsync(AppConfigDto appConfig, CancellationToken cancellationToken)
+        public Task<OneOf<PublishSucceeded, PublishPartialSucceeded, PublishedFailedMessageSizeTooLarge, PublishFailed>> SaveConfigurationAsync(AppConfigDto appConfig, CancellationToken cancellationToken)
             => this.ProduceAsync(appConfig, cancellationToken);
     }
 }

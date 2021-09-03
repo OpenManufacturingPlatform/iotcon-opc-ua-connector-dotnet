@@ -8,7 +8,7 @@ namespace OMP.Connector.Domain.Extensions
     {
         public static Type GetSystemType(this OpcNodeId opcNodeId, int valueRank)
             => GetSystemType(opcNodeId.FriendlyName, valueRank);
-        
+
         private static Type GetSystemType(string nodeIdentifier, int valueRank)
         {
             try

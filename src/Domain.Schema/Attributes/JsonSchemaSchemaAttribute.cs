@@ -6,6 +6,6 @@ namespace OMP.Connector.Domain.Schema.Attributes
     {
         public JsonSchemaSchemaAttribute() : base("format", "uri-reference")
         {
-        }        
+        }
     }
 }
