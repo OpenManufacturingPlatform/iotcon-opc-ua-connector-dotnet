@@ -1,6 +1,15 @@
 # OMP OPC UA Edge Connector 
 ### **Software under construction**
-## Motivation
+
+- [Motivation](#motivation)
+- [Infrastructural View](#infrastructural-view)
+- [Application View](#application-view)
+- [Operational View](#operational-view)
+- [Getting Started and Contribution](#getting-started-and-contribution)
+- [Build and Installation](#build-and-installation)
+
+
+## Introduction
 
 - OPC UA is the major vendor independent machine protocol on production asset level
 - IT systems don't have support for OPC UA, but follow streaming approaches
@@ -29,12 +38,12 @@ In the configuration phase of the OPC UA Edge Connector a configuration needs to
 
 ![Operational View](images/operational-view.PNG)
 
-## Getting started and contribute
+## Getting Started and Contribution
 
-* Please check our documentation: (under construction)
-* Share your thoughts with us in our [Discussion Board](https://github.com/OpenManufacturingPlatform/iotcon-opc-ua-connector-dotnet/discussions)
-* You found a issue? Please create a [GitHub Issue](https://github.com/OpenManufacturingPlatform/iotcon-opc-ua-connector-dotnet/issues)
+- Please check our documentation: (under construction)
+- Share your thoughts with us in our [Discussion Board](https://github.com/OpenManufacturingPlatform/iotcon-opc-ua-connector-dotnet/discussions)
+- You found a issue? Please create a [GitHub Issue](https://github.com/OpenManufacturingPlatform/iotcon-opc-ua-connector-dotnet/issues)
 
 Please respect our contribution guidlines. (LINK)
 
-## Build and installation
+## Build and Installation
