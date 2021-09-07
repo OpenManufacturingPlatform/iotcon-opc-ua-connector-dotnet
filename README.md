@@ -28,3 +28,13 @@ A special function has the telemetry topic. Notifications of monitored items res
 In the configuration phase of the OPC UA Edge Connector a configuration needs to be applied. The configuration contains for example information about the message broker endpoints. The software is logging by default to the console. The user needs to bring a appropriate Monitoring Service and Management Service in place to be control, observe and operate the software centrally and in large scale.  
 
 ![Operational View](images/operational-view.PNG)
+
+## Getting started and contribute
+
+* Please check our documentation: (under construction)
+* Share your thoughts with us in our [Discussion Board](https://github.com/OpenManufacturingPlatform/iotcon-opc-ua-connector-dotnet/discussions)
+* You found a issue? Please create a [GitHub Issue](https://github.com/OpenManufacturingPlatform/iotcon-opc-ua-connector-dotnet/issues)
+
+Please respect our contribution guidlines. (LINK)
+
+## Build and installation
