@@ -75,7 +75,19 @@ namespace OMP.Connector.Infrastructure.OpcUa
         }
 
         #region [Public Members]
+
         public async Task ConnectAsync(EndpointDescription endpointDescription)
+        {
+            await ConnectAsync(endpointDescription, default);
+        }
+
+        public async Task ConnectAsync(EndpointDescription endpointDescription, string username, string password)
+        {
+            var identity = new UserIdentity(username, password);
+            await ConnectAsync(endpointDescription, identity);
+        }
+
+        private async Task ConnectAsync(EndpointDescription endpointDescription, IUserIdentity identity)
         {
             try
             {
@@ -90,14 +102,14 @@ namespace OMP.Connector.Infrastructure.OpcUa
                 var endPointConfiguration = EndpointConfiguration.Create(_applicationConfiguration);
                 var configuredEndpoint = new ConfiguredEndpoint(endpointDescription.Server, endPointConfiguration);
                 configuredEndpoint.Update(endpointDescription);
-
+                
                 _session = await Session.Create(
                     _applicationConfiguration,
                     configuredEndpoint,
                     true,
                     _sessionName.ToString(),
                     100000,
-                    default,
+                    identity,
                     default);
 
                 _session.KeepAlive += SessionOnKeepAlive;
