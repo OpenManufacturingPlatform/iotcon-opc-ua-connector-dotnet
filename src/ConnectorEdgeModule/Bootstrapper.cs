@@ -16,6 +16,7 @@ using OMP.Connector.Domain.Providers;
 using OMP.Connector.EdgeModule.DI;
 using OMP.Connector.EdgeModule.Jobs;
 using OMP.Connector.EdgeModule.MapperProfiles;
+using OMP.Connector.Infrastructure.OpcUa;
 using OMP.Connector.Infrastructure.OpcUa.ConfigBuilders;
 using OMP.Connector.Infrastructure.OpcUa.Reconnect;
 using OMP.Connector.Infrastructure.OpcUa.States;
@@ -42,6 +43,7 @@ namespace OMP.Connector.EdgeModule
             serviceCollection.AddSingleton<ISubscriptionProviderFactory, SubscriptionProviderFactory>();
 
             serviceCollection.AddSingleton<ISessionPoolStateManager, SessionPoolStateManager>();
+            serviceCollection.AddSingleton<IUserIdentityProvider, UserIdentityProvider>();
 
             serviceCollection.AddTransient<CommandRequestValidator>();
             serviceCollection.AddTransient<MonitoredItemValidator>();

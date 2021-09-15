@@ -91,9 +91,18 @@ namespace OMP.Connector.Domain.Configuration
                                           (uint)NodeClass.Method |
                                           (uint)NodeClass.VariableType |
                                           (uint)NodeClass.ReferenceType |
-                                          (uint)NodeClass.Unspecified;       
+                                          (uint)NodeClass.Unspecified;
+        
+        public List<AuthenticationConfiguration> Authentication { get; set; }
     }
 
+    public sealed class AuthenticationConfiguration
+    {
+        public string Endpoint { get; set; }
+        public string Username { get; set; }
+        public string Password { get; set; }
+    }
+    
     public sealed class CommunicationConfiguration
     {
         public string SchemaUrl { get; set; }

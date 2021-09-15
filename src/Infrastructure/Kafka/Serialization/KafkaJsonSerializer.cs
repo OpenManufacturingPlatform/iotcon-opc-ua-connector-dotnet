@@ -10,6 +10,10 @@ namespace OMP.Device.Connector.Kafka.Serialization
         public TPayload Deserialize(ReadOnlySpan<byte> data, bool isNull, SerializationContext context)
         {
             var payload = Deserializers.Utf8.Deserialize(data, isNull, context);
+
+            if (payload is null)
+                return default;
+            
             return JsonConvert.DeserializeObject<TPayload>(
                 payload,
                 new JsonSerializerSettings()
