@@ -1,7 +1,7 @@
-﻿using OMP.Device.Connector.Kafka.CommandEndpoint;
-using OMP.Device.Connector.Kafka.ConfigurationEndpoint;
+﻿using OMP.Connector.Infrastructure.Kafka.CommandEndpoint;
+using OMP.Connector.Infrastructure.Kafka.ConfigurationEndpoint;
 
-namespace OMP.Device.Connector.Kafka.Common.Consumers
+namespace OMP.Connector.Infrastructure.Kafka.Common.Consumers
 {
     public interface IConsumerFactory
     {

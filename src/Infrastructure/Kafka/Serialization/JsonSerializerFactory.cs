@@ -1,7 +1,7 @@
 ﻿using Confluent.Kafka;
 using Microsoft.Extensions.Logging;
 
-namespace OMP.Device.Connector.Kafka.Serialization
+namespace OMP.Connector.Infrastructure.Kafka.Serialization
 {
     public class JsonSerializerFactory : ISerializerFactory
     {

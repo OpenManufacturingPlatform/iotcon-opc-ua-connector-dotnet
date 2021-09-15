@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Confluent.Kafka;
 
-namespace OMP.Device.Connector.Kafka.Common.Consumers.Handlers
+namespace OMP.Connector.Infrastructure.Kafka.Common.Consumers.Handlers
 {
     public interface IKafkaConsumerPartitionsRevokeHandler<TKey, TValue>
     {

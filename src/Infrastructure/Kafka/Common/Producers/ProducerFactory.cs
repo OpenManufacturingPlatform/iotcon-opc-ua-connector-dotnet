@@ -2,14 +2,14 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OMP.Connector.Domain.Configuration;
-using OMP.Device.Connector.Kafka.Common.Configuration;
-using OMP.Device.Connector.Kafka.Common.Events;
-using OMP.Device.Connector.Kafka.ConfigurationEndpoint;
-using OMP.Device.Connector.Kafka.ResponsesEndpoint;
-using OMP.Device.Connector.Kafka.Serialization;
-using OMP.Device.Connector.Kafka.TelemetryEndpoint;
+using OMP.Connector.Infrastructure.Kafka.Common.Configuration;
+using OMP.Connector.Infrastructure.Kafka.Common.Events;
+using OMP.Connector.Infrastructure.Kafka.ConfigurationEndpoint;
+using OMP.Connector.Infrastructure.Kafka.ResponsesEndpoint;
+using OMP.Connector.Infrastructure.Kafka.Serialization;
+using OMP.Connector.Infrastructure.Kafka.TelemetryEndpoint;
 
-namespace OMP.Device.Connector.Kafka.Common.Producers
+namespace OMP.Connector.Infrastructure.Kafka.Common.Producers
 {
     public class ProducerFactory : IProducerFactory
     {

@@ -1,6 +1,6 @@
 ﻿using Confluent.Kafka;
 
-namespace OMP.Device.Connector.Kafka.Serialization
+namespace OMP.Connector.Infrastructure.Kafka.Serialization
 {
     public interface ISerializerFactory
     {

@@ -4,10 +4,10 @@ using System.Linq;
 using Microsoft.Extensions.Logging;
 using OMP.Connector.Domain.Models;
 using OMP.Connector.Domain.Schema;
-using OMP.Device.Connector.Kafka.ConfigurationEndpoint;
-using OMP.Device.Connector.Kafka.Extensions;
+using OMP.Connector.Infrastructure.Kafka.ConfigurationEndpoint;
+using OMP.Connector.Infrastructure.Kafka.Extensions;
 
-namespace OMP.Device.Connector.Kafka.Repositories
+namespace OMP.Connector.Infrastructure.Kafka.Repositories
 {
     public partial class KafkaRepository : IKafkaApplicationConfigurationRepository
     {

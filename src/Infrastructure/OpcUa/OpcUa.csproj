@@ -5,7 +5,10 @@
     <LangVersion>latest</LangVersion>
     <AssemblyName>OMP.Connector.Infrastructure.OpcUa</AssemblyName>
     <RootNamespace>OMP.Connector.Infrastructure.OpcUa</RootNamespace>
-    <VersionPrefix>3.5.0</VersionPrefix>
+    <VersionPrefix>0.0.0.1</VersionPrefix>
+    <RepositoryUrl>https://github.com/OpenManufacturingPlatform/iotcon-opc-ua-connector-dotnet</RepositoryUrl>
+    <Authors>OMP</Authors>
+    <PackageProjectUrl>https://github.com/OpenManufacturingPlatform/iotcon-opc-ua-connector-dotnet</PackageProjectUrl>
   </PropertyGroup>
 
   <ItemGroup>

@@ -1,10 +1,10 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using OMP.Connector.Domain.Models;
-using OMP.Device.Connector.Kafka.Common.Producers.Responses;
+using OMP.Connector.Infrastructure.Kafka.Common.Producers.Responses;
 using OneOf;
 
-namespace OMP.Device.Connector.Kafka.ConfigurationEndpoint
+namespace OMP.Connector.Infrastructure.Kafka.ConfigurationEndpoint
 {
     public interface IConfigurationPersister
     {

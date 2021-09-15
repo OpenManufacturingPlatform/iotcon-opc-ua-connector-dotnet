@@ -3,11 +3,11 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Confluent.Kafka;
-using OMP.Device.Connector.Kafka.Common.Configuration;
-using OMP.Device.Connector.Kafka.Common.Events;
-using OMP.Device.Connector.Kafka.Serialization;
+using OMP.Connector.Infrastructure.Kafka.Common.Configuration;
+using OMP.Connector.Infrastructure.Kafka.Common.Events;
+using OMP.Connector.Infrastructure.Kafka.Serialization;
 
-namespace OMP.Device.Connector.Kafka.Common.Consumers
+namespace OMP.Connector.Infrastructure.Kafka.Common.Consumers
 {
     public class CustomKafkaConsumer<TKey, TValue> : IDisposable, ICustomKafkaConsumer<TKey, TValue>
     {

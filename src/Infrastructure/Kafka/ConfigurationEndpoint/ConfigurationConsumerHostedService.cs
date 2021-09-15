@@ -3,10 +3,10 @@ using System.Threading;
 using Confluent.Kafka;
 using Microsoft.Extensions.Logging;
 using OMP.Connector.Domain.Models;
-using OMP.Device.Connector.Kafka.Common.Consumers;
-using OMP.Device.Connector.Kafka.Repositories;
+using OMP.Connector.Infrastructure.Kafka.Common.Consumers;
+using OMP.Connector.Infrastructure.Kafka.Repositories;
 
-namespace OMP.Device.Connector.Kafka.ConfigurationEndpoint
+namespace OMP.Connector.Infrastructure.Kafka.ConfigurationEndpoint
 {
     public class ConfigurationConsumerHostedService : BaseConsumerHostedService
     {

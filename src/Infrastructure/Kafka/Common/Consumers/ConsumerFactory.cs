@@ -1,13 +1,13 @@
 ﻿using Confluent.Kafka;
 using Microsoft.Extensions.Options;
 using OMP.Connector.Domain.Configuration;
-using OMP.Device.Connector.Kafka.CommandEndpoint;
-using OMP.Device.Connector.Kafka.Common.Configuration;
-using OMP.Device.Connector.Kafka.Common.Events;
-using OMP.Device.Connector.Kafka.ConfigurationEndpoint;
-using OMP.Device.Connector.Kafka.Serialization;
+using OMP.Connector.Infrastructure.Kafka.CommandEndpoint;
+using OMP.Connector.Infrastructure.Kafka.Common.Configuration;
+using OMP.Connector.Infrastructure.Kafka.Common.Events;
+using OMP.Connector.Infrastructure.Kafka.ConfigurationEndpoint;
+using OMP.Connector.Infrastructure.Kafka.Serialization;
 
-namespace OMP.Device.Connector.Kafka.Common.Consumers
+namespace OMP.Connector.Infrastructure.Kafka.Common.Consumers
 {
     public class ConsumerFactory : IConsumerFactory
     {

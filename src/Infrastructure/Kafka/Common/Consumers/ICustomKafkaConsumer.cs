@@ -1,7 +1,7 @@
 ﻿using System.Threading;
 using Confluent.Kafka;
 
-namespace OMP.Device.Connector.Kafka.Common.Consumers
+namespace OMP.Connector.Infrastructure.Kafka.Common.Consumers
 {
     public interface ICustomKafkaConsumer<TKey, TValue>
     {

@@ -335,3 +335,4 @@ ASALocalRun/
 docs/.gradle/
 docs/build/
 docs/.cache/
+*.pem

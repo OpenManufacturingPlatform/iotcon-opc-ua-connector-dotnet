@@ -1,10 +1,16 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <LangVersion>latest</LangVersion>
     <VersionPrefix>3.5.0</VersionPrefix>
+    <AssemblyName>OMP.Connector.Infrastructure.$(MSBuildProjectName)</AssemblyName>
+    <RootNamespace>OMP.Connector.Infrastructure.$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="M2MqttDotnetCore" Version="1.1.0" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\Application\Application.csproj" />

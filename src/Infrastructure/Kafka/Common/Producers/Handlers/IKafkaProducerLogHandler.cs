@@ -1,6 +1,6 @@
 ﻿using Confluent.Kafka;
 
-namespace OMP.Device.Connector.Kafka.Common.Producers.Handlers
+namespace OMP.Connector.Infrastructure.Kafka.Common.Producers.Handlers
 {
     public interface IKafkaProducerLogHandler<TKey, TValue>
     {
