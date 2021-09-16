@@ -16,11 +16,11 @@ namespace OMP.Connector.Infrastructure.MQTT.ResponseEndpoint
              IMqttClientFactory mqttClientFactory,
              ISerializer serializer,
              ILogger<IMqttClient> logger)
-             : base(mqttClientFactory.CreateClient(connectorConfiguration.Value.Communication.ResponseEndpoint, connectorConfiguration.Value.Communication.Shared),
-                  connectorConfiguration.Value.Communication.ResponseEndpoint.GetConfig<MqttClientSettings>(),
+             : base(mqttClientFactory.CreateClient(connectorConfiguration.Value.Communication.TelemetryEndpoint, connectorConfiguration.Value.Communication.Shared),
+                  connectorConfiguration.Value.Communication.TelemetryEndpoint.GetConfig<MqttClientSettings>(),
                   serializer,
                   logger,
-                  connectorConfiguration.Value.Communication.ResponseEndpoint.GetConfig<MqttClientSettings>().AutoReconnectTimeInSeconds)
+                  connectorConfiguration.Value.Communication.TelemetryEndpoint.GetConfig<MqttClientSettings>().AutoReconnectTimeInSeconds)
         { }
 
         public Task PublishAsync(SensorTelemetryMessage message)

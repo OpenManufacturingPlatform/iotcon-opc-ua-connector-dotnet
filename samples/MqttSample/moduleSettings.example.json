@@ -47,7 +47,7 @@
   "Communication": {
     "SchemaUrl": "https://someSchemaStore.com/schemas/",
     "Shared": {
-      "Type": "kafka",
+      "Type": "mqtt",
       "NativeSettings": {
         "BootstrapServers": "...",
         "Username": "000",
@@ -70,31 +70,30 @@
       }
     },
     "TelemetryEndpoint": {
-      "Type": "kafka",
+      "Type": "mqtt",
       "UploadTimeoutMs": null,
       "NativeSettings": {
-        "MaxRetries": 5, 
-        "WaitTimeBetweenRetriesInSeconds": 3, 
+        "MaxRetries": 5,
+        "WaitTimeBetweenRetriesInSeconds": 3,
         "Topic": "TelemetryTopic"
       }
     },
     "CommandEndpoint": {
-      "Type": "kafka",
+      "Type": "mqtt",
       "NativeSettings": {
         "Topic": "ComandTopic"
       }
     },
     "ResponseEndpoint": {
-      "Type": "kafka",
+      "Type": "mqtt",
       "NativeSettings": {
         "Topic": "ResponseTopic"
       }
     }
   },
   "Persistance": {
-    "Type": "kafka", 
+    "Type": "inMemory", 
     "NativeSettings": {
-      "Topic": "ConfigurationTopic"
     }
   }
 }
