@@ -5,8 +5,8 @@ using Microsoft.Extensions.Options;
 using NSubstitute;
 using NSubstitute.Core;
 using OMP.Connector.Domain.Configuration;
-using OMP.Connector.Infrastructure.OpcUa.Reconnect;
 using OMP.Connector.Infrastructure.OpcUa;
+using OMP.Connector.Infrastructure.OpcUa.Reconnect;
 using OMP.Connector.Tests.Support.Fakes;
 using Opc.Ua;
 
@@ -57,7 +57,7 @@ namespace OMP.Connector.Application.Tests.TestSetup
 
                 foreach (var nodeToRead in inputCollection)
                 {
-                    if(nodeToRead.AttributeId == Attributes.DataType)
+                    if (nodeToRead.AttributeId == Attributes.DataType)
                     {
                         actualValues.Add(new DataValue()
                         {
@@ -71,7 +71,7 @@ namespace OMP.Connector.Application.Tests.TestSetup
                         actualValues.Add(new DataValue()
                         {
                             StatusCode = simulateInvalidNode ? StatusCodes.BadNodeIdInvalid : StatusCodes.Good,
-                            Value = simulateInvalidNode ? null : new DataValue(){Value = -1}
+                            Value = simulateInvalidNode ? null : new DataValue() { Value = -1 }
                         });
                     }
                 };

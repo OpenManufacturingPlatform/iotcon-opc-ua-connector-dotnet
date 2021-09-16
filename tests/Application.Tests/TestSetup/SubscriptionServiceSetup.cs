@@ -23,7 +23,7 @@ namespace OMP.Connector.Application.Tests.TestSetup
             bool setupServerDetailsInEndpointRepo = true,
             string expectedServerName = TestConstants.ExpectedServerName,
             string expectedServerRoute = TestConstants.ExpectedServerRoute,
-            bool setupSubscriptionProviderFactory = true, 
+            bool setupSubscriptionProviderFactory = true,
             ICommandResponse expectedResponse = null)
         {
             if (string.IsNullOrWhiteSpace(schemaUrl))
@@ -34,7 +34,7 @@ namespace OMP.Connector.Application.Tests.TestSetup
             {
                 Communication = new CommunicationConfiguration
                 {
-                    SchemaUrl= schemaUrl,
+                    SchemaUrl = schemaUrl,
                 }
             });
 

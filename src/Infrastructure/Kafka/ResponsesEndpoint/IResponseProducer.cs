@@ -1,7 +1,7 @@
 ﻿using OMP.Connector.Domain.Schema.Messages;
-using OMP.Device.Connector.Kafka.Common.Producers;
+using OMP.Connector.Infrastructure.Kafka.Common.Producers;
 
-namespace OMP.Device.Connector.Kafka.ResponsesEndpoint
+namespace OMP.Connector.Infrastructure.Kafka.ResponsesEndpoint
 {
     public interface IResponseProducer : ICustomKafkaProducer<string, CommandResponse> { }
 }

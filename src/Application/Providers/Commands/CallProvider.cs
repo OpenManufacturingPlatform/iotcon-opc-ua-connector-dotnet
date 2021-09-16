@@ -11,8 +11,8 @@ using OMP.Connector.Domain.OpcUa;
 using OMP.Connector.Domain.Schema;
 using OMP.Connector.Domain.Schema.Enums;
 using Opc.Ua;
-using CallRequest =OMP.Connector.Domain.Schema.Request.Control.CallRequest;
-using CallResponse =OMP.Connector.Domain.Schema.Responses.Control.CallResponse;
+using CallRequest = OMP.Connector.Domain.Schema.Request.Control.CallRequest;
+using CallResponse = OMP.Connector.Domain.Schema.Responses.Control.CallResponse;
 
 namespace OMP.Connector.Application.Providers.Commands
 {
@@ -44,7 +44,7 @@ namespace OMP.Connector.Application.Providers.Commands
         private async Task<List<OpcUaMethodInfo>> GetMethodInfoListAsync()
         {
             var listMethodInfo = new List<OpcUaMethodInfo>();
-            foreach(var command in this.Commands)
+            foreach (var command in this.Commands)
             {
                 var methodInfo = new OpcUaMethodInfo();
                 await this.OpcSession.UseAsync((session, complexTypeSystem) =>
@@ -68,7 +68,7 @@ namespace OMP.Connector.Application.Providers.Commands
 
         private void UpdateCallMethodRequests(IEnumerable<CallMethodRequest> callRequests, List<OpcUaMethodInfo> methodInfoList)
         {
-            foreach(var callRequest in callRequests)
+            foreach (var callRequest in callRequests)
             {
                 var methodInfo = methodInfoList.FirstOrDefault(info => callRequest.MethodId.Equals(info.MethodId));
                 callRequest.ObjectId = methodInfo?.ObjectId;
@@ -141,9 +141,9 @@ namespace OMP.Connector.Application.Providers.Commands
 
         private Opc.Ua.KeyValuePair GetKeyValuePair(Variant variant)
         {
-            if(variant.Value is ExtensionObject {Body: Opc.Ua.KeyValuePair kvp})
+            if (variant.Value is ExtensionObject { Body: Opc.Ua.KeyValuePair kvp })
                 return kvp;
-            
+
             throw new Exception("Expected Opc.Ua.Variant with KeyValuePair value.");
         }
 

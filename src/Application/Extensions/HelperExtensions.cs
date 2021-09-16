@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
 using OMP.Connector.Domain;
-using Opc.Ua.Client;
 using OMP.Connector.Domain.Schema.Messages;
+using Opc.Ua.Client;
 
 namespace OMP.Connector.Application.Extensions
 {
@@ -22,7 +22,7 @@ namespace OMP.Connector.Application.Extensions
                 var uriBuilder = new UriBuilder(endpointUrl);
                 return $"{Constants.OpcTcpPrefix}{uriBuilder.Host}:{uriBuilder.Port}/";
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw new Exception($"Invalid endpoint url detected: {endpointUrl}", ex.Demystify());
             }

@@ -59,7 +59,7 @@ namespace OMP.Connector.EdgeModule.MapperProfiles
             this.CreateMap<VariableNode, OpcVariable>()
                 .Include<VariableNodeWithType, OpcVariable>()
                 .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value.Value.ToString()));
-            
+
             this.CreateMap<VariableNodeWithType, OpcVariable>()
                 .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value.Value.ToString()))
                 .ForMember(dest => dest.DataTypeName, opt => opt.MapFrom(src => src.DataTypeName));
@@ -158,7 +158,7 @@ namespace OMP.Connector.EdgeModule.MapperProfiles
             this.CreateMap<WriteRequest, WriteValue>()
                 .ForMember(dest => dest.NodeId, opt => opt.MapFrom(src => NodeId.Parse(src.NodeId)))
                 .ForMember(dest => dest.AttributeId, opt => opt.MapFrom(src => Attributes.Value))
-                .ForMember(dest => dest.Value, opt => opt.ConvertUsing(new DataValueConverter(this._loggerFactory.CreateLogger< DataValueConverter>()), src => src));
+                .ForMember(dest => dest.Value, opt => opt.ConvertUsing(new DataValueConverter(this._loggerFactory.CreateLogger<DataValueConverter>()), src => src));
 
             this.CreateMap<WriteRequestWrapper, WriteValue>()
                 .ForMember(dest => dest.NodeId, opt => opt.MapFrom(src => NodeId.Parse(src.RegisteredNodeId)))

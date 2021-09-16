@@ -5,13 +5,13 @@ using Confluent.Kafka;
 using Microsoft.Extensions.Logging;
 using OMP.Connector.Application;
 using OMP.Connector.Domain.Exceptions;
-using OMP.Device.Connector.Kafka.Common.Configuration;
-using OMP.Device.Connector.Kafka.Common.Events;
-using OMP.Device.Connector.Kafka.Common.Producers.Responses;
-using OMP.Device.Connector.Kafka.Serialization;
+using OMP.Connector.Infrastructure.Kafka.Common.Configuration;
+using OMP.Connector.Infrastructure.Kafka.Common.Events;
+using OMP.Connector.Infrastructure.Kafka.Common.Producers.Responses;
+using OMP.Connector.Infrastructure.Kafka.Serialization;
 using OneOf;
 
-namespace OMP.Device.Connector.Kafka.Common.Producers
+namespace OMP.Connector.Infrastructure.Kafka.Common.Producers
 {
     public class CustomKafkaProducer<TKey, TValue> : ICustomKafkaProducer<TKey, TValue>
     {

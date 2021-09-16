@@ -1,11 +1,11 @@
 ﻿using Confluent.Kafka;
 using OMP.Connector.Domain.Schema.Messages;
-using OMP.Device.Connector.Kafka.Common.Configuration;
-using OMP.Device.Connector.Kafka.Common.Consumers;
-using OMP.Device.Connector.Kafka.Common.Events;
-using OMP.Device.Connector.Kafka.Serialization;
+using OMP.Connector.Infrastructure.Kafka.Common.Configuration;
+using OMP.Connector.Infrastructure.Kafka.Common.Consumers;
+using OMP.Connector.Infrastructure.Kafka.Common.Events;
+using OMP.Connector.Infrastructure.Kafka.Serialization;
 
-namespace OMP.Device.Connector.Kafka.CommandEndpoint
+namespace OMP.Connector.Infrastructure.Kafka.CommandEndpoint
 {
     public class CommandConsumer : CustomKafkaConsumer<string, CommandRequest>, ICommandConsumer
     {

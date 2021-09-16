@@ -10,7 +10,7 @@ using WriteRequest = OMP.Connector.Domain.Schema.Request.Control.WriteRequest;
 
 namespace OMP.Connector.EdgeModule.MapperProfiles.Converters
 {
-    public class DataValueConverter : IValueConverter<WriteRequest, DataValue>, 
+    public class DataValueConverter : IValueConverter<WriteRequest, DataValue>,
                                       IValueConverter<WriteRequestWrapper, DataValue>
     {
         private readonly ILogger _logger;
@@ -35,7 +35,7 @@ namespace OMP.Connector.EdgeModule.MapperProfiles.Converters
             {
                 var parsedNodeId = NodeId.Parse(nodeId);
                 var type = DataTypes.GetSystemType(parsedNodeId, EncodeableFactory.GlobalFactory);
-                
+
                 var converter = TypeDescriptor.GetConverter(type ?? typeof(object));
 
                 // ReSharper disable once AssignNullToNotNullAttribute

@@ -15,7 +15,7 @@ namespace OMP.Connector.Domain.Schema.Responses
         [JsonProperty("responseSource", Required = Required.Always)]
         [Description("Source from where command response is sent")]
         public ResponseSource ResponseSource { get; set; }
-        
+
         [JsonProperty("responses", Required = Required.Always)]
         [Description("Responses to command request/s")]
         public IEnumerable<ICommandResponse> Responses { get; set; }

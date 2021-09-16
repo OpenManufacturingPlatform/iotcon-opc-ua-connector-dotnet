@@ -50,12 +50,12 @@ namespace OMP.Connector.Application.Services
             catch (ServiceResultException ex)
             {
                 responseMessage = CommandResponseCreator.GetErrorResponseMessage(this._schemaUrl, requestMessage);
-                this._logger.Error(ex,$"Subscription Request Service Error: [Endpoint: {requestMessage.Payload.RequestTarget.EndpointUrl}]");
+                this._logger.Error(ex, $"Subscription Request Service Error: [Endpoint: {requestMessage.Payload.RequestTarget.EndpointUrl}]");
             }
             catch (Exception ex)
             {
                 responseMessage = CommandResponseCreator.GetErrorResponseMessage(this._schemaUrl, requestMessage);
-                this._logger.Error(ex,$"Subscription Request Error: [Endpoint: {requestMessage.Payload.RequestTarget.EndpointUrl}]");
+                this._logger.Error(ex, $"Subscription Request Error: [Endpoint: {requestMessage.Payload.RequestTarget.EndpointUrl}]");
             }
 
             responseMessage ??= CommandResponseCreator.GetCommandResponseMessage(this._schemaUrl, requestMessage, commandResponses);

@@ -78,14 +78,14 @@ namespace OMP.Connector.Application.OpcUa
             var methodReferences = Browse(session, browseDescription, logger);
 
             var readValuesIds = (from reference in methodReferences where !reference.NodeId.IsAbsolute where reference.BrowseName == BrowseNames.InputArguments || reference.BrowseName == BrowseNames.OutputArguments select new ReadValueId { NodeId = (NodeId)reference.NodeId, AttributeId = Attributes.Value, Handle = reference }).ToList();
-            if(!readValuesIds.Any()) { return; }
+            if (!readValuesIds.Any()) { return; }
 
             var readValueIdCollection = new ReadValueIdCollection(readValuesIds);
             session.Read(default,
                 0,
-                TimestampsToReturn.Neither, 
-                readValueIdCollection, 
-                out var results, 
+                TimestampsToReturn.Neither,
+                readValueIdCollection,
+                out var results,
                 out var diagnosticInfo);
 
             ValidateResponseDiagnostics(readValueIdCollection, results, diagnosticInfo);

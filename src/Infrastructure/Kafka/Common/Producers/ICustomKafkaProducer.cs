@@ -1,10 +1,10 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using Confluent.Kafka;
-using OMP.Device.Connector.Kafka.Common.Producers.Responses;
+using OMP.Connector.Infrastructure.Kafka.Common.Producers.Responses;
 using OneOf;
 
-namespace OMP.Device.Connector.Kafka.Common.Producers
+namespace OMP.Connector.Infrastructure.Kafka.Common.Producers
 {
     public interface ICustomKafkaProducer<TKey, TValue>
     {

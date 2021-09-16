@@ -42,14 +42,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Application\Application.csproj" />
-    <ProjectReference Include="..\Domain.Schema\Domain.Schema.csproj" />
-    <ProjectReference Include="..\Domain\Domain.csproj" />
-    <ProjectReference Include="..\Infrastructure\Kafka\Kafka.csproj" />
-    <ProjectReference Include="..\Infrastructure\OpcUa\OpcUa.csproj" />
+    <ProjectReference Include="..\..\src\Infrastructure\MQTT\MQTT.csproj" />
+    <ProjectReference Include="..\..\src\Infrastructure\OpcUa\OpcUa.csproj" />
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="ehCert\cacert.pem">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="moduleSettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

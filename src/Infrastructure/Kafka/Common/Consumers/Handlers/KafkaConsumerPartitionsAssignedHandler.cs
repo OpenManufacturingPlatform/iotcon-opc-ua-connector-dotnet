@@ -3,7 +3,7 @@ using System.Linq;
 using Confluent.Kafka;
 using Microsoft.Extensions.Logging;
 
-namespace OMP.Device.Connector.Kafka.Common.Consumers.Handlers
+namespace OMP.Connector.Infrastructure.Kafka.Common.Consumers.Handlers
 {
     public class KafkaConsumerPartitionsAssignedHandler<TKey, TValue> : IKafkaConsumerPartitionsAssignedHandler<TKey, TValue>
     {

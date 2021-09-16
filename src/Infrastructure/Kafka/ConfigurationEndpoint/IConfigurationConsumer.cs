@@ -1,9 +1,9 @@
 ﻿using OMP.Connector.Domain.Models;
-using OMP.Device.Connector.Kafka.Common.Consumers;
+using OMP.Connector.Infrastructure.Kafka.Common.Consumers;
 
-namespace OMP.Device.Connector.Kafka.ConfigurationEndpoint
+namespace OMP.Connector.Infrastructure.Kafka.ConfigurationEndpoint
 {
-    public interface IConfigurationConsumer: ICustomKafkaConsumer<string, AppConfigDto>
+    public interface IConfigurationConsumer : ICustomKafkaConsumer<string, AppConfigDto>
     {
 
     }

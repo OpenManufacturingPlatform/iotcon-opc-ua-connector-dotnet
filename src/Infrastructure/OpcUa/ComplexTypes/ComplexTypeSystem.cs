@@ -54,7 +54,7 @@ namespace OMP.Connector.Infrastructure.OpcUa.ComplexTypes
     /// structured type definition. Unsupported V1.03 types are ignored.
     /// - V1.04 OptionSet does not create the enumeration flags. 
     /// </remarks>
-    public class ComplexTypeSystem: IComplexTypeSystem
+    public class ComplexTypeSystem : IComplexTypeSystem
     {
 
         #region Constructors
@@ -1090,12 +1090,14 @@ namespace OMP.Connector.Infrastructure.OpcUa.ComplexTypes
             foreach (StructureField field in structureDefinition.Fields)
             {
                 typeListEnumerator.MoveNext();
-                if(typeListEnumerator.Current != null) {
+                if (typeListEnumerator.Current != null)
+                {
                     fieldBuilder.AddField(field, typeListEnumerator.Current, order);
                 }
                 else
                 {
-                    if(field.ValueRank < 0) { 
+                    if (field.ValueRank < 0)
+                    {
                         fieldBuilder.AddField(field, (fieldBuilder as ComplexTypeFieldBuilder).TypeBuilder, order);
                     }
                     else

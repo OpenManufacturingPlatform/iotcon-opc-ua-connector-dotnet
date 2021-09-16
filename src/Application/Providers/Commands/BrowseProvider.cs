@@ -16,7 +16,7 @@ namespace OMP.Connector.Application.Providers.Commands
 
         protected override async Task<IEnumerable<BrowseResponse>> RunCommandAsync()
         {
-            
+
             var nodeIdCommands = this.GetNodeIdCommands();
             var browsedResults = await this.OpcSession.BrowseNodesAsync(nodeIdCommands, this.ConstructResult);
             return browsedResults;

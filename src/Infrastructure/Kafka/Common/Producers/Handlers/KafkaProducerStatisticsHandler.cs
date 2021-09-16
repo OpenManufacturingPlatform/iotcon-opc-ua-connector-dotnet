@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
-namespace OMP.Device.Connector.Kafka.Common.Producers.Handlers
+namespace OMP.Connector.Infrastructure.Kafka.Common.Producers.Handlers
 {
     public class KafkaProducerStatisticsHandler<TKey, TValue> : IKafkaProducerStatisticsHandler<TKey, TValue>
     {

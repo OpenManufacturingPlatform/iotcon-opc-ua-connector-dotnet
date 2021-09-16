@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
-using OMP.Device.Connector.Kafka.Common.Consumers.Handlers;
-using OMP.Device.Connector.Kafka.Common.Producers.Handlers;
+using OMP.Connector.Infrastructure.Kafka.Common.Consumers.Handlers;
+using OMP.Connector.Infrastructure.Kafka.Common.Producers.Handlers;
 
-namespace OMP.Device.Connector.Kafka.Common.Events
+namespace OMP.Connector.Infrastructure.Kafka.Common.Events
 {
     public class DefaultKafkaEventHandlerFactory : IKafkaEventHandlerFactory
     {

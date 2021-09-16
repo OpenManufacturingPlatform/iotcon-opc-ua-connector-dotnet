@@ -29,7 +29,7 @@ namespace OMP.Connector.Application.Services
         private readonly ConnectorConfiguration _connectorConfiguration;
         private IComplexTypeSystem _complexTypeSystem;
         private OpcUaMonitoredItem _monitoredItemCommand;
-        
+
         public TelemetryMessageMetadata MessageMetadata { get; set; }
 
         public OpcMonitoredItemService(
@@ -45,7 +45,7 @@ namespace OMP.Connector.Application.Services
             this._connectorConfiguration = connectorConfiguration.Value;
             this._messageSender = messageSender;
             this._endpointDescriptionRepository = endpointDescriptionRepository;
-            
+
             this.Notification += this.OnNotification;
         }
 

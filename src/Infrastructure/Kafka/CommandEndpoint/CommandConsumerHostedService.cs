@@ -1,9 +1,9 @@
 ﻿using Confluent.Kafka;
 using Microsoft.Extensions.Logging;
 using OMP.Connector.Domain.Extensions;
-using OMP.Device.Connector.Kafka.Common.Consumers;
+using OMP.Connector.Infrastructure.Kafka.Common.Consumers;
 
-namespace OMP.Device.Connector.Kafka.CommandEndpoint
+namespace OMP.Connector.Infrastructure.Kafka.CommandEndpoint
 {
     public class CommandConsumerHostedService : BaseConsumerHostedService
     {

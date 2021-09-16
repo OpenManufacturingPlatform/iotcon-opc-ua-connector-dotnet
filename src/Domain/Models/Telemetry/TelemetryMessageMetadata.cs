@@ -14,7 +14,7 @@ namespace OMP.Connector.Domain.Models.Telemetry
                 Sender = commandRequest.MetaData?.DestinationIdentifiers?.FirstOrDefault(),
                 DataSourceUrl = commandRequest.Payload.RequestTarget.EndpointUrl
             };
-            
+
             if (instance.Sender == null)
                 return instance;
 

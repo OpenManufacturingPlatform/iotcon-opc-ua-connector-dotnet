@@ -5,12 +5,12 @@ using AutoMapper;
 using FluentAssertions;
 using NSubstitute;
 using NSubstitute.Core;
+using NUnit.Framework;
 using OMP.Connector.Application.Tests.TestSetup;
 using OMP.Connector.Domain.Models.Command.Requests.Basic.NodeCommands;
 using OMP.Connector.Domain.Schema.Enums;
 using OMP.Connector.Domain.Schema.Request.Control.WriteValues;
 using Opc.Ua;
-using NUnit.Framework;
 using WriteRequest = OMP.Connector.Domain.Schema.Request.Control.WriteRequest;
 using WriteResponse = OMP.Connector.Domain.Schema.Responses.Control.WriteResponse;
 
@@ -27,7 +27,7 @@ namespace OMP.Connector.Application.Tests.Providers
             var nrOfWriteRequests = 1;
             var testWriteRequests = this.GenerateDummyWriteRequests(nrOfWriteRequests);
             var opcSession = SetupOpcSessionForWrite.CreateOpcSession();
-            
+
             var mapper = Substitute.For<IMapper>();
             mapper.Map<WriteRequestWrapper>(Arg.Any<WriteRequest>()).Returns(CallMapWriteRequest());
             mapper.Map<List<WriteValue>>(Arg.Any<List<WriteRequestWrapper>>()).Returns(CallMapListWriteRequestWrapper(simulateInvalidNode));

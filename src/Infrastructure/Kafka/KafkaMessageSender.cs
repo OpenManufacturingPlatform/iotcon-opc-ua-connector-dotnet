@@ -12,15 +12,15 @@ using OMP.Connector.Domain.Extensions;
 using OMP.Connector.Domain.Models;
 using OMP.Connector.Domain.Schema.Messages;
 using OMP.Connector.Domain.Schema.SensorTelemetry;
-using OMP.Device.Connector.Kafka.Common.Configuration;
-using OMP.Device.Connector.Kafka.Common.Producers;
-using OMP.Device.Connector.Kafka.Common.Producers.Responses;
-using OMP.Device.Connector.Kafka.ConfigurationEndpoint;
-using OMP.Device.Connector.Kafka.ResponsesEndpoint;
-using OMP.Device.Connector.Kafka.TelemetryEndpoint;
+using OMP.Connector.Infrastructure.Kafka.Common.Configuration;
+using OMP.Connector.Infrastructure.Kafka.Common.Producers;
+using OMP.Connector.Infrastructure.Kafka.Common.Producers.Responses;
+using OMP.Connector.Infrastructure.Kafka.ConfigurationEndpoint;
+using OMP.Connector.Infrastructure.Kafka.ResponsesEndpoint;
+using OMP.Connector.Infrastructure.Kafka.TelemetryEndpoint;
 using OneOf;
 
-namespace OMP.Device.Connector.Kafka
+namespace OMP.Connector.Infrastructure.Kafka
 {
     public class KafkaMessageSender : IMessageSender//, IDisposable
     {

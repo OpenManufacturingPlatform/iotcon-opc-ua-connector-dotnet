@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
+using NUnit.Framework;
 using OMP.Connector.Domain.Schema.Enums;
 using OMP.Connector.Domain.Schema.Factories;
 using OMP.Connector.Domain.Schema.MetaData.Message;
@@ -9,7 +10,6 @@ using OMP.Connector.Domain.Schema.Responses;
 using OMP.Connector.Domain.Schema.Responses.Base;
 using OMP.Connector.Domain.Schema.Responses.Control;
 using OMP.Connector.Domain.Schema.SensorTelemetry;
-using NUnit.Framework;
 using OMP.Connector.Domain.Schema.SensorTelemetry.PrimitiveTypes;
 
 namespace OMP.Connector.Application.Tests
