@@ -21,7 +21,7 @@ namespace OMP.Connector.Infrastructure.MQTT.Common
         public string WillMessage { get; set; } = null;
         public bool WillRetain { get; set; } = false;
         public ushort KeepAlivePeriod { get; set; } = 60;
-        public ushort AutoReconnectTimeInSeconds = 10;
+        public ushort AutoReconnectTimeInSeconds { get; set; } = 10;
         public MqttTopic[] Topics { get; set; }
         public MqttSslProtocols SslProtocols { get; set; } = MqttSslProtocols.None;
 
@@ -72,7 +72,8 @@ namespace OMP.Connector.Infrastructure.MQTT.Common
 
     public record  MqttTopic
     {
-        public string TopicName { get; }
-        public byte QosLevel { get; }
+        public string TopicName { get; set; }
+        public byte QosLevel { get; set; }
+        public bool Retain { get; set; }
     }
 }

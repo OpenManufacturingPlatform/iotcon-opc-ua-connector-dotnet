@@ -23,7 +23,7 @@ namespace OMP.Connector.Infrastructure.MQTT.CommandEndpoint
             IMqttClientFactory mqttClientFactory,
             IMqttRequestHandler requestHandler,
             ISerializer serializer,
-            ILogger<IMqttClient> logger)
+            ILogger<MqttCommandListner> logger)
             : base(mqttClientFactory.CreateClient(connectorConfiguration.Value.Communication.CommandEndpoint, connectorConfiguration.Value.Communication.Shared),
                  connectorConfiguration.Value.Communication.CommandEndpoint.GetConfig<MqttClientSettings>(),
                  serializer,
@@ -61,6 +61,12 @@ namespace OMP.Connector.Infrastructure.MQTT.CommandEndpoint
                 try
                 {
                     var topics = this.MqttClientSettings.Topics;
+                    if (topics.Any(t => string.IsNullOrEmpty(t.TopicName)))
+                    {
+                        this.Logger?.LogCritical($"Unable to subscribe. Invalid topic configuration{string.Join(",", topics.Select(t => $"'{t}'"))}");
+                        return false;
+                    }
+                    
                     this.Logger?.LogInformation($"Subscribing to topics {string.Join(",", topics.Select(t => $"'{t}'"))}");
                     this.Client.Subscribe(topics.Select(t => t.TopicName).ToArray(), topics.Select(t => t.QosLevel).ToArray());
                     return true;

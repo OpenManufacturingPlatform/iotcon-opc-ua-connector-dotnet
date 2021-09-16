@@ -15,7 +15,6 @@ namespace OMP.Connector.Infrastructure.MQTT.CommandEndpoint
         private readonly IMqttCommndListner _listner;
         private readonly IMqttRequestHandler _requestHandler;
         private readonly ILogger<CommandListnerHostedService> _logger;
-        private IMqttCommndListner? _mqttCommndListner;
 
         public CommandListnerHostedService(IMqttCommndListner listner, IMqttRequestHandler requestHandler, ILogger<CommandListnerHostedService> logger)
         {

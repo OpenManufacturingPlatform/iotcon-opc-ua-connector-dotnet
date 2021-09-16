@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.Extensions.Logging;
@@ -11,15 +13,20 @@ namespace OMP.Connector.Infrastructure.MQTT.Common.M2Mqtt
     public class M2MqttClientFactory: IMqttClientFactory
     {
         private static ILogger<M2MqttClient> _logger;
+        private readonly IDictionary<string, M2MqttClient> _mqttClientDictionary;
 
         public M2MqttClientFactory(ILogger<M2MqttClient> logger)
         {
             _logger = logger;
+            this._mqttClientDictionary = new ConcurrentDictionary<string, M2MqttClient>();
         }
 
         public IMqttClient CreateClient(CommunicationChannelConfiguration channelConfiguration, SharedConfiguration? sharedConfiguration)
         {
             var mqttClientSettings = channelConfiguration.GetConfig<MqttClientSettings>();
+
+            if (this._mqttClientDictionary.ContainsKey(mqttClientSettings.ClientId))
+                return this._mqttClientDictionary[mqttClientSettings.ClientId];
 
             if (mqttClientSettings.SslProtocols == MqttSslProtocols.None && mqttClientSettings.Secure)
                 mqttClientSettings.SslProtocols = MqttSslProtocols.TLSv1_2;

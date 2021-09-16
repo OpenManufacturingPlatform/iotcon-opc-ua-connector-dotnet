@@ -15,7 +15,7 @@ namespace OMP.Connector.Infrastructure.MQTT
     public class MqttRequestHandler : RequestHandler, IMqttRequestHandler
     {
         public MqttRequestHandler(
-            ILogger logger,
+            ILogger<MqttRequestHandler> logger,
             IMessageSender messageSender,
             IMapper mapper,
             ICommandService commandService,

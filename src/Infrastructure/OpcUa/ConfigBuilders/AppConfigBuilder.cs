@@ -13,10 +13,12 @@ namespace OMP.Connector.Infrastructure.OpcUa.ConfigBuilders
     {
         private readonly ILogger _logger;
         private readonly OpcUaSettings _opcUaSettings;
+        private readonly OpcUaConfiguration _opcUaConfiguration; 
 
         public AppConfigBuilder(ILogger<AppConfigBuilder> logger, IOptions<ConnectorConfiguration> connectorConfiguration)
-        {
-            this._opcUaSettings = connectorConfiguration.Value.OpcUa.GetConfig<OpcUaSettings>();
+        {            
+            this._opcUaConfiguration = connectorConfiguration.Value.OpcUa;
+            this._opcUaSettings = this._opcUaConfiguration.GetConfig<OpcUaSettings>() ?? new OpcUaSettings();
             this._logger = logger;
         }
 

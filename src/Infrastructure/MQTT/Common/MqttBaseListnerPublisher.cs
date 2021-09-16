@@ -19,7 +19,7 @@ namespace OMP.Connector.Infrastructure.MQTT.Common
 
         #region [Fields]
         protected readonly object _lockObject;
-        protected readonly ILogger<TClient> Logger;
+        protected readonly ILogger Logger;
         protected readonly TClient Client;
         protected readonly TSettings MqttClientSettings;
         protected readonly ISerializer Serializer;
@@ -35,7 +35,7 @@ namespace OMP.Connector.Infrastructure.MQTT.Common
             TClient client, 
             TSettings mqttClientSettings,
             ISerializer serializer,
-            ILogger<TClient> logger = null, 
+            ILogger logger = null, 
             int autoReconnectTimeInSeconds = Constants.ReconnectTimeInSeconds)
         {
             if (string.IsNullOrWhiteSpace(mqttClientSettings.BrokerAddress))
@@ -48,6 +48,7 @@ namespace OMP.Connector.Infrastructure.MQTT.Common
             this.Client = client;
             this.Client.ClosedConnection += this.OnClientConnectionClosed;
             this.AutoReconnectTime = autoReconnectTimeInSeconds;
+            this._lockObject = new object();
         }
 
         #endregion
@@ -128,12 +129,14 @@ namespace OMP.Connector.Infrastructure.MQTT.Common
 
                 if (this.Client.IsConnectionAccepted(returnCode))
                 {
-                    var reason = this.Client.CodeToText(returnCode);
-                    this.Logger?.LogError("Could not connect to {brokerAddress} as {clientId}. Reason: {reason}", this.MqttClientSettings.BrokerAddress, this.MqttClientSettings.ClientId, reason);
-                    return false;
+                    this.Logger?.LogInformation("Successfully Connected to {brokerAddress} as {clientId}...", this.MqttClientSettings.BrokerAddress, this.MqttClientSettings.ClientId);
+                    return true;
                 }
 
-                return true;
+                var reason = this.Client.CodeToText(returnCode);
+                this.Logger?.LogError("Could not connect to {brokerAddress} as {clientId}. Reason: {reason}", this.MqttClientSettings.BrokerAddress, this.MqttClientSettings.ClientId, reason);
+                return false;
+                
             }
             catch (Exception e)
             {
