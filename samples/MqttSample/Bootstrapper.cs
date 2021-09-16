@@ -67,8 +67,10 @@ namespace OMP.Connector.EdgeModule
 
                 serviceCollection.TryAddScoped<IMqttClientFactory, M2MqttClientFactory>();
                 serviceCollection.TryAddScoped<ISerializer, JsonSerializer>();
-                serviceCollection.TryAddScoped<IMqttResponsePublisher, MqttResponsePublisher>();
+
                 serviceCollection.TryAddScoped<IMqttTelemetryPublisher, MqttTelemetryPublisher>();
+                serviceCollection.TryAddScoped<IMqttResponsePublisher, MqttResponsePublisher>();
+                
                 serviceCollection.TryAddScoped<IMqttRequestHandler, MqttRequestHandler>();
                 serviceCollection.TryAddScoped<IMessageSender, MqttMessageSender>();
                 serviceCollection.AddHostedService<CommandListnerHostedService>();
