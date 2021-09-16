@@ -57,7 +57,7 @@ namespace OMP.Connector.EdgeModule
             serviceCollection.AddTransient<MonitoredItemValidator>();
             serviceCollection.AddTransient<RoutingSettingsValidator>();
 
-            //if (settings.KafkaBootstrapServers.Any())
+            //Add MQTT Integration
             {
 
                 serviceCollection.AddSingleton<IEndpointDescriptionRepository, LocalEndpointDescriptionRepository>();
