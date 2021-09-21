@@ -68,11 +68,12 @@ namespace OMP.Connector.Application.Tests.Providers
                 var indexOfNumber = nodeId.LastIndexOf("=") + 1;
                 var number = nodeId[indexOfNumber..];
                 expectedValues.Add(new ReadResponse()
-                { 
-                    DataType=TestConstants.ExpectedNodeDataType,
-                    Message= TestConstants.ExpectedCommandGoodMessage,
-                    NodeId=nodeId,
-                    OpcUaCommandType=OpcUaCommandType.Read, Value=new SensorMeasurementString(number)
+                {
+                    DataType = TestConstants.ExpectedNodeDataType,
+                    Message = TestConstants.ExpectedCommandGoodMessage,
+                    NodeId = nodeId,
+                    OpcUaCommandType = OpcUaCommandType.Read,
+                    Value = new SensorMeasurementString(number)
                 });
             };
             return expectedValues;

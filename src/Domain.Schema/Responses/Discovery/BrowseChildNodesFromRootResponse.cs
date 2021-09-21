@@ -5,7 +5,7 @@ using OMP.Connector.Domain.Schema.Responses.Discovery.Base;
 
 namespace OMP.Connector.Domain.Schema.Responses.Discovery
 {
-    public class BrowseChildNodesFromRootResponse: DiscoveryResponse
+    public class BrowseChildNodesFromRootResponse : DiscoveryResponse
     {
         [JsonProperty("nodes", Required = Required.Always)]
         [Description("discovered root nodes")]

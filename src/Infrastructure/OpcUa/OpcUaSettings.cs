@@ -9,11 +9,11 @@ namespace OMP.Connector.Infrastructure.OpcUa
 
         #region IOpcUaSettings
 
-        public string ApplicationName => ModuleName;
+        public string ApplicationName { get; set; } = ModuleName;
 
-        public string ApplicationUri => $"urn:{Utils.GetHostName().ToLowerInvariant()}:{ModuleName}";
+        public string ApplicationUri { get; set; } = $"urn:{Utils.GetHostName().ToLowerInvariant()}:{ModuleName}";
 
-        public string ProductUri => "https://www.bmwgroup.com/OpcUaConnector";
+        public string ProductUri { get; set; } = "https://www.bmwgroup.com/OpcUaConnector";
 
         public string ServerBaseAddress => $"opc.tcp://{Utils.GetHostName().ToLowerInvariant()}:4840/UA/EdgeClient";
 
@@ -21,7 +21,7 @@ namespace OMP.Connector.Infrastructure.OpcUa
 
         public int MaxStringLength { get; set; } = 128 * 1024 - 256;
 
-        public int MaxMessageSize => 4 * 1024 * 1024;
+        public int MaxMessageSize { get; set; } = 4 * 1024 * 1024;
 
         public int OperationTimeoutMs { get; set; } = 120000;
 
@@ -64,7 +64,7 @@ namespace OMP.Connector.Infrastructure.OpcUa
                                    (uint)NodeClass.ReferenceType |
                                    (uint)NodeClass.Unspecified;
 
-        public int OpcStackTraceMask => Utils.TraceMasks.Error | Utils.TraceMasks.Security | Utils.TraceMasks.StackTrace | Utils.TraceMasks.StartStop;
+        public int OpcStackTraceMask { get; set; } = Utils.TraceMasks.Error | Utils.TraceMasks.Security | Utils.TraceMasks.StackTrace | Utils.TraceMasks.StartStop;
 
         public int AwaitSessionLockTimeoutSecs { get; set; }
         public int ReconnectIntervalSecs { get; set; }

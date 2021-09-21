@@ -5,10 +5,10 @@ namespace OMP.Connector.Domain.Schema
 {
     public class DiscoveredOpcNode : OpcNode
     {
-        [JsonProperty("nodeId")] 
+        [JsonProperty("nodeId")]
         public string NodeId { get; set; }
 
-        [JsonProperty("childNodes")] 
+        [JsonProperty("childNodes")]
         public IEnumerable<DiscoveredOpcNode> ChildNodes { get; set; }
     }
 }

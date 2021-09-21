@@ -15,11 +15,11 @@ using OMP.Connector.Domain.Schema;
 using OMP.Connector.Domain.Schema.Enums;
 using OMP.Connector.Domain.Schema.Factories;
 using OMP.Connector.Domain.Schema.Interfaces;
+using OMP.Connector.Domain.Schema.Messages;
 using OMP.Connector.Domain.Schema.MetaData.Message;
 using OMP.Connector.Domain.Schema.Request;
 using OMP.Connector.Domain.Schema.Request.Subscription;
 using OMP.Connector.Domain.Schema.Responses.Subscription;
-using OMP.Connector.Domain.Schema.Messages;
 
 namespace OMP.Connector.Application.Services
 {
@@ -41,7 +41,7 @@ namespace OMP.Connector.Application.Services
             this._logger = logger;
             this._subscriptionRepository = subscriptionRepository;
             this._subscriptionServiceStateManager = subscriptionServiceStateManager;
-            this._connectorConfiguration = connectorConfiguration.Value;            
+            this._connectorConfiguration = connectorConfiguration.Value;
         }
 
         public async Task RestoreConfigurationAsync(CancellationToken cancellationToken)
@@ -94,7 +94,7 @@ namespace OMP.Connector.Application.Services
                     }
                 }
             };
-            
+
             return commandRequest;
         }
 

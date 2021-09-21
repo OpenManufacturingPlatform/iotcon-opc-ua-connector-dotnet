@@ -11,7 +11,7 @@ namespace OMP.Connector.Application.Repositories
     public class LocalSubscriptionRepository : ISubscriptionRepository
     {
         private readonly IDictionary<Tuple<string, string>, SubscriptionDto> _managedSubscriptions;
-        
+
         public LocalSubscriptionRepository()
         {
             this._managedSubscriptions = new ConcurrentDictionary<Tuple<string, string>, SubscriptionDto>();
@@ -29,13 +29,13 @@ namespace OMP.Connector.Application.Repositories
 
             return true;
         }
-        
+
         public bool Remove(SubscriptionDto subscription)
         {
             var key = new Tuple<string, string>(subscription.EndpointUrl, subscription.PublishingInterval);
             return this._managedSubscriptions.Remove(key);
         }
-        
+
         public IEnumerable<SubscriptionDto> GetAllByEndpointUrl(string endpointUrl)
         {
             var subscriptionList = new List<SubscriptionDto>();
@@ -51,15 +51,15 @@ namespace OMP.Connector.Application.Repositories
 
             return subscriptionList;
         }
-        
+
         public bool DeleteMonitoredItems(string endpointUrl, IEnumerable<OpcUaMonitoredItem> items)
         {
             this.RemoveMonitoredItemsFromCache(endpointUrl, items);
             return true;
         }
-        
+
         #region private methods
-        
+
         private bool RemoveMonitoredItemsFromCache(string endpointUrl, IEnumerable<OpcUaMonitoredItem> items)
         {
             var itemsToDelete = items.ToList();
@@ -86,11 +86,11 @@ namespace OMP.Connector.Application.Repositories
 
             return cacheChanged;
         }
-        
+
         private IEnumerable<SubscriptionDto> GroupByPublishingInterval(SubscriptionDto subscription)
         {
             if (subscription.PublishingInterval != null)
-                return new List<SubscriptionDto> {subscription};
+                return new List<SubscriptionDto> { subscription };
 
             var result = new List<SubscriptionDto>();
             var groups = subscription.MonitoredItems
@@ -99,46 +99,50 @@ namespace OMP.Connector.Application.Repositories
             {
                 var newMonitoredItemDict = group
                     .ToDictionary(x => x.Key, x => x.Value);
-                var newSubscription = new SubscriptionDto {
+                var newSubscription = new SubscriptionDto
+                {
                     EndpointUrl = subscription.EndpointUrl,
                     PublishingInterval = group.Key,
                     MonitoredItems = newMonitoredItemDict
-                };    
-                result.Add(newSubscription);    
+                };
+                result.Add(newSubscription);
             }
-            
+
             return result;
         }
-        
+
         private bool UpdateSubscriptionCache(SubscriptionDto candidatSubscription, bool overrideExistingItem)
         {
             if (overrideExistingItem)
                 this.RemoveMonitoredItemsFromCache(candidatSubscription.EndpointUrl, candidatSubscription.MonitoredItems.Values);
-            
-            var key = new Tuple<string,string>(candidatSubscription.EndpointUrl, candidatSubscription.PublishingInterval);
-            if (!this._managedSubscriptions.TryGetValue(key, out var cachedSubscription)) {
+
+            var key = new Tuple<string, string>(candidatSubscription.EndpointUrl, candidatSubscription.PublishingInterval);
+            if (!this._managedSubscriptions.TryGetValue(key, out var cachedSubscription))
+            {
                 this._managedSubscriptions.Add(key, candidatSubscription);
                 return true;
             }
-            
+
             var candidatNodeIds = candidatSubscription.MonitoredItems.Keys;
             foreach (var candidatNodeId in candidatNodeIds)
             {
                 candidatSubscription.MonitoredItems.TryGetValue(candidatNodeId, out var candidatMonitoredItem);
-                
-                if (!cachedSubscription.MonitoredItems.TryGetValue(candidatNodeId, out var cachedMonitoredItem)) {
+
+                if (!cachedSubscription.MonitoredItems.TryGetValue(candidatNodeId, out var cachedMonitoredItem))
+                {
                     cachedSubscription.MonitoredItems.Add(candidatNodeId, candidatMonitoredItem);
                     return true;
                 }
-                
-                if (overrideExistingItem && !cachedMonitoredItem.Equals(candidatMonitoredItem)) {
+
+                if (overrideExistingItem && !cachedMonitoredItem.Equals(candidatMonitoredItem))
+                {
                     cachedSubscription.MonitoredItems[candidatNodeId] = candidatMonitoredItem;
                     return true;
                 }
             }
             return false;
         }
-        
+
         #endregion
     }
 }

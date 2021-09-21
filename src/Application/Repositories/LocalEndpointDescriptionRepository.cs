@@ -20,7 +20,8 @@ namespace OMP.Connector.Application.Repositories
             {
                 if (!cachedEndpoint.Equals(description))
                     cachedEndpoint.ServerDetails = description.ServerDetails;
-            } else
+            }
+            else
                 this._endpointDescriptions.Add(description.EndpointUrl, description);
 
             return true;

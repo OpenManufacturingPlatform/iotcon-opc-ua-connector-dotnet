@@ -14,15 +14,15 @@ namespace OMP.Connector.Domain.Models
         [GuidExamples]
         [JsonProperty("id", Required = Required.Always)]
         public string Id { get; set; } = Guid.NewGuid().ToString();
-        
+
         [JsonProperty("endpointUrl", Required = Required.Always)]
         [Description("endpointUrl")]
         public string EndpointUrl { get; set; }
 
         [JsonProperty("publishingInterval", Required = Required.Always)]
-        [Description("publishingInterval")]        
+        [Description("publishingInterval")]
         public string PublishingInterval { get; set; }
-        
+
         [JsonProperty("monitoredItems", Required = Required.Always)]
         [Description("monitoredItems")]
         public IDictionary<string, SubscriptionMonitoredItem> MonitoredItems { get; set; }

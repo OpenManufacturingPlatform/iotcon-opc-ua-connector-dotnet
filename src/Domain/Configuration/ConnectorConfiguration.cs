@@ -19,7 +19,7 @@ namespace OMP.Connector.Domain.Configuration
         Kafka = 2
     }
 
-   
+
     public abstract class BaseConnectorConfiguration
     {
         protected IConfiguration Configuration { get; set; }
@@ -43,7 +43,7 @@ namespace OMP.Connector.Domain.Configuration
         }
     }
 
-    public abstract class BaseConnectorConfigurationExtendable: BaseConnectorConfiguration
+    public abstract class BaseConnectorConfigurationExtendable : BaseConnectorConfiguration
     {
         protected BaseConnectorConfiguration SharedConfiguration { get; set; }
         public object SharedSettings { get; set; }
@@ -57,7 +57,7 @@ namespace OMP.Connector.Domain.Configuration
 
         public override T GetConfig<T>()
         {
-            if(this.SharedConfiguration is null)
+            if (this.SharedConfiguration is null)
                 return base.GetConfig<T>();
 
             var value = this.SharedConfiguration.GetConfig<T>();
@@ -102,7 +102,7 @@ namespace OMP.Connector.Domain.Configuration
         public string Username { get; set; }
         public string Password { get; set; }
     }
-    
+
     public sealed class CommunicationConfiguration
     {
         public string SchemaUrl { get; set; }

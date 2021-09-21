@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 
 namespace OMP.Connector.Domain.Schema
 {
-    public class SubscriptionMonitoredItem: OpcUaMonitoredItem
+    public class SubscriptionMonitoredItem : OpcUaMonitoredItem
     {
         [JsonProperty("samplingInterval", Required = Required.Always)]
         [Description("Sampling interval - should be less than / equal to publishing interval")]

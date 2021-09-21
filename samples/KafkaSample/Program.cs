@@ -29,11 +29,11 @@ namespace OMP.Connector.EdgeModule
                   .ConfigureLogging((hostContext, logBuilder) =>
                   {
                       logBuilder.AddConfiguration(hostContext.Configuration.GetSection("Logging"));
-                    //var appInsightsKey = hostContext.Configuration.GetSection("APPINSIGHTS")["INSTRUMENTATIONKEY"];
-                    //if (!string.IsNullOrEmpty(appInsightsKey))
-                    //    logBuilder.AddApplicationInsightsWebJobs(o => o.InstrumentationKey = appInsightsKey);
+                      //var appInsightsKey = hostContext.Configuration.GetSection("APPINSIGHTS")["INSTRUMENTATIONKEY"];
+                      //if (!string.IsNullOrEmpty(appInsightsKey))
+                      //    logBuilder.AddApplicationInsightsWebJobs(o => o.InstrumentationKey = appInsightsKey);
 
-                    logBuilder.AddConsole();
+                      logBuilder.AddConsole();
                       logBuilder.AddDebug();
                   })
                   .ConfigureServices((hostingContext, services) =>

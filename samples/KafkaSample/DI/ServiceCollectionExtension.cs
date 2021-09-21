@@ -1,20 +1,31 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using OMP.Connector.Domain;
 using OMP.Connector.Domain.OpcUa;
-using OMP.Device.Connector.Kafka;
-using OMP.Device.Connector.Kafka.CommandEndpoint;
-using OMP.Device.Connector.Kafka.Common.Consumers;
-using OMP.Device.Connector.Kafka.Common.Events;
-using OMP.Device.Connector.Kafka.Common.Producers;
-using OMP.Device.Connector.Kafka.ConfigurationEndpoint;
-using OMP.Device.Connector.Kafka.Repositories;
-using OMP.Device.Connector.Kafka.Serialization;
+using OMP.Connector.Infrastructure.Kafka;
+using OMP.Connector.Infrastructure.Kafka.CommandEndpoint;
+using OMP.Connector.Infrastructure.Kafka.Common.Consumers;
+using OMP.Connector.Infrastructure.Kafka.Common.Events;
+using OMP.Connector.Infrastructure.Kafka.Common.Producers;
+using OMP.Connector.Infrastructure.Kafka.ConfigurationEndpoint;
+using OMP.Connector.Infrastructure.Kafka.Repositories;
+using OMP.Connector.Infrastructure.Kafka.Serialization;
 
-namespace OMP.Connector.EdgeModule.DI
+
+namespace OMP.Connector.EdgeModule
 {
-    public static class ServiceCollectionExtensionKafka
+    internal static class ServiceCollectionExtension
     {
+        public static IServiceCollection RegisterDelegateFromService<TService, TDelegate>(
+                this IServiceCollection serviceCollection,
+                Func<TService, TDelegate> getDelegateFromService)
+                where TDelegate : Delegate
+        {
+            return serviceCollection.AddTransient(serviceProvider =>
+                getDelegateFromService(serviceProvider.GetRequiredService<TService>()));
+        }
+
         public static IServiceCollection AddKafkaIntegration(this IServiceCollection serviceCollection)
         {
 

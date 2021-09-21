@@ -4,7 +4,7 @@ using OMP.Connector.Domain.Models;
 using OMP.Connector.Domain.OpcUa;
 using OMP.Connector.Domain.Schema;
 
-namespace OMP.Device.Connector.Kafka.Repositories
+namespace OMP.Connector.Infrastructure.Kafka.Repositories
 {
 
     public partial class KafkaRepository : ISubscriptionRepository

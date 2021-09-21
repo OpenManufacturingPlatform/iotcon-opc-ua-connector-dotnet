@@ -10,8 +10,8 @@ using OMP.Connector.Domain.Models.Command.Requests.Basic.NodeCommands;
 using OMP.Connector.Domain.OpcUa;
 using OMP.Connector.Domain.Schema.Enums;
 using Opc.Ua;
-using WriteRequest =OMP.Connector.Domain.Schema.Request.Control.WriteRequest;
-using WriteResponse =OMP.Connector.Domain.Schema.Responses.Control.WriteResponse;
+using WriteRequest = OMP.Connector.Domain.Schema.Request.Control.WriteRequest;
+using WriteResponse = OMP.Connector.Domain.Schema.Responses.Control.WriteResponse;
 
 namespace OMP.Connector.Application.Providers.Commands
 {
@@ -79,7 +79,7 @@ namespace OMP.Connector.Application.Providers.Commands
             return statusCodeCollection;
         }
 
-        public void  ConvertToOpcUaTypedValues(IEnumerable<WriteRequestWrapper> writeRequests)
+        public void ConvertToOpcUaTypedValues(IEnumerable<WriteRequestWrapper> writeRequests)
             => this.OpcSession.ConvertToOpcUaTypedValues(writeRequests);
     }
 }

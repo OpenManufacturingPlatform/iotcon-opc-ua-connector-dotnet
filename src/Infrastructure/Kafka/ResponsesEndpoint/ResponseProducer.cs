@@ -1,12 +1,12 @@
 ﻿using Confluent.Kafka;
 using Microsoft.Extensions.Logging;
 using OMP.Connector.Domain.Schema.Messages;
-using OMP.Device.Connector.Kafka.Common.Configuration;
-using OMP.Device.Connector.Kafka.Common.Events;
-using OMP.Device.Connector.Kafka.Common.Producers;
-using OMP.Device.Connector.Kafka.Serialization;
+using OMP.Connector.Infrastructure.Kafka.Common.Configuration;
+using OMP.Connector.Infrastructure.Kafka.Common.Events;
+using OMP.Connector.Infrastructure.Kafka.Common.Producers;
+using OMP.Connector.Infrastructure.Kafka.Serialization;
 
-namespace OMP.Device.Connector.Kafka.ResponsesEndpoint
+namespace OMP.Connector.Infrastructure.Kafka.ResponsesEndpoint
 {
     public class ResponseProducer : CustomKafkaProducer<string, CommandResponse>, IResponseProducer
     {

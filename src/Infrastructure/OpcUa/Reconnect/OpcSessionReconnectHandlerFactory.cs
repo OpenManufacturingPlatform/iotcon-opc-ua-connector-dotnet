@@ -1,5 +1,4 @@
 ﻿using OMP.Connector.Domain.OpcUa.Services;
-using OMP.Connector.Infrastructure.OpcUa.Reconnect;
 
 namespace OMP.Connector.Infrastructure.OpcUa.Reconnect
 {

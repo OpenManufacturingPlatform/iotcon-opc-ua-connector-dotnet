@@ -1,7 +1,7 @@
 ﻿using OMP.Connector.Domain.Schema.SensorTelemetry;
-using OMP.Device.Connector.Kafka.Common.Producers;
+using OMP.Connector.Infrastructure.Kafka.Common.Producers;
 
-namespace OMP.Device.Connector.Kafka.TelemetryEndpoint
+namespace OMP.Connector.Infrastructure.Kafka.TelemetryEndpoint
 {
     public interface ITelemetryProducer : ICustomKafkaProducer<string, SensorTelemetryMessage> { }
 }

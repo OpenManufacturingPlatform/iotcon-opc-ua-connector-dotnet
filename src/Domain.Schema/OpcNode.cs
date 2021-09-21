@@ -4,22 +4,22 @@ namespace OMP.Connector.Domain.Schema
 {
     public class OpcNode
     {
-        [JsonProperty("nodeClass")] 
+        [JsonProperty("nodeClass")]
         public string NodeClass { get; set; }
 
-        [JsonProperty("browseName")] 
+        [JsonProperty("browseName")]
         public string BrowseName { get; set; }
 
-        [JsonProperty("displayName")] 
+        [JsonProperty("displayName")]
         public string DisplayName { get; set; }
 
-        [JsonProperty("description")] 
+        [JsonProperty("description")]
         public string Description { get; set; }
 
-        [JsonProperty("writeMask")] 
+        [JsonProperty("writeMask")]
         public string WriteMask { get; set; }
 
-        [JsonProperty("userWriteMask")] 
+        [JsonProperty("userWriteMask")]
         public string UserWriteMask { get; set; }
     }
 }

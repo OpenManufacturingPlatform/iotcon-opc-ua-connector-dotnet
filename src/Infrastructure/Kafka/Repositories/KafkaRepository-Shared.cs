@@ -4,10 +4,10 @@ using System.Linq;
 using Microsoft.Extensions.Logging;
 using OMP.Connector.Domain.Models;
 using OMP.Connector.Domain.Schema;
-using OMP.Device.Connector.Kafka.ConfigurationEndpoint;
-using OMP.Device.Connector.Kafka.Extensions;
+using OMP.Connector.Infrastructure.Kafka.ConfigurationEndpoint;
+using OMP.Connector.Infrastructure.Kafka.Extensions;
 
-namespace OMP.Device.Connector.Kafka.Repositories
+namespace OMP.Connector.Infrastructure.Kafka.Repositories
 {
     public partial class KafkaRepository : IKafkaApplicationConfigurationRepository
     {
@@ -55,19 +55,23 @@ namespace OMP.Device.Connector.Kafka.Repositories
             var result = _configurationPersister.SaveConfigurationAsync(newConfig, default).GetAwaiter().GetResult();
 
             return result.Match(
-                success => {
+                success =>
+                {
                     _logger.LogTrace($"{nameof(KafkaRepository)} successfully updated the configuration on the Topic");
                     return true;
                 },
-                partialSuccess => {
+                partialSuccess =>
+                {
                     _logger.LogTrace($"{nameof(KafkaRepository)} attempted to update config, wich partially succeeded: Result = {partialSuccess.Message}");
                     return false;
                 },
-                messageToLarge => {
+                messageToLarge =>
+                {
                     _logger.LogTrace($"{nameof(KafkaRepository)} attempted to update config, wich failed [message too large]: Result = {messageToLarge.Error}");
                     return false;
                 },
-                errorResult => {
+                errorResult =>
+                {
                     _logger.LogTrace($"{nameof(KafkaRepository)} attempted to update config, wich failed: Result = {errorResult.Error}");
                     return false;
                 });

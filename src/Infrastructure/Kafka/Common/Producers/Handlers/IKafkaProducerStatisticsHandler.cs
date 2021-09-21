@@ -1,7 +1,6 @@
-﻿using System;
-using Confluent.Kafka;
+﻿using Confluent.Kafka;
 
-namespace OMP.Device.Connector.Kafka.Common.Producers.Handlers
+namespace OMP.Connector.Infrastructure.Kafka.Common.Producers.Handlers
 {
 
     public interface IKafkaProducerStatisticsHandler<TKey, TValue>

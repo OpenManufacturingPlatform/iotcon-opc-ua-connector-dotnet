@@ -16,7 +16,7 @@ namespace OMP.Connector.Application.Tests.TestSetup
             IMapper mapper = null,
             ILogger<WriteProvider> logger = null)
         {
-            
+
             var writeProvider = new WriteProvider(
                 writeCommands,
                 opcSession,

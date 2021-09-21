@@ -9,15 +9,15 @@ namespace OMP.Connector.Domain.Models
     {
         [JsonProperty("endpointUrl", Required = Required.Always)]
         [Description("endpointUrl")]
-        public string EndpointUrl {get; set;}
-        
+        public string EndpointUrl { get; set; }
+
         [JsonProperty("serverDetails", Required = Required.Always)]
         [Description("serverDetails")]
-        public ServerDetails ServerDetails {get; set;}
-        
+        public ServerDetails ServerDetails { get; set; }
+
         protected bool Equals(EndpointDescriptionDto other)
         {
-            return this.EndpointUrl == other.EndpointUrl && 
+            return this.EndpointUrl == other.EndpointUrl &&
                    this.ServerDetails.Name == other.ServerDetails.Name &&
                    this.ServerDetails.Route == other.ServerDetails.Route;
         }
@@ -27,7 +27,7 @@ namespace OMP.Connector.Domain.Models
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return this.Equals((EndpointDescriptionDto) obj);
+            return this.Equals((EndpointDescriptionDto)obj);
         }
 
         public override int GetHashCode()

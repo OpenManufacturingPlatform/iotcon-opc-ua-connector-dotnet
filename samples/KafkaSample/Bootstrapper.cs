@@ -13,7 +13,6 @@ using OMP.Connector.Domain.Configuration;
 using OMP.Connector.Domain.OpcUa;
 using OMP.Connector.Domain.OpcUa.Services;
 using OMP.Connector.Domain.Providers;
-using OMP.Connector.EdgeModule.DI;
 using OMP.Connector.EdgeModule.Jobs;
 using OMP.Connector.EdgeModule.MapperProfiles;
 using OMP.Connector.Infrastructure.OpcUa;
@@ -49,10 +48,7 @@ namespace OMP.Connector.EdgeModule
             serviceCollection.AddTransient<MonitoredItemValidator>();
             serviceCollection.AddTransient<RoutingSettingsValidator>();
 
-            //if (settings.KafkaBootstrapServers.Any())
-            //{
             serviceCollection.AddKafkaIntegration();
-            //}
 
             serviceCollection.AddSingleton(provider => new MapperConfiguration(cfg =>
             {

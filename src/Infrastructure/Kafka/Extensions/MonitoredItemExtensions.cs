@@ -1,6 +1,6 @@
 ﻿using OMP.Connector.Domain.Schema;
 
-namespace OMP.Device.Connector.Kafka.Extensions
+namespace OMP.Connector.Infrastructure.Kafka.Extensions
 {
     internal static class MonitoredItemExtensions
     {

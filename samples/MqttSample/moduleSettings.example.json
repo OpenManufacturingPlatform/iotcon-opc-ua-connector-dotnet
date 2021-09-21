@@ -18,23 +18,36 @@
     "RegisterNodeBatchSize": 100,
     "AwaitSessionLockTimeoutSecs": 3,
     "ReconnectIntervalSecs": 10,
-    "Authentication": [
-      {
-        "endpoint": "opc.tcp://localhost:62565/Quickstarts/UserAuthenticationServer",
-        "username": "test",
-        "password": "test"
-      }
-    ],
     "NativeSettings": {
-      "Topic": "configuration",
-      "ConsumerGroup": "...",
-      "ReadBatchSize": 9999
+      "applicationName": "Some name- optional",
+      "applicationUri ": "Some Uri - optional",
+      "productUri ": "Some Uri - optional",
+      "serverBaseAddress ": "Some Uri - optional",
+      "ldsRegistrationInterval": 0,
+      "maxStringLength": 0,
+      "maxMessageSize ": 0,
+      "operationTimeoutMs": 120000,
+      "enableRegisteredNodes": false,
+      "defaultServerBrowseDepth": 0,
+      "nodeBrowseDepth": 0,
+      "subscriptionBatchSize": 1000,
+      "readBatchSize": 1000,
+      "registerNodeBatchSize": 1000,
+      "certificateStoreTypeName": "Directory",
+      "issuerCertStorePath": "pki/issuer",
+      "trustedCertStorePath": "pki/trusted",
+      "rejectedCertStorePath": "pki/rejected",
+      "ownCertStorePath": "CurrentUser\\UA_MachineDefault",
+      "opcNodeMask": 0,
+      "opcStackTraceMask": 0,
+      "awaitSessionLockTimeoutSecs": 0,
+      "reconnectIntervalSecs": 0
     }
   },
   "Communication": {
     "SchemaUrl": "https://someSchemaStore.com/schemas/",
     "Shared": {
-      "Type": "kafka",
+      "Type": "mqtt",
       "NativeSettings": {
         "BootstrapServers": "...",
         "Username": "000",
@@ -57,31 +70,30 @@
       }
     },
     "TelemetryEndpoint": {
-      "Type": "kafka",
+      "Type": "mqtt",
       "UploadTimeoutMs": null,
       "NativeSettings": {
-        "MaxRetries": 5, 
-        "WaitTimeBetweenRetriesInSeconds": 3, 
+        "MaxRetries": 5,
+        "WaitTimeBetweenRetriesInSeconds": 3,
         "Topic": "TelemetryTopic"
       }
     },
     "CommandEndpoint": {
-      "Type": "kafka",
+      "Type": "mqtt",
       "NativeSettings": {
         "Topic": "ComandTopic"
       }
     },
     "ResponseEndpoint": {
-      "Type": "kafka",
+      "Type": "mqtt",
       "NativeSettings": {
         "Topic": "ResponseTopic"
       }
     }
   },
   "Persistance": {
-    "Type": "kafka", 
+    "Type": "inMemory", 
     "NativeSettings": {
-      "Topic": "ConfigurationTopic"
     }
   }
 }

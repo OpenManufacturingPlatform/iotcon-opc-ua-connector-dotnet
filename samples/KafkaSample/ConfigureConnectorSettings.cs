@@ -9,7 +9,7 @@ namespace OMP.Connector.EdgeModule
         private readonly IConfiguration configuration;
         private const string SectionSeparatorKey = ":";
         private const string NativeSettingsKey = "NativeSettings";
-        
+
         public ConfigureConnectorSettings(IConfiguration configuration)
         {
             this.configuration = configuration;

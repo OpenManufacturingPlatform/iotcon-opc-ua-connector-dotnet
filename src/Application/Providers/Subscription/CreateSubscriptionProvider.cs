@@ -114,7 +114,7 @@ namespace OMP.Connector.Application.Providers.Subscription
                 }
                 if (!errorMessages.Any())
                 {
-                    var monitoredItemsDict = this.Command.MonitoredItems.ToDictionary(monitoredItem => monitoredItem.NodeId);                    
+                    var monitoredItemsDict = this.Command.MonitoredItems.ToDictionary(monitoredItem => monitoredItem.NodeId);
                     var newSubscriptionDto = new SubscriptionDto
                     {
                         EndpointUrl = baseEndpointUrl,
@@ -129,14 +129,14 @@ namespace OMP.Connector.Application.Providers.Subscription
             this.AddMessagesForAnyInvalidNodes(errorMessages);
 
             if (!errorMessages.Any())
-                 this.Logger.Debug($"Created/Updated subscriptions on Endpoint: [{this.EndpointUrl}]");
+                this.Logger.Debug($"Created/Updated subscriptions on Endpoint: [{this.EndpointUrl}]");
 
             return this.GetStatusMessage(errorMessages);
         }
-        
+
         private void AddMessagesForAnyInvalidNodes(ICollection<string> errorMessages)
         {
-            if (!this._groupedItemsNotCreated.Any()) 
+            if (!this._groupedItemsNotCreated.Any())
                 return;
 
             var stringBuilder = new StringBuilder("Bad: Some nodes could not be subscribed to. ");
@@ -201,7 +201,7 @@ namespace OMP.Connector.Application.Providers.Subscription
                     this._groupedItemsNotCreated.Add(key, list);
                 }
             }
-        }        
+        }
 
         private async Task<List<string>> AddValidationErrorsAsync()
         {
@@ -254,7 +254,7 @@ namespace OMP.Connector.Application.Providers.Subscription
                 .Where(x => monitoredItem.NodeId.Equals(x.ResolvedNodeId.ToString()))
                 .ToList();
 
-            if (SamplingIntervalsAreTheSame(monitoredItem, existingItems)) 
+            if (SamplingIntervalsAreTheSame(monitoredItem, existingItems))
                 return opcUaSubscription;
 
             opcUaSubscription.RemoveItems(existingItems);// Notification of intent
