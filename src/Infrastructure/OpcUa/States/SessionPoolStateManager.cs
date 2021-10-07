@@ -22,6 +22,7 @@ namespace OMP.Connector.Infrastructure.OpcUa.States
         private readonly ILoggerFactory _loggerFactory;
         private readonly ApplicationConfiguration _applicationConfiguration;
         private readonly IMapper _mapper;
+        private readonly IUserIdentityProvider _identityProvider;
         private bool _disposed = false;
 
         public SessionPoolStateManager(
@@ -29,7 +30,8 @@ namespace OMP.Connector.Infrastructure.OpcUa.States
             IOpcSessionReconnectHandlerFactory opcSessionReconnectHandlerFactory,
             ILoggerFactory loggerFactory,
             ApplicationConfiguration applicationConfiguration,
-            IMapper mapper)
+            IMapper mapper,
+            IUserIdentityProvider identityProvider)
         {
             _sessionPool = new ConcurrentDictionary<string, IOpcSession>();
             _semaphoreSlim = new SemaphoreSlim(1);
@@ -38,6 +40,7 @@ namespace OMP.Connector.Infrastructure.OpcUa.States
             _loggerFactory = loggerFactory;
             _applicationConfiguration = applicationConfiguration;
             _mapper = mapper;
+            _identityProvider = identityProvider;
         }
 
         public Task CleanupStaleSessionsAsync()
@@ -90,7 +93,8 @@ namespace OMP.Connector.Infrastructure.OpcUa.States
                 _opcSessionReconnectHandlerFactory,
                 _loggerFactory,
                 _applicationConfiguration,
-                _mapper);
+                _mapper,
+                _identityProvider);
             await session.ConnectAsync(opcUaServerUrl);
             return session;
         }

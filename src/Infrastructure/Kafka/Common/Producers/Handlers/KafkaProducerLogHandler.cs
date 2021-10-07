@@ -1,9 +1,9 @@
 ﻿using Confluent.Kafka;
 using Microsoft.Extensions.Logging;
 
-namespace OMP.Device.Connector.Kafka.Common.Producers.Handlers
+namespace OMP.Connector.Infrastructure.Kafka.Common.Producers.Handlers
 {
-    public class KafkaProducerLogHandler<TKey, TValue>: IKafkaProducerLogHandler<TKey, TValue>
+    public class KafkaProducerLogHandler<TKey, TValue> : IKafkaProducerLogHandler<TKey, TValue>
     {
         private readonly ILogger _logger;
 

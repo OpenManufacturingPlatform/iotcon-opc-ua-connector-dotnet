@@ -20,23 +20,23 @@ namespace OMP.Connector.Domain.Schema.Converters
         {
             var propertyName = typeof(CommandRequest).GetPropertyName(nameof(CommandRequest.OpcUaCommandType));
             var dataProperty = this.GetPropertyValue<string>(jToken, propertyName);
-           var commandType =  dataProperty.ToEnum<OpcUaCommandType>();
+            var commandType = dataProperty.ToEnum<OpcUaCommandType>();
 
-           return commandType switch
-           {
-               OpcUaCommandType.Read => new ReadRequest(),
-               OpcUaCommandType.Write => new WriteRequest(),
-               OpcUaCommandType.Call => new CallRequest(),
-               OpcUaCommandType.Browse => new BrowseRequest(),
-               OpcUaCommandType.CreateSubscription => new CreateSubscriptionsRequest(),
-               OpcUaCommandType.RemoveAllSubscriptions => new RemoveAllSubscriptionsRequest(),
-               OpcUaCommandType.RemoveSubscriptions => new RemoveSubscriptionsRequest(),
-               OpcUaCommandType.RestoreSubscriptions => new RestoreSubscriptionsRequest(),
-               OpcUaCommandType.ServerDiscovery => new ServerDiscoveryRequest(),
-               OpcUaCommandType.BrowseChildNodes => new BrowseChildNodesRequest(),
-               OpcUaCommandType.BrowseChildNodesFromRoot => new BrowseChildNodesFromRootRequest(),
-               _ => default
-           };
+            return commandType switch
+            {
+                OpcUaCommandType.Read => new ReadRequest(),
+                OpcUaCommandType.Write => new WriteRequest(),
+                OpcUaCommandType.Call => new CallRequest(),
+                OpcUaCommandType.Browse => new BrowseRequest(),
+                OpcUaCommandType.CreateSubscription => new CreateSubscriptionsRequest(),
+                OpcUaCommandType.RemoveAllSubscriptions => new RemoveAllSubscriptionsRequest(),
+                OpcUaCommandType.RemoveSubscriptions => new RemoveSubscriptionsRequest(),
+                OpcUaCommandType.RestoreSubscriptions => new RestoreSubscriptionsRequest(),
+                OpcUaCommandType.ServerDiscovery => new ServerDiscoveryRequest(),
+                OpcUaCommandType.BrowseChildNodes => new BrowseChildNodesRequest(),
+                OpcUaCommandType.BrowseChildNodesFromRoot => new BrowseChildNodesFromRootRequest(),
+                _ => default
+            };
         }
     }
 }

@@ -6,7 +6,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using OMP.Connector.Domain.Extensions;
 
-namespace OMP.Device.Connector.Kafka.Common.Consumers
+namespace OMP.Connector.Infrastructure.Kafka.Common.Consumers
 {
     public abstract class BaseConsumerHostedService : IHostedService
     {

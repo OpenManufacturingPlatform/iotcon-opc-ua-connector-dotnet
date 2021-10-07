@@ -19,15 +19,15 @@ namespace OMP.Connector.Application.OpcUa
             IMapper mapper)
         {
             var dataValue = mapper.Map<OpcDataValue>(telemetryMessageContent.DataValue);
-            var dataType = TelemetryConversion.GetDataTypeName( telemetryMessageContent.DataDataType, telemetryMessageContent.ElementType, dataValue);
+            var dataType = TelemetryConversion.GetDataTypeName(telemetryMessageContent.DataDataType, telemetryMessageContent.ElementType, dataValue);
             var convertedValue = TelemetryConversion.ConvertToMeasurement(dataValue.Value, telemetryMessageContent.ElementType, mapper);
 
             var msg = ModelFactory.CreateInstance<SensorTelemetryMessage>(telemetryMessageContent.SchemaUrl);
             msg.Id = Guid.NewGuid().ToString();
-            
+
             msg.MetaData = new MessageMetaData()
             {
-                CorrelationIds = new List<string>(){},
+                CorrelationIds = new List<string>() { },
                 TimeStamp = DateTime.UtcNow,
                 SenderIdentifier = new Participant()
                 {

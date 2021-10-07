@@ -94,10 +94,10 @@ namespace OMP.Connector.Application.Tests.Factories
             var opcUaSettings = Substitute.For<IOptions<ConnectorConfiguration>>();
             opcUaSettings.Value.Returns(_ => new ConnectorConfiguration
             {
-               OpcUa = new OpcUaConfiguration
-               {
-                   EnableRegisteredNodes = true,
-               }
+                OpcUa = new OpcUaConfiguration
+                {
+                    EnableRegisteredNodes = true,
+                }
             });
 
             var opcSession = Substitute.For<IOpcSession>();

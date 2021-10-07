@@ -57,7 +57,7 @@ namespace OMP.Connector.Application.Providers.Subscription
                 var subscriptions = this._subscriptionRepository.GetAllByEndpointUrl(this.EndpointUrl);
                 foreach (var subscription in subscriptions)
                 {
-                    isSuccess = this._subscriptionRepository.Remove(subscription) && isSuccess;    
+                    isSuccess = this._subscriptionRepository.Remove(subscription) && isSuccess;
                 }
             }
             catch (Exception ex)
@@ -88,7 +88,7 @@ namespace OMP.Connector.Application.Providers.Subscription
             }
             return Task.FromResult(isSuccess);
         }
-        
+
         protected override void GenerateResult(RemoveAllSubscriptionsResponse result, string message)
         {
             result.OpcUaCommandType = OpcUaCommandType.RemoveAllSubscriptions;

@@ -66,7 +66,8 @@ namespace OMP.Connector.Infrastructure.OpcUa.ComplexTypes
             Dictionary<XmlQualifiedName, NodeId> typeDictionary,
             NamespaceTable namespaceTable)
         {
-            var structureDefinition = new StructureDefinition() {
+            var structureDefinition = new StructureDefinition()
+            {
                 BaseDataType = null,
                 DefaultEncodingId = ExpandedNodeId.ToNodeId(defaultEncodingId, namespaceTable),
                 Fields = new StructureFieldCollection(),
@@ -162,7 +163,8 @@ namespace OMP.Connector.Infrastructure.OpcUa.ComplexTypes
                         "Bitwise option selectors must have 32 bits.");
                 }
 
-                var dataTypeField = new StructureField() {
+                var dataTypeField = new StructureField()
+                {
                     Name = field.Name,
                     Description = null,
                     DataType = field.TypeName.ToNodeId(typeDictionary),

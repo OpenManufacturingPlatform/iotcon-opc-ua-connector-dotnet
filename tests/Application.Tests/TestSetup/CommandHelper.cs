@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using Newtonsoft.Json;
+using NUnit.Framework;
 using OMP.Connector.Domain.Schema.Enums;
 using OMP.Connector.Domain.Schema.Factories;
 using OMP.Connector.Domain.Schema.Interfaces;
@@ -11,7 +12,6 @@ using OMP.Connector.Domain.Schema.MetaData.Message;
 using OMP.Connector.Domain.Schema.Request;
 using OMP.Connector.Domain.Schema.Request.Control;
 using OMP.Connector.Domain.Schema.Responses;
-using NUnit.Framework;
 
 namespace OMP.Connector.Application.Tests.TestSetup
 {

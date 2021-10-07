@@ -40,12 +40,12 @@ namespace OMP.Connector.Infrastructure.OpcUa
         private SemaphoreSlim _opcSessionSemaphore;
         private CancellationTokenSource _sessionCancellationTokenSource;
         private IOpcSessionReconnectHandler _reconnectHandler;
-        private Guid _sessionName;
         private Session _session;
         private IRegisteredNodeStateManager _registeredNodeStateManager;
         private ComplexTypeSystem _complexTypeSystem;
         private readonly EndpointConfiguration _endpointConfiguration;
         private readonly IMapper _mapper;
+        private readonly IUserIdentityProvider _identityProvider;
         private const string JsonTypeKey = "$type";
 
 
@@ -54,7 +54,8 @@ namespace OMP.Connector.Infrastructure.OpcUa
             IOpcSessionReconnectHandlerFactory opcSessionReconnectHandlerFactory,
             ILoggerFactory loggerFactory,
             ApplicationConfiguration applicationConfiguration,
-            IMapper mapper
+            IMapper mapper,
+            IUserIdentityProvider identityProvider
             )
         {
             _opcUaSettings = connectorConfiguration.Value.OpcUa;
@@ -64,6 +65,7 @@ namespace OMP.Connector.Infrastructure.OpcUa
             _applicationConfiguration = applicationConfiguration;
             _endpointConfiguration = EndpointConfiguration.Create(applicationConfiguration);
             _mapper = mapper;
+            _identityProvider = identityProvider;
         }
 
         public IEnumerable<Subscription> Subscriptions => _session.Subscriptions;
@@ -75,7 +77,14 @@ namespace OMP.Connector.Infrastructure.OpcUa
         }
 
         #region [Public Members]
+
         public async Task ConnectAsync(EndpointDescription endpointDescription)
+        {
+            var identity = _identityProvider.GetUserIdentity(endpointDescription);
+            await ConnectAsync(endpointDescription, identity);
+        }
+        
+        private async Task ConnectAsync(EndpointDescription endpointDescription, IUserIdentity identity)
         {
             try
             {
@@ -85,19 +94,19 @@ namespace OMP.Connector.Infrastructure.OpcUa
                 var locked = await LockSessionAsync().ConfigureAwait(false);
 
                 if (!locked) { return; }
-
-                _sessionName = Guid.NewGuid();
+                
+                var sessionName = $"{_applicationConfiguration.ApplicationUri}:{Guid.NewGuid()}"; 
                 var endPointConfiguration = EndpointConfiguration.Create(_applicationConfiguration);
                 var configuredEndpoint = new ConfiguredEndpoint(endpointDescription.Server, endPointConfiguration);
                 configuredEndpoint.Update(endpointDescription);
-
+                
                 _session = await Session.Create(
                     _applicationConfiguration,
                     configuredEndpoint,
                     true,
-                    _sessionName.ToString(),
+                    sessionName,
                     100000,
-                    default,
+                    identity,
                     default);
 
                 _session.KeepAlive += SessionOnKeepAlive;

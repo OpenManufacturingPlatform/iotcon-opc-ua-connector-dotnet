@@ -1,13 +1,13 @@
 ﻿using Confluent.Kafka;
 using OMP.Connector.Domain.Models;
-using OMP.Device.Connector.Kafka.Common.Configuration;
-using OMP.Device.Connector.Kafka.Common.Consumers;
-using OMP.Device.Connector.Kafka.Common.Events;
-using OMP.Device.Connector.Kafka.Serialization;
+using OMP.Connector.Infrastructure.Kafka.Common.Configuration;
+using OMP.Connector.Infrastructure.Kafka.Common.Consumers;
+using OMP.Connector.Infrastructure.Kafka.Common.Events;
+using OMP.Connector.Infrastructure.Kafka.Serialization;
 
-namespace OMP.Device.Connector.Kafka.ConfigurationEndpoint
+namespace OMP.Connector.Infrastructure.Kafka.ConfigurationEndpoint
 {
-    public class ConfigurationConsumer:  CustomKafkaConsumer<string, AppConfigDto>, IConfigurationConsumer
+    public class ConfigurationConsumer : CustomKafkaConsumer<string, AppConfigDto>, IConfigurationConsumer
     {
         public ConfigurationConsumer(
             KafkaConfig kafkaConfig,

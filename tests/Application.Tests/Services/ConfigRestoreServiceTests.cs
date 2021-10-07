@@ -6,6 +6,7 @@ using MELT;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NSubstitute;
+using NUnit.Framework;
 using OMP.Connector.Application.Services;
 using OMP.Connector.Domain.Configuration;
 using OMP.Connector.Domain.Models;
@@ -15,7 +16,6 @@ using OMP.Connector.Domain.Schema.Interfaces;
 using OMP.Connector.Domain.Schema.Messages;
 using OMP.Connector.Domain.Schema.Responses;
 using OMP.Connector.Domain.Schema.Responses.Subscription;
-using NUnit.Framework;
 
 namespace OMP.Connector.Application.Tests.Services
 {

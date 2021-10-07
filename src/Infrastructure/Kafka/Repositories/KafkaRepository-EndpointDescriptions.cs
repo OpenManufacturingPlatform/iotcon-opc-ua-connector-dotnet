@@ -2,7 +2,7 @@
 using OMP.Connector.Domain.Models;
 using OMP.Connector.Domain.OpcUa;
 
-namespace OMP.Device.Connector.Kafka.Repositories
+namespace OMP.Connector.Infrastructure.Kafka.Repositories
 {
     public partial class KafkaRepository : IEndpointDescriptionRepository
     {

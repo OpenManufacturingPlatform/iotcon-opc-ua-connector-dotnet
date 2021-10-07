@@ -13,12 +13,12 @@ using OMP.Connector.Domain.OpcUa;
 using OMP.Connector.Domain.Schema.Enums;
 using OMP.Connector.Domain.Schema.SensorTelemetry;
 using Opc.Ua;
-using ReadRequest =OMP.Connector.Domain.Schema.Request.Control.ReadRequest;
-using ReadResponse =OMP.Connector.Domain.Schema.Responses.Control.ReadResponse;
+using ReadRequest = OMP.Connector.Domain.Schema.Request.Control.ReadRequest;
+using ReadResponse = OMP.Connector.Domain.Schema.Responses.Control.ReadResponse;
 
 namespace OMP.Connector.Application.Providers.Commands
 {
-    public class ReadProvider: CommandProvider<ReadRequest, ReadResponse>
+    public class ReadProvider : CommandProvider<ReadRequest, ReadResponse>
     {
         private readonly int _batchSize;
 
@@ -27,7 +27,7 @@ namespace OMP.Connector.Application.Providers.Commands
             IOpcSession opcSession,
             IOptions<ConnectorConfiguration> connectorConfiguration,
             IMapper mapper,
-            ILogger<ReadProvider> logger): base(commands, opcSession, mapper, logger)
+            ILogger<ReadProvider> logger) : base(commands, opcSession, mapper, logger)
         {
             this._batchSize = connectorConfiguration.Value.OpcUa.ReadBatchSize;
         }
@@ -89,7 +89,7 @@ namespace OMP.Connector.Application.Providers.Commands
         {
             var values = new List<object>();
             var errors = new List<ServiceResult>();
-            
+
             this.OpcSession.ReadNodes(nodeIds.ToList(), this._batchSize, values, errors);
 
             var mergedLists = values.Zip(errors);

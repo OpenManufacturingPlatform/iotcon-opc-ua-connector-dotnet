@@ -2,5 +2,5 @@
 
 namespace OMP.Connector.Domain.Schema.Request.Subscription
 {
-    public class RemoveAllSubscriptionsRequest: SubscriptionRequest { }
+    public class RemoveAllSubscriptionsRequest : SubscriptionRequest { }
 }

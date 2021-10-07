@@ -15,7 +15,7 @@ namespace OMP.Connector.Domain.Schema.Request.Control.WriteValues
         [JsonProperty("dataType", NullValueHandling = NullValueHandling.Ignore)]
         [Description("The route of the node")]
         public string DataType { get; set; }
-        
+
         [JsonConverter(typeof(WriteRequestValueConverter))]
         [JsonProperty("value", Required = Required.AllowNull)]
         public IWriteRequestValue Value { get; set; }

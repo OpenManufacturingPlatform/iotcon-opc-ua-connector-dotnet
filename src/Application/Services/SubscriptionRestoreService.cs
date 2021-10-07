@@ -14,9 +14,9 @@ using OMP.Connector.Domain.OpcUa.Services;
 using OMP.Connector.Domain.Schema.Enums;
 using OMP.Connector.Domain.Schema.Factories;
 using OMP.Connector.Domain.Schema.Interfaces;
+using OMP.Connector.Domain.Schema.Messages;
 using OMP.Connector.Domain.Schema.Request;
 using OMP.Connector.Domain.Schema.Request.Subscription;
-using OMP.Connector.Domain.Schema.Messages;
 
 namespace OMP.Connector.Application.Services
 {
@@ -36,10 +36,10 @@ namespace OMP.Connector.Application.Services
         {
             this._logger = logger;
             this._subscriptionRepository = subscriptionRepository;
-            this._connectorConfiguration = connectorConfiguration.Value;            
+            this._connectorConfiguration = connectorConfiguration.Value;
             this._subscriptionProviderFactory = subscriptionProviderFactory;
         }
-        
+
         private async Task ExecuteSubscriptionRequestAsync(IOpcSession opcSession, CommandRequest requestMessage)
         {
             try
@@ -118,12 +118,12 @@ namespace OMP.Connector.Application.Services
                 OpcUaCommandType = OpcUaCommandType.CreateSubscription,
                 MonitoredItems = subscription.MonitoredItems?.Values.ToArray()
             };
-            
+
             var commandRequest = ModelFactory.CreateInstance<CommandRequest>(schemaUrl);
             commandRequest.Payload = new RequestPayload
             {
-                RequestTarget = new RequestTarget {EndpointUrl = subscription.EndpointUrl},
-                Requests = new List<ICommandRequest> {request}
+                RequestTarget = new RequestTarget { EndpointUrl = subscription.EndpointUrl },
+                Requests = new List<ICommandRequest> { request }
             };
 
             return commandRequest;

@@ -34,7 +34,7 @@ namespace OMP.Connector.Application.Tests.Services
             var errorMessage =
                 $"Failed to execute subscription request on {command.Payload.RequestTarget.EndpointUrl}, ErrorMessage: Object reference not set to an instance of an object.";
             var expected = CommandResponseCreator.GetErrorResponseMessage(TestConstants.SchemaUrl, command);
-            
+
             // Test
             var actual = await service.ExecuteAsync(command);
 
@@ -67,8 +67,8 @@ namespace OMP.Connector.Application.Tests.Services
             var fakeSession = FakeOpcUaSession.Create<FakeOpcUaSessionWithCustomRead>();
             var opcSession = Substitute.For<IOpcSession>();
             await opcSession
-                .UseAsync( Arg.Invoke<Session, IComplexTypeSystem>(fakeSession, null));
-            
+                .UseAsync(Arg.Invoke<Session, IComplexTypeSystem>(fakeSession, null));
+
             var readResponse = fakeSession.ReturnGoodReadResponse(TestConstants.NodeId);
             var sessionPoolStateManager = Substitute.For<ISessionPoolStateManager>();
             sessionPoolStateManager

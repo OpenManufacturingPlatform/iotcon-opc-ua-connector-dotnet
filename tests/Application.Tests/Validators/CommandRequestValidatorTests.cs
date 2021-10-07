@@ -2,12 +2,12 @@
 using System.Linq;
 using Microsoft.Extensions.Options;
 using NSubstitute;
+using NUnit.Framework;
 using OMP.Connector.Application.Validators;
 using OMP.Connector.Domain.Configuration;
 using OMP.Connector.Domain.Schema;
 using OMP.Connector.Domain.Schema.Messages;
 using OMP.Connector.Domain.Schema.MetaData.Message;
-using NUnit.Framework;
 
 namespace OMP.Connector.Application.Tests.Validators
 {
@@ -28,7 +28,7 @@ namespace OMP.Connector.Application.Tests.Validators
             this._settingsMock = Substitute.For<IOptions<ConnectorConfiguration>>();
             this._settingsMock.Value.Returns(_ => new ConnectorConfiguration
             {
-                ConnectorId = "myAppId"                
+                ConnectorId = "myAppId"
             });
 
             this._classUnderTest = new CommandRequestValidator(this._settingsMock);

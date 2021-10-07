@@ -23,7 +23,7 @@ namespace OMP.Connector.Application
 
             //create final batch even if remaining items < batch size
             this.batchBlock.TriggerBatch();
-            
+
             this.batchBlock.Complete();
             this.actionBlock.Completion.Wait();
         }

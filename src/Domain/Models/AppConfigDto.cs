@@ -7,7 +7,7 @@ namespace OMP.Connector.Domain.Models
     {
         [JsonProperty("endpointDescriptions")]
         public IEnumerable<EndpointDescriptionDto> EndpointDescriptions { get; set; }
-        
+
         [JsonProperty("subscription")]
         public IEnumerable<SubscriptionDto> Subscriptions { get; set; }
     }

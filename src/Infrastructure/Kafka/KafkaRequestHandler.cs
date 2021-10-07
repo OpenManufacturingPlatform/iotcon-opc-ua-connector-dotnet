@@ -13,7 +13,7 @@ using OMP.Connector.Domain.Configuration;
 using OMP.Connector.Domain.OpcUa;
 using OMP.Connector.Domain.Schema.Messages;
 
-namespace OMP.Device.Connector.Kafka
+namespace OMP.Connector.Infrastructure.Kafka
 {
     public class KafkaRequestHandler : RequestHandler, IKafkaRequestHandler
     {

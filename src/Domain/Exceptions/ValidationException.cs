@@ -17,7 +17,7 @@ namespace OMP.Connector.Domain.Exceptions
 
         public ValidationException(string message) : base(message)
         {
-            this.ValidationResults = new[] {new ValidationResult(message)};
+            this.ValidationResults = new[] { new ValidationResult(message) };
         }
 
         public ValidationException(string message, IEnumerable<ValidationResult> results) : base(message, null)

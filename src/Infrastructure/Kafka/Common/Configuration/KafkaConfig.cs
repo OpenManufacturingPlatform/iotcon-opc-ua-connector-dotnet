@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace OMP.Device.Connector.Kafka.Common.Configuration
+namespace OMP.Connector.Infrastructure.Kafka.Common.Configuration
 {
     public class KafkaConfig
     {

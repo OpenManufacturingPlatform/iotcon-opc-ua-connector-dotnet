@@ -2,7 +2,7 @@
 using Confluent.Kafka;
 using OMP.Connector.Domain.Schema.Messages;
 
-namespace OMP.Device.Connector.Kafka
+namespace OMP.Connector.Infrastructure.Kafka
 {
     public interface IKafkaRequestHandler
     {

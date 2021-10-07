@@ -73,7 +73,7 @@ namespace OMP.Connector.Infrastructure.OpcUa.ComplexTypes.TypeBuilder
         /// </summary>
         public void AddField(StructureField field, Type fieldType, int order)
         {
-        	if(fieldType == null) { fieldType = field.ValueRank >= 0 ? this.m_structureBuilder.MakeArrayType() : this.m_structureBuilder; }
+            if (fieldType == null) { fieldType = field.ValueRank >= 0 ? this.m_structureBuilder.MakeArrayType() : this.m_structureBuilder; }
             var fieldBuilder = this.m_structureBuilder.DefineField("_" + field.Name, fieldType, FieldAttributes.Private);
             var propertyBuilder = this.m_structureBuilder.DefineProperty(
                 field.Name,

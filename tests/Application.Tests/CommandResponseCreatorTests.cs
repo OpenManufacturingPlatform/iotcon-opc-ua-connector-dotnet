@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using NUnit.Framework;
 using OMP.Connector.Application.OpcUa;
 using OMP.Connector.Application.Tests.TestSetup;
 using OMP.Connector.Domain.Schema;
@@ -15,7 +16,6 @@ using OMP.Connector.Domain.Schema.Responses;
 using OMP.Connector.Domain.Schema.Responses.Control;
 using OMP.Connector.Domain.Schema.Responses.Discovery;
 using OMP.Connector.Domain.Schema.Responses.Subscription;
-using NUnit.Framework;
 
 namespace OMP.Connector.Application.Tests
 {
@@ -229,8 +229,8 @@ namespace OMP.Connector.Application.Tests
 
             list.Add(
                 atLeastOneBadResult
-                    ? new RemoveAllSubscriptionsResponse() {Message = TestConstants.CommandBadMessage}
-                    : new RemoveAllSubscriptionsResponse() {Message = goodMsg});
+                    ? new RemoveAllSubscriptionsResponse() { Message = TestConstants.CommandBadMessage }
+                    : new RemoveAllSubscriptionsResponse() { Message = goodMsg });
 
             return list;
         }

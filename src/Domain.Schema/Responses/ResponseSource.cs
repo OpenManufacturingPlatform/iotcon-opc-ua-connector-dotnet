@@ -16,7 +16,7 @@ namespace OMP.Connector.Domain.Schema.Responses
         [JsonProperty("route", NullValueHandling = NullValueHandling.Ignore)]
         [Description("Route of the source")]
         public string Route { get; set; }
-        
+
         [JsonProperty("endpointUrl", Required = Required.Always)]
         [Description("Endpoint URL of the source")]
         public string EndpointUrl { get; set; }
