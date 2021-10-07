@@ -25,14 +25,16 @@ namespace OMP.Connector.Application.Tests.TestSetup
             var opcSessionReconnectHandlerFactory = Substitute.For<IOpcSessionReconnectHandlerFactory>();
             var applicationConfiguration = Substitute.For<ApplicationConfiguration>();
             var mapper = Substitute.For<IMapper>();
-            var logger = Substitute.For<ILoggerFactory>();
+            var loggerFactory = Substitute.For<ILoggerFactory>();
+            var identityProvider = Substitute.For<IUserIdentityProvider>();
 
             var opcSession = Substitute.For<OpcSession>(
                 connectorConfiguration,
                 opcSessionReconnectHandlerFactory,
-                logger,
+                loggerFactory,
                 applicationConfiguration,
-                mapper
+                mapper,
+                identityProvider
             );
 
             opcSession.Session = FakeOpcUaSession.Create<FakeOpcUaSession>();
