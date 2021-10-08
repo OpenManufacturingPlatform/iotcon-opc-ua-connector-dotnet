@@ -79,6 +79,15 @@ namespace OMP.Connector.Infrastructure.Kafka.Repositories
             return (hasRemoved && persisted);
         }
 
+        public bool ClearRepository()
+        {
+            _managedSubscriptions.Clear();
+            _endpointDescriptions.Clear();
+            var persisted = PersistCachedConfig();
+
+            return persisted;
+        }
+
         private void WaitForInitializationToComplete()
         {
             while (!_repositoryInitialized)

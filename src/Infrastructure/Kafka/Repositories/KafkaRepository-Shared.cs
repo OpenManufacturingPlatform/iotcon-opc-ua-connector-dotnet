@@ -28,6 +28,12 @@ namespace OMP.Connector.Infrastructure.Kafka.Repositories
 
         public void Initialize(AppConfigDto applicationConfig)
         {
+            if (!applicationConfig.Subscriptions.Any() && !applicationConfig.EndpointDescriptions.Any())
+            {
+                ClearRepository();
+                return;
+            }
+
             if (applicationConfig.Subscriptions != null)
                 foreach (var subscriptionDto in applicationConfig.Subscriptions)
                 {

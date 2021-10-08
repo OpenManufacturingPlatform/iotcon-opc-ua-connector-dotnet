@@ -50,6 +50,9 @@ namespace OMP.Connector.Infrastructure.Kafka.Common.Consumers
         public ConsumeResult<TKey, TValue> Consume(CancellationToken cancellationToken = default)
            => Subscribe().Consumer.Consume(cancellationToken);
 
+        public ConsumeResult<TKey, TValue> Consume(int millisecondsTimeout)
+            => Subscribe().Consumer.Consume(millisecondsTimeout);
+
         private CustomKafkaConsumer<TKey, TValue> Subscribe()
         {
 

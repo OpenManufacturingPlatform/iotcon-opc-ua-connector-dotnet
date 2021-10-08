@@ -7,5 +7,7 @@ namespace OMP.Connector.Infrastructure.Kafka.Common.Consumers
     {
         IConsumer<TKey, TValue> Consumer { get; }
         ConsumeResult<TKey, TValue> Consume(CancellationToken cancellationToken = default);
+
+        ConsumeResult<TKey, TValue> Consume(int millisecondsTimeout);
     }
 }

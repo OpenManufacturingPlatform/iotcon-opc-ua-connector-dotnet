@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using Confluent.Kafka;
 using Microsoft.Extensions.Logging;
@@ -28,23 +29,17 @@ namespace OMP.Connector.Infrastructure.Kafka.ConfigurationEndpoint
             if (StoppingCancellationTokenSource.IsCancellationRequested)
                 return;
 
-            if (_configurationConsumer is null)
-                _configurationConsumer = ConsumerFactory.CreateConfigurationConsumer();
-
-            var offsetsCheckedForConsumptionOnce = false;
-            var latestMessageOffset = Offset.Unset.Value;
+            _configurationConsumer ??= ConsumerFactory.CreateConfigurationConsumer();
+            _configurationConsumer.Consume(1000); //HACK to force the Subscribe() to be called
+            
+            var maxMessageOffset = GetMaximumOffset(_configurationConsumer.Consumer);
+            InitConfiguration(maxMessageOffset);
 
             var consumeResult = _configurationConsumer.Consume(StoppingCancellationTokenSource.Token);
-
-            if (!offsetsCheckedForConsumptionOnce)
-            {
-                latestMessageOffset = GetMaximumOffset(_configurationConsumer.Consumer) - 1;
-                offsetsCheckedForConsumptionOnce = true;
-            }
-
             var topicPartition = consumeResult.TopicPartition;
             var currentPosition = _configurationConsumer.Consumer.Position(topicPartition) - 1;
 
+            var latestMessageOffset = GetMaximumOffset(_configurationConsumer.Consumer) - 1;
             if (!currentPosition.Equals(latestMessageOffset))
             {
                 _configurationConsumer.Consumer.Commit(consumeResult);
@@ -54,7 +49,6 @@ namespace OMP.Connector.Infrastructure.Kafka.ConfigurationEndpoint
 
             Logger.LogInformation("**--CONSUME RESULT--**:\t{Key}:\t{Value}", consumeResult.Message.Key, consumeResult.Message.Value);
 
-            _applicationConfigurationRepository.Initialize(consumeResult.Message?.Value);
             _configurationConsumer.Consumer.Close();
             StoppingCancellationTokenSource.Cancel(true);
 
@@ -67,7 +61,7 @@ namespace OMP.Connector.Infrastructure.Kafka.ConfigurationEndpoint
             while (consumer.Assignment.Count == 0)
             {
                 Thread.Sleep(1000); // TODO looks like a timeout setting regarding group coordination/partition assignment by the leader
-                Logger.LogTrace($"{nameof(IConfigurationConsumer)} consumer waiting to be assigned to partitions ...");
+                Logger.LogTrace($"{nameof(ConfigurationConsumerHostedService)} consumer waiting to be assigned to partitions ...");
             }
 
             foreach (var topicPartition in consumer.Assignment)
@@ -76,6 +70,19 @@ namespace OMP.Connector.Infrastructure.Kafka.ConfigurationEndpoint
                 currentMaximumOffset = Math.Max(currentMaximumOffset, watermarkOffsets.High);
             }
             return currentMaximumOffset;
+        }
+
+        private void InitConfiguration(long maxOffset)
+        {
+            if (maxOffset == 0)
+            {
+                _applicationConfigurationRepository.Initialize(new AppConfigDto
+                {
+                    Subscriptions = new List<SubscriptionDto>(),
+                    EndpointDescriptions = new List<EndpointDescriptionDto>()
+                });
+                Logger.LogTrace($"{nameof(ConfigurationConsumerHostedService)} published initial empty config to configuration topic");
+            }
         }
     }
 }

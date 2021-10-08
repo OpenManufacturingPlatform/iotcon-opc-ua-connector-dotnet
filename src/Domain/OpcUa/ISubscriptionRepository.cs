@@ -15,5 +15,7 @@ namespace OMP.Connector.Domain.OpcUa
         IEnumerable<SubscriptionDto> GetAllByEndpointUrl(string endpointUrl);
 
         bool DeleteMonitoredItems(string endpointUrl, IEnumerable<OpcUaMonitoredItem> items);
+
+        bool ClearRepository();
     }
 }
