@@ -3,9 +3,12 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <LangVersion>latest</LangVersion>
-    <VersionPrefix>3.5.0</VersionPrefix>
-    <AssemblyName>OMP.Connector.Infrastructure.$(MSBuildProjectName)</AssemblyName>
-    <RootNamespace>OMP.Connector.Infrastructure.$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
+    <AssemblyName>OMP.Connector.Infrastructure.MQTT</AssemblyName>
+    <RootNamespace>OMP.Connector.Infrastructure.MQTT</RootNamespace>
+    <VersionPrefix>0.0.0.3</VersionPrefix>
+    <RepositoryUrl>https://github.com/OpenManufacturingPlatform/iotcon-opc-ua-connector-dotnet</RepositoryUrl>
+    <Authors>OMP</Authors>
+    <PackageProjectUrl>https://github.com/OpenManufacturingPlatform/iotcon-opc-ua-connector-dotnet</PackageProjectUrl>
   </PropertyGroup>
 
   <ItemGroup>
