@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 using NSubstitute;
 using NSubstitute.Core;
 using OMP.Connector.Domain.Configuration;
+using OMP.Connector.Domain.OpcUa;
 using OMP.Connector.Infrastructure.OpcUa;
 using OMP.Connector.Infrastructure.OpcUa.Reconnect;
 using OMP.Connector.Tests.Support.Fakes;
@@ -25,13 +26,15 @@ namespace OMP.Connector.Application.Tests.TestSetup
             var applicationConfiguration = Substitute.For<ApplicationConfiguration>();
             var mapper = Substitute.For<IMapper>();
             var logger = Substitute.For<ILoggerFactory>();
+            var identityProvider = Substitute.For<IUserIdentityProvider>();
 
             var opcSession = Substitute.For<OpcSession>(
                 connectorConfiguration,
                 opcSessionReconnectHandlerFactory,
                 logger,
                 applicationConfiguration,
-                mapper
+                mapper,
+                identityProvider
             );
 
             opcSession.Session = FakeOpcUaSession.Create<FakeOpcUaSession>();
