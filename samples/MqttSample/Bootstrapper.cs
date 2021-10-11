@@ -58,23 +58,7 @@ namespace OMP.Connector.EdgeModule
             serviceCollection.AddTransient<RoutingSettingsValidator>();
 
             //Add MQTT Integration
-            {
-
-                serviceCollection.AddSingleton<IEndpointDescriptionRepository, LocalEndpointDescriptionRepository>();
-                serviceCollection.AddSingleton<ISubscriptionRepository, LocalSubscriptionRepository>();
-
-                serviceCollection.TryAddScoped<IMqttCommndListner, MqttCommandListner>();
-
-                serviceCollection.TryAddScoped<IMqttClientFactory, M2MqttClientFactory>();
-                serviceCollection.TryAddScoped<ISerializer, JsonSerializer>();
-
-                serviceCollection.TryAddScoped<IMqttTelemetryPublisher, MqttTelemetryPublisher>();
-                serviceCollection.TryAddScoped<IMqttResponsePublisher, MqttResponsePublisher>();
-                
-                serviceCollection.TryAddScoped<IMqttRequestHandler, MqttRequestHandler>();
-                serviceCollection.TryAddScoped<IMessageSender, MqttMessageSender>();
-                serviceCollection.AddHostedService<CommandListnerHostedService>();
-            }
+            serviceCollection.AddMqttIntegration();
 
             serviceCollection.AddSingleton(provider => new MapperConfiguration(cfg =>
             {
