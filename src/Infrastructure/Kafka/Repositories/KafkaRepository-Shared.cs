@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using Confluent.Kafka;
 using Microsoft.Extensions.Logging;
 using OMP.Connector.Domain.Models;
 using OMP.Connector.Domain.Schema;
@@ -15,7 +17,7 @@ namespace OMP.Connector.Infrastructure.Kafka.Repositories
         private readonly IDictionary<string, EndpointDescriptionDto> _endpointDescriptions;
         private readonly ILogger<KafkaRepository> _logger;
         private readonly IConfigurationPersister _configurationPersister;
-        private bool _repositoryInitialized = false;
+        private bool _repositoryInitialized;
 
         public KafkaRepository(ILogger<KafkaRepository> logger, IConfigurationPersister configurationPersister)
         {
@@ -29,10 +31,7 @@ namespace OMP.Connector.Infrastructure.Kafka.Repositories
         public void Initialize(AppConfigDto applicationConfig)
         {
             if (!applicationConfig.Subscriptions.Any() && !applicationConfig.EndpointDescriptions.Any())
-            {
-                ClearRepository();
-                return;
-            }
+                PersistCachedConfig();
 
             if (applicationConfig.Subscriptions != null)
                 foreach (var subscriptionDto in applicationConfig.Subscriptions)
@@ -112,6 +111,8 @@ namespace OMP.Connector.Infrastructure.Kafka.Repositories
                     if (!_endpointDescriptions.TryGetValue(descriptionDto.EndpointUrl, out _))
                         _endpointDescriptions.Add(descriptionDto.EndpointUrl, descriptionDto);
                 }
+
+            _repositoryInitialized = true;
         }
 
         private bool UpdateSubscriptionCache(SubscriptionDto candidateSubscription, bool overrideExistingItem)
@@ -186,5 +187,22 @@ namespace OMP.Connector.Infrastructure.Kafka.Repositories
 
         private static bool NodeIdIsTheSame(string nodeId, KeyValuePair<string, SubscriptionMonitoredItem> m)
             => m.Key == nodeId;
+
+        public void OnConfigChangeReceived(ConsumeResult<string, AppConfigDto> consumeResult)
+        {
+            _logger.LogTrace($"{nameof(KafkaRepository)} received a config update from the configuration topic");
+
+            var appConfigDto = consumeResult.Message?.Value;
+            var subscriptions = appConfigDto?.Subscriptions;
+            var endpoints = appConfigDto?.EndpointDescriptions;
+
+            UpdateCachedConfig(subscriptions, endpoints);
+
+            //Interlocked.Exchange(ref _isInitializationTriggered, 1);
+            //Interlocked.Exchange(ref _isInitializationFinished, 1);
+            //_initNotFinishedWaitHandle.Set();
+
+            //_kafkaConfigConsumer.CloseConsumer();
+        }
     }
 }
