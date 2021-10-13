@@ -197,12 +197,6 @@ namespace OMP.Connector.Infrastructure.Kafka.Repositories
             var endpoints = appConfigDto?.EndpointDescriptions;
 
             UpdateCachedConfig(subscriptions, endpoints);
-
-            //Interlocked.Exchange(ref _isInitializationTriggered, 1);
-            //Interlocked.Exchange(ref _isInitializationFinished, 1);
-            //_initNotFinishedWaitHandle.Set();
-
-            //_kafkaConfigConsumer.CloseConsumer();
         }
     }
 }
