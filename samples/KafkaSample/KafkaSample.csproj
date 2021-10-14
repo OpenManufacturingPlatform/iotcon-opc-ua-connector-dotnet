@@ -7,7 +7,7 @@
     <AssemblyName>OMP.Connector.EdgeModule</AssemblyName>
     <RootNamespace>OMP.Connector.EdgeModule</RootNamespace>
     <VersionPrefix>3.5.0</VersionPrefix>
-    <Configurations>DebugKafka;Release;DebugMqtt</Configurations>
+    <Configurations>Release;Debug</Configurations>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='DebugKafka|netcoreapp3.1|AnyCPU'">

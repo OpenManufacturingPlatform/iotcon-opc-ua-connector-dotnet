@@ -1,0 +1,26 @@
+FROM mcr.microsoft.com/dotnet/aspnet:5.0-buster-slim AS build-env
+
+FROM mcr.microsoft.com/dotnet/runtime:5.0 AS base
+WORKDIR /container
+
+FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
+WORKDIR /src
+COPY ["NuGet.config", "."]
+COPY ["samples/MqttSample/MqttSample.csproj", "samples/MqttSample/"]
+COPY ["src/Infrastructure/OpcUa/OpcUa.csproj", "src/Infrastructure/OpcUa/"]
+COPY ["src/Application/Application.csproj", "src/Application/"]
+COPY ["src/Domain/Domain.csproj", "src/Domain/"]
+COPY ["src/Domain.Schema/Domain.Schema.csproj", "src/Domain.Schema/"]
+COPY ["src/Infrastructure/MQTT/MQTT.csproj", "src/Infrastructure/MQTT/"]
+RUN dotnet restore "samples/MqttSample/MqttSample.csproj"
+COPY . .
+WORKDIR "/src/samples/MqttSample"
+RUN dotnet build "MqttSample.csproj" -c Release -o /container/build
+
+FROM build AS publish
+RUN dotnet publish "MqttSample.csproj" -c Release -o /container/publish
+
+FROM base AS final
+WORKDIR /container
+COPY --from=publish /container/publish .
+ENTRYPOINT ["dotnet", "OMP.Connector.EdgeModule.dll"]

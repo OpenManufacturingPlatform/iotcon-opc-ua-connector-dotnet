@@ -1,31 +1,21 @@
 ﻿using System;
 using AutoMapper;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OMP.Connector.Application.Factories;
 using OMP.Connector.Application.Providers;
 using OMP.Connector.Application.Providers.Subscription;
-using OMP.Connector.Application.Repositories;
 using OMP.Connector.Application.Services;
 using OMP.Connector.Application.Validators;
-using OMP.Connector.Domain;
 using OMP.Connector.Domain.Configuration;
 using OMP.Connector.Domain.OpcUa;
 using OMP.Connector.Domain.OpcUa.Services;
 using OMP.Connector.Domain.Providers;
 using OMP.Connector.EdgeModule.Jobs;
 using OMP.Connector.EdgeModule.MapperProfiles;
-using OMP.Connector.Infrastructure.MQTT;
-using OMP.Connector.Infrastructure.MQTT.CommandEndpoint;
-using OMP.Connector.Infrastructure.MQTT.Common;
-using OMP.Connector.Infrastructure.MQTT.Common.Consumers;
-using OMP.Connector.Infrastructure.MQTT.Common.M2Mqtt;
-using OMP.Connector.Infrastructure.MQTT.Common.Publishers;
-using OMP.Connector.Infrastructure.MQTT.ResponseEndpoint;
-using OMP.Connector.Infrastructure.MQTT.Serialization;
+using OMP.Connector.Infrastructure.OpcUa;
 using OMP.Connector.Infrastructure.OpcUa.ConfigBuilders;
 using OMP.Connector.Infrastructure.OpcUa.Reconnect;
 using OMP.Connector.Infrastructure.OpcUa.States;
@@ -52,6 +42,7 @@ namespace OMP.Connector.EdgeModule
             serviceCollection.AddSingleton<ISubscriptionProviderFactory, SubscriptionProviderFactory>();
 
             serviceCollection.AddSingleton<ISessionPoolStateManager, SessionPoolStateManager>();
+            serviceCollection.AddSingleton<IUserIdentityProvider, UserIdentityProvider>();
 
             serviceCollection.AddTransient<CommandRequestValidator>();
             serviceCollection.AddTransient<MonitoredItemValidator>();

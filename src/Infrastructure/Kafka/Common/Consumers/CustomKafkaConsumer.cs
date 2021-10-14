@@ -54,7 +54,7 @@ namespace OMP.Connector.Infrastructure.Kafka.Common.Consumers
         {
 
             var consumerSubscription = Consumer.Subscription;
-            if (consumerSubscription == null || !consumerSubscription.Any())
+            if (consumerSubscription is null || !consumerSubscription.Any())
             {
                 Consumer.Subscribe(_kafkaConfiguration.Topics);
                 return this;
@@ -75,8 +75,10 @@ namespace OMP.Connector.Infrastructure.Kafka.Common.Consumers
         {
             try
             {
+                Consumer?.Unsubscribe();
                 Consumer?.Close();
                 Consumer?.Dispose();
+                GC.SuppressFinalize(this);
             }
             catch (Exception e)
             {
