@@ -7,6 +7,6 @@ namespace OMP.Connector.Infrastructure.Kafka.Repositories
     {
         void Initialize(AppConfigDto applicationConfig);
 
-        void OnConfigChangeReceived(ConsumeResult<string, AppConfigDto> consumeResult);
+        //void OnConfigChangeReceived(ConsumeResult<string, AppConfigDto> consumeResult);
     }
 }

@@ -33,13 +33,13 @@ namespace OMP.Connector.Infrastructure.Kafka.Repositories
             if (!applicationConfig.Subscriptions.Any() && !applicationConfig.EndpointDescriptions.Any())
                 PersistCachedConfig();
 
-            if (applicationConfig.Subscriptions != null)
+            if (applicationConfig.Subscriptions is not null)
                 foreach (var subscriptionDto in applicationConfig.Subscriptions)
                 {
                     UpdateSubscriptionCache(subscriptionDto, false);
                 }
 
-            if (applicationConfig.EndpointDescriptions != null)
+            if (applicationConfig.EndpointDescriptions is not null)
                 foreach (var descriptionDto in applicationConfig.EndpointDescriptions)
                 {
                     if (!_endpointDescriptions.TryGetValue(descriptionDto.EndpointUrl, out _))
@@ -47,6 +47,17 @@ namespace OMP.Connector.Infrastructure.Kafka.Repositories
                 }
 
             _repositoryInitialized = true;
+        }
+
+        public void OnConfigChangeReceived(ConsumeResult<string, AppConfigDto> consumeResult)
+        {
+            _logger.LogTrace($"{nameof(KafkaRepository)} received a config update from the configuration topic");
+
+            var appConfigDto = consumeResult.Message?.Value;
+            var subscriptions = appConfigDto?.Subscriptions;
+            var endpoints = appConfigDto?.EndpointDescriptions;
+
+            UpdateCachedConfig(subscriptions, endpoints);
         }
 
         private bool PersistCachedConfig()
@@ -186,17 +197,6 @@ namespace OMP.Connector.Infrastructure.Kafka.Repositories
                m.Value.PublishingInterval != publishingInterval;
 
         private static bool NodeIdIsTheSame(string nodeId, KeyValuePair<string, SubscriptionMonitoredItem> m)
-            => m.Key == nodeId;
-
-        public void OnConfigChangeReceived(ConsumeResult<string, AppConfigDto> consumeResult)
-        {
-            _logger.LogTrace($"{nameof(KafkaRepository)} received a config update from the configuration topic");
-
-            var appConfigDto = consumeResult.Message?.Value;
-            var subscriptions = appConfigDto?.Subscriptions;
-            var endpoints = appConfigDto?.EndpointDescriptions;
-
-            UpdateCachedConfig(subscriptions, endpoints);
-        }
+            => m.Key == nodeId;       
     }
 }

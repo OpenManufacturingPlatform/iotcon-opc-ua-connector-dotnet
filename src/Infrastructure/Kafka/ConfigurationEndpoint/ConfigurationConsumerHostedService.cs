@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Confluent.Kafka;
 using Microsoft.Extensions.Logging;
@@ -33,11 +34,12 @@ namespace OMP.Connector.Infrastructure.Kafka.ConfigurationEndpoint
 
                 _configurationConsumer ??= ConsumerFactory.CreateConfigurationConsumer();
 
-                var consumeResult = _configurationConsumer.Consume(5000);
+                var consumeResult = GetConsumeResult();
                 if (consumeResult is null)
                 {
                     _applicationConfigurationRepository.Initialize(appConfigDto);
-                    consumeResult = _configurationConsumer.Consume();
+                    //consumeResult = GetConsumeResult(StoppingCancellationTokenSource.Token); //TO VALIDATE WITH TESTS
+                    return;
                 }
 
                 var latestMessageOffset = GetMaximumOffset(_configurationConsumer.Consumer) - 1;
@@ -55,10 +57,11 @@ namespace OMP.Connector.Infrastructure.Kafka.ConfigurationEndpoint
                 Logger.LogInformation("**--CONSUME RESULT--**:\t{Key}:\t{Value}", consumeResult.Message.Key, consumeResult.Message.Value);
 
                 Logger.LogTrace($"{nameof(ConfigurationConsumerHostedService)} notification for config sent, sequence number: {currentPosition}");
-                _applicationConfigurationRepository.OnConfigChangeReceived(consumeResult);
+                //_applicationConfigurationRepository.OnConfigChangeReceived(consumeResult); //TO VALIDATE WITH TESTS
+                _applicationConfigurationRepository.Initialize(consumeResult.Message?.Value);
 
                 _configurationConsumer.Consumer.Close();
-                StoppingCancellationTokenSource.Cancel(true);
+                SignalOuterLoopToStopConsumption();
                 Logger.LogInformation("**\tALL CONFIG READ OF TOPIC\tStopping Configuration consumer\t**");
             }
             catch (OperationCanceledException operationCanceledException)
@@ -68,6 +71,9 @@ namespace OMP.Connector.Infrastructure.Kafka.ConfigurationEndpoint
 
             Logger.LogInformation("**\tConfiguration set in Repository\t**");
         }
+
+        private void SignalOuterLoopToStopConsumption()
+            => StoppingCancellationTokenSource.Cancel(true);
 
         private long GetMaximumOffset(IConsumer<string, AppConfigDto> consumer)
         {
@@ -84,6 +90,27 @@ namespace OMP.Connector.Infrastructure.Kafka.ConfigurationEndpoint
                 currentMaximumOffset = Math.Max(currentMaximumOffset, watermarkOffsets.High);
             }
             return currentMaximumOffset;
+        }
+
+        private ConsumeResult<string, AppConfigDto> GetConsumeResult(int timeout = OffsetRetrievalTimeoutSec)
+        {
+            var s_cts = new CancellationTokenSource();
+            s_cts.CancelAfter(TimeSpan.FromSeconds(timeout));
+
+            return GetConsumeResult(s_cts.Token);
+        }
+
+        private ConsumeResult<string, AppConfigDto> GetConsumeResult(CancellationToken cancellationToken)
+        {
+            try
+            {
+                return _configurationConsumer.Consume(cancellationToken);
+            }
+            catch (TaskCanceledException)
+            {
+                Logger.LogTrace($"{nameof(ConfigurationConsumerHostedService)}.{nameof(GetConsumeResult)} timed out");
+                return default;
+            }
         }
     }
 }
