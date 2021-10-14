@@ -88,7 +88,7 @@
     "CommandEndpoint": {
       "Type": "kafka",
       "NativeSettings": {
-        "Topic": "ComandTopic"
+        "Topic": "CommandTopic"
       }
     },
     "ResponseEndpoint": {
@@ -98,7 +98,7 @@
       }
     }
   },
-  "Persistance": {
+  "Persistence": {
     "Type": "kafka", 
     "NativeSettings": {
       "Topic": "ConfigurationTopic"

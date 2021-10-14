@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
-using Confluent.Kafka;
 using Microsoft.Extensions.Logging;
 using OMP.Connector.Domain.Models;
 using OMP.Connector.Domain.Schema;
@@ -47,17 +45,6 @@ namespace OMP.Connector.Infrastructure.Kafka.Repositories
                 }
 
             _repositoryInitialized = true;
-        }
-
-        public void OnConfigChangeReceived(ConsumeResult<string, AppConfigDto> consumeResult)
-        {
-            _logger.LogTrace($"{nameof(KafkaRepository)} received a config update from the configuration topic");
-
-            var appConfigDto = consumeResult.Message?.Value;
-            var subscriptions = appConfigDto?.Subscriptions;
-            var endpoints = appConfigDto?.EndpointDescriptions;
-
-            UpdateCachedConfig(subscriptions, endpoints);
         }
 
         private bool PersistCachedConfig()
@@ -106,24 +93,6 @@ namespace OMP.Connector.Infrastructure.Kafka.Repositories
                     PublishingInterval = g.Key,
                     MonitoredItems = g.ToDictionary(v => v.Key, v => v.Value)
                 });
-        }
-
-        private void UpdateCachedConfig(IEnumerable<SubscriptionDto> subscriptions, IEnumerable<EndpointDescriptionDto> endpoints)
-        {
-            if (subscriptions != null)
-                foreach (var subscriptionDto in subscriptions)
-                {
-                    UpdateSubscriptionCache(subscriptionDto, false);
-                }
-
-            if (endpoints != null)
-                foreach (var descriptionDto in endpoints)
-                {
-                    if (!_endpointDescriptions.TryGetValue(descriptionDto.EndpointUrl, out _))
-                        _endpointDescriptions.Add(descriptionDto.EndpointUrl, descriptionDto);
-                }
-
-            _repositoryInitialized = true;
         }
 
         private bool UpdateSubscriptionCache(SubscriptionDto candidateSubscription, bool overrideExistingItem)

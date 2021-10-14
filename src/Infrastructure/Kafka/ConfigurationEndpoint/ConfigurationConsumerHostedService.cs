@@ -38,7 +38,6 @@ namespace OMP.Connector.Infrastructure.Kafka.ConfigurationEndpoint
                 if (consumeResult is null)
                 {
                     _applicationConfigurationRepository.Initialize(appConfigDto);
-                    //consumeResult = GetConsumeResult(StoppingCancellationTokenSource.Token); //TO VALIDATE WITH TESTS
                     return;
                 }
 
@@ -57,7 +56,6 @@ namespace OMP.Connector.Infrastructure.Kafka.ConfigurationEndpoint
                 Logger.LogInformation("**--CONSUME RESULT--**:\t{Key}:\t{Value}", consumeResult.Message.Key, consumeResult.Message.Value);
 
                 Logger.LogTrace($"{nameof(ConfigurationConsumerHostedService)} notification for config sent, sequence number: {currentPosition}");
-                //_applicationConfigurationRepository.OnConfigChangeReceived(consumeResult); //TO VALIDATE WITH TESTS
                 _applicationConfigurationRepository.Initialize(consumeResult.Message?.Value);
 
                 _configurationConsumer.Consumer.Close();
