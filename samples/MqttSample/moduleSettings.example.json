@@ -81,7 +81,7 @@
     "CommandEndpoint": {
       "Type": "mqtt",
       "NativeSettings": {
-        "Topic": "ComandTopic"
+        "Topic": "CommandTopic"
       }
     },
     "ResponseEndpoint": {
@@ -91,7 +91,7 @@
       }
     }
   },
-  "Persistance": {
+  "Persistence": {
     "Type": "inMemory", 
     "NativeSettings": {
     }

@@ -32,14 +32,14 @@ namespace OMP.Connector.Infrastructure.Kafka.Common.Producers
 
         public IConfigurationProducer CreateConfigurationProducer()
         {
-            if (_connectorConfiguration?.Persistance?.Type != CommunicationType.Kafka)
+            if (_connectorConfiguration?.Persistence?.Type != CommunicationType.Kafka)
                 return null;
 
             ProducerConfig sharedKafkaConfig = null;
             if (_connectorConfiguration.Communication.Shared.Type == CommunicationType.Kafka)
                 sharedKafkaConfig = _connectorConfiguration.Communication.Shared.GetConfig<ProducerConfig>();
 
-            var (kafkaConfiguration, producerConfig) = GetEndpointConfiguration(_connectorConfiguration.Persistance);
+            var (kafkaConfiguration, producerConfig) = GetEndpointConfiguration(_connectorConfiguration.Persistence);
 
             if (sharedKafkaConfig != null)
             {

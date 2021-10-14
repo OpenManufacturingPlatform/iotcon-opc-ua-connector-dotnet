@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using System.Threading.Tasks;
 using Confluent.Kafka;
 using Microsoft.Extensions.Logging;
 using OMP.Connector.Domain.Models;
@@ -25,49 +26,60 @@ namespace OMP.Connector.Infrastructure.Kafka.ConfigurationEndpoint
 
         protected override void Consume()
         {
-            if (StoppingCancellationTokenSource.IsCancellationRequested)
-                return;
-
-            if (_configurationConsumer is null)
-                _configurationConsumer = ConsumerFactory.CreateConfigurationConsumer();
-
-            var offsetsCheckedForConsumptionOnce = false;
-            var latestMessageOffset = Offset.Unset.Value;
-
-            var consumeResult = _configurationConsumer.Consume(StoppingCancellationTokenSource.Token);
-
-            if (!offsetsCheckedForConsumptionOnce)
+            var appConfigDto = new AppConfigDto();
+            try
             {
-                latestMessageOffset = GetMaximumOffset(_configurationConsumer.Consumer) - 1;
-                offsetsCheckedForConsumptionOnce = true;
+                if (StoppingCancellationTokenSource.IsCancellationRequested)
+                    return;
+
+                _configurationConsumer ??= ConsumerFactory.CreateConfigurationConsumer();
+
+                var consumeResult = GetConsumeResult();
+                if (consumeResult is null)
+                {
+                    _applicationConfigurationRepository.Initialize(appConfigDto);
+                    return;
+                }
+
+                var latestMessageOffset = GetMaximumOffset(_configurationConsumer.Consumer) - 1;
+
+                var topicPartition = consumeResult.TopicPartition;
+                var currentPosition = _configurationConsumer.Consumer.Position(topicPartition) - 1;
+
+                if (!currentPosition.Equals(latestMessageOffset))
+                {
+                    _configurationConsumer.Consumer.Commit(consumeResult);
+                    Logger.LogTrace($"{nameof(ConfigurationConsumerHostedService)} committed intermediate config, sequence number: {currentPosition} ...");
+                    return;
+                }
+
+                Logger.LogInformation("**--CONSUME RESULT--**:\t{Key}:\t{Value}", consumeResult.Message.Key, consumeResult.Message.Value);
+
+                Logger.LogTrace($"{nameof(ConfigurationConsumerHostedService)} notification for config sent, sequence number: {currentPosition}");
+                _applicationConfigurationRepository.Initialize(consumeResult.Message?.Value);
+
+                _configurationConsumer.Consumer.Close();
+                SignalOuterLoopToStopConsumption();
+                Logger.LogInformation("**\tALL CONFIG READ OF TOPIC\tStopping Configuration consumer\t**");
+            }
+            catch (OperationCanceledException operationCanceledException)
+            {
+                Logger.LogWarning($"Consuming configuration was cancelled [{operationCanceledException.Message}]");
             }
 
-            var topicPartition = consumeResult.TopicPartition;
-            var currentPosition = _configurationConsumer.Consumer.Position(topicPartition) - 1;
-
-            if (!currentPosition.Equals(latestMessageOffset))
-            {
-                _configurationConsumer.Consumer.Commit(consumeResult);
-                Logger.LogTrace($"{nameof(ConfigurationConsumerHostedService)} committed intermediate config, sequence number: {currentPosition} ...");
-                return;
-            }
-
-            Logger.LogInformation("**--CONSUME RESULT--**:\t{Key}:\t{Value}", consumeResult.Message.Key, consumeResult.Message.Value);
-
-            _applicationConfigurationRepository.Initialize(consumeResult.Message?.Value);
-            _configurationConsumer.Consumer.Close();
-            StoppingCancellationTokenSource.Cancel(true);
-
-            Logger.LogInformation("**\tALL CONFIG READ OF TOPIC\tStopping Configuration consumer\t**");
+            Logger.LogInformation("**\tConfiguration set in Repository\t**");
         }
+
+        private void SignalOuterLoopToStopConsumption()
+            => StoppingCancellationTokenSource.Cancel(true);
 
         private long GetMaximumOffset(IConsumer<string, AppConfigDto> consumer)
         {
             var currentMaximumOffset = Offset.Unset.Value;
             while (consumer.Assignment.Count == 0)
             {
-                Thread.Sleep(1000); // TODO looks like a timeout setting regarding group coordination/partition assignment by the leader
-                Logger.LogTrace($"{nameof(IConfigurationConsumer)} consumer waiting to be assigned to partitions ...");
+                Task.Delay(1000).GetAwaiter().GetResult(); // TODO looks like a timeout setting regarding group coordination/partition assignment by the leader
+                Logger.LogTrace($"{nameof(ConfigurationConsumerHostedService)} consumer waiting to be assigned to partitions ...");
             }
 
             foreach (var topicPartition in consumer.Assignment)
@@ -76,6 +88,27 @@ namespace OMP.Connector.Infrastructure.Kafka.ConfigurationEndpoint
                 currentMaximumOffset = Math.Max(currentMaximumOffset, watermarkOffsets.High);
             }
             return currentMaximumOffset;
+        }
+
+        private ConsumeResult<string, AppConfigDto> GetConsumeResult(int timeout = OffsetRetrievalTimeoutSec)
+        {
+            var s_cts = new CancellationTokenSource();
+            s_cts.CancelAfter(TimeSpan.FromSeconds(timeout));
+
+            return GetConsumeResult(s_cts.Token);
+        }
+
+        private ConsumeResult<string, AppConfigDto> GetConsumeResult(CancellationToken cancellationToken)
+        {
+            try
+            {
+                return _configurationConsumer.Consume(cancellationToken);
+            }
+            catch (TaskCanceledException)
+            {
+                Logger.LogTrace($"{nameof(ConfigurationConsumerHostedService)}.{nameof(GetConsumeResult)} timed out");
+                return default;
+            }
         }
     }
 }

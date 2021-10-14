@@ -15,7 +15,7 @@ namespace OMP.Connector.Infrastructure.Kafka.Repositories
         private readonly IDictionary<string, EndpointDescriptionDto> _endpointDescriptions;
         private readonly ILogger<KafkaRepository> _logger;
         private readonly IConfigurationPersister _configurationPersister;
-        private bool _repositoryInitialized = false;
+        private bool _repositoryInitialized;
 
         public KafkaRepository(ILogger<KafkaRepository> logger, IConfigurationPersister configurationPersister)
         {
@@ -28,13 +28,16 @@ namespace OMP.Connector.Infrastructure.Kafka.Repositories
 
         public void Initialize(AppConfigDto applicationConfig)
         {
-            if (applicationConfig.Subscriptions != null)
+            if (!applicationConfig.Subscriptions.Any() && !applicationConfig.EndpointDescriptions.Any())
+                PersistCachedConfig();
+
+            if (applicationConfig.Subscriptions is not null)
                 foreach (var subscriptionDto in applicationConfig.Subscriptions)
                 {
                     UpdateSubscriptionCache(subscriptionDto, false);
                 }
 
-            if (applicationConfig.EndpointDescriptions != null)
+            if (applicationConfig.EndpointDescriptions is not null)
                 foreach (var descriptionDto in applicationConfig.EndpointDescriptions)
                 {
                     if (!_endpointDescriptions.TryGetValue(descriptionDto.EndpointUrl, out _))
@@ -90,22 +93,6 @@ namespace OMP.Connector.Infrastructure.Kafka.Repositories
                     PublishingInterval = g.Key,
                     MonitoredItems = g.ToDictionary(v => v.Key, v => v.Value)
                 });
-        }
-
-        private void UpdateCachedConfig(IEnumerable<SubscriptionDto> subscriptions, IEnumerable<EndpointDescriptionDto> endpoints)
-        {
-            if (subscriptions != null)
-                foreach (var subscriptionDto in subscriptions)
-                {
-                    UpdateSubscriptionCache(subscriptionDto, false);
-                }
-
-            if (endpoints != null)
-                foreach (var descriptionDto in endpoints)
-                {
-                    if (!_endpointDescriptions.TryGetValue(descriptionDto.EndpointUrl, out _))
-                        _endpointDescriptions.Add(descriptionDto.EndpointUrl, descriptionDto);
-                }
         }
 
         private bool UpdateSubscriptionCache(SubscriptionDto candidateSubscription, bool overrideExistingItem)
@@ -179,6 +166,6 @@ namespace OMP.Connector.Infrastructure.Kafka.Repositories
                m.Value.PublishingInterval != publishingInterval;
 
         private static bool NodeIdIsTheSame(string nodeId, KeyValuePair<string, SubscriptionMonitoredItem> m)
-            => m.Key == nodeId;
+            => m.Key == nodeId;       
     }
 }
