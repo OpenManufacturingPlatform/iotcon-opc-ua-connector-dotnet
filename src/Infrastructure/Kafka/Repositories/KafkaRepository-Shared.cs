@@ -28,9 +28,10 @@ namespace OMP.Connector.Infrastructure.Kafka.Repositories
 
         public void Initialize(AppConfigDto applicationConfig)
         {
+            _repositoryInitialized = true;
             if (!applicationConfig.Subscriptions.Any() && !applicationConfig.EndpointDescriptions.Any())
-                PersistCachedConfig();
-
+                return;
+            
             if (applicationConfig.Subscriptions is not null)
                 foreach (var subscriptionDto in applicationConfig.Subscriptions)
                 {
@@ -43,8 +44,6 @@ namespace OMP.Connector.Infrastructure.Kafka.Repositories
                     if (!_endpointDescriptions.TryGetValue(descriptionDto.EndpointUrl, out _))
                         _endpointDescriptions.Add(descriptionDto.EndpointUrl, descriptionDto);
                 }
-
-            _repositoryInitialized = true;
         }
 
         private bool PersistCachedConfig()

@@ -22,7 +22,7 @@ namespace OMP.Connector.Infrastructure.OpcUa
             if (endpointDescription.SecurityMode < MessageSecurityMode.SignAndEncrypt)
                 return new UserIdentity();
             
-            var setting = _authenticationSettings.Find(x => x.Endpoint.Equals(endpointDescription.EndpointUrl));
+            var setting = _authenticationSettings?.Find(x => x.Endpoint.Equals(endpointDescription.EndpointUrl));
             return setting is null ? new UserIdentity() : new UserIdentity(setting.Username, setting.Password);
         }
     }

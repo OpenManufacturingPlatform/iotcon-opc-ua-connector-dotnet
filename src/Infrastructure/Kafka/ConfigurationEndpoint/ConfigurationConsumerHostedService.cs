@@ -11,7 +11,7 @@ namespace OMP.Connector.Infrastructure.Kafka.ConfigurationEndpoint
 {
     public class ConfigurationConsumerHostedService : BaseConsumerHostedService
     {
-        private const int OffsetRetrievalTimeoutSec = 5;
+        private const int OffsetRetrievalTimeoutSec = 10;
         private readonly IKafkaApplicationConfigurationRepository _applicationConfigurationRepository;
         private IConfigurationConsumer _configurationConsumer;
 
@@ -38,6 +38,7 @@ namespace OMP.Connector.Infrastructure.Kafka.ConfigurationEndpoint
                 if (consumeResult is null)
                 {
                     _applicationConfigurationRepository.Initialize(appConfigDto);
+                    SignalOuterLoopToStopConsumption();
                     return;
                 }
 
@@ -59,15 +60,15 @@ namespace OMP.Connector.Infrastructure.Kafka.ConfigurationEndpoint
                 _applicationConfigurationRepository.Initialize(consumeResult.Message?.Value);
 
                 _configurationConsumer.Consumer.Close();
+                
+                Logger.LogInformation("**\tConfiguration set in Repository\t**");
+
                 SignalOuterLoopToStopConsumption();
-                Logger.LogInformation("**\tALL CONFIG READ OF TOPIC\tStopping Configuration consumer\t**");
             }
             catch (OperationCanceledException operationCanceledException)
             {
-                Logger.LogWarning($"Consuming configuration was cancelled [{operationCanceledException.Message}]");
+                Logger.LogTrace($"Consuming configuration was cancelled [{operationCanceledException.Message}]");
             }
-
-            Logger.LogInformation("**\tConfiguration set in Repository\t**");
         }
 
         private void SignalOuterLoopToStopConsumption()
@@ -104,7 +105,7 @@ namespace OMP.Connector.Infrastructure.Kafka.ConfigurationEndpoint
             {
                 return _configurationConsumer.Consume(cancellationToken);
             }
-            catch (TaskCanceledException)
+            catch (OperationCanceledException)
             {
                 Logger.LogTrace($"{nameof(ConfigurationConsumerHostedService)}.{nameof(GetConsumeResult)} timed out");
                 return default;
