@@ -1,14 +1,14 @@
 # OMP OPC UA Connector via MQTT
 
-The **OMP OPC UA Connecotr** via (reffered to as the **Connector**) **MQTT** provides a mechanism to interact with **OPC UA Server(s)** over **MQTT**, wihtout having to implement the OPC UA protocol. The **Connector** allows you to:
-- *Subscribe* to telemery message on nodes
-- Do *Read* opperations on nodes
-- Do *Write* opperations on nodes
-- Do *Call* opperations on nodes
+The **OMP OPC UA Connector** (hereafter referred to as the **Connector**) via an **MQTT** broker, provides a mechanism to interact with **OPC UA Servers** over **MQTT**, wihtout having to implement the OPC UA protocol. The **Connector** allows you to:
+- *Subscribe* to nodes in order to receive telemetry messages when values change on these nodes
+- Do *Read* operations on nodes
+- Do *Write* operations on nodes
+- Do *Call* operations on nodes
 - Browse nodes
 - ...and more
 
-In this document we intend to provide a guide to *Configure*, *Build*, *Run* and *Test* an generic implementation vir **MQTT**
+This document serves as a guide to *Configure*, *Build*, *Run* and *Test* a generic implementation of the connector utilizing an **MQTT** broker.
 
 ## Index
 
@@ -27,21 +27,21 @@ In this document we intend to provide a guide to *Configure*, *Build*, *Run* and
 ---
 ## How to Configure the Connector
 
-**Verry important**: An example settings file is provided **moduleSettings.example.json** (/samples/MqttSample/moduleSettings.example.json). Please copy the file and change the name to **moduleSettings.json** (/samples/MqttSample/moduleSettings.json). Change any and all settings to suite your environment here.
+**Very important**: An example settings file is provided **moduleSettings.example.json** (/samples/MqttSample/moduleSettings.example.json). Please copy the file and change the name to **moduleSettings.json** (/samples/MqttSample/moduleSettings.json). Change the required settings to suit your environment.
 
 ##  Understanding how the *Connector's* Configuration works
-To understand how the connector's configuration works it is important to understant how/where the Connector gets commands and send response/telemetry to-and-from the outside world.
+To understand how the connector's configuration works, it is important to understand how/where the Connector receives command requests and sends response/telemetry messages to and from the outside world.
 
 | Endpoint        | Description   |
 | ------------- | ------------- |
-| Command | This is the endpoint (MQTT Topic) where the outside world can send commands to the *Connector*  |
-| Response | This is the endpoint (MQTT Topic) where the *Connector* will send the Result of commands back  |
-| Telemetry | This is the endpoint (MQTT Topic) where the *Connector* will publish telemetry message  |
+| Command | This is the endpoint (MQTT Topic) where the outside world sends commands to the *Connector*  |
+| Response | This is the endpoint (MQTT Topic) where the *Connector* sends the results of commands back  |
+| Telemetry | This is the endpoint (MQTT Topic) where the *Connector* publishes telemetry messages for subscriptions  |
 
 
 ###  Configuring the Endpoints for MQTT
-Then the configuration file has a couple of sections but for MQTT we will focus on the *Communication* section. 
-Under *Communication* there are 4 sub sections of importance
+The configuration file has a couple of sections, but for brevity, we focus on the *Communication* section here.
+Under *Communication* there are 4 sub-sections of importance
 - Shared
 ```json
  {
@@ -51,9 +51,9 @@ Under *Communication* there are 4 sub sections of importance
       "Type": "mqtt",
        ...
 ```
-In an attempt to not bloat the settings file the *Shared* section is there to share basic MQTT settings (e.g Username, Password,..) between different endpoints, if the same **MQTT Broker** is used accross the endpoints (Topics).
+The *Shared* section groups MQTT settings (e.g Username, Password,..) that are shared between different endpoints (when the same **MQTT Broker** is used for all endpoints (Topics)). This reduces unnecessary repetition and bloating of the settings file.
 
-**Note**: Shared settings are read and applied first (1st) subsequent section will override Shared settings. Meaning if you set the brokerAddress in Shared to 'Broker-Shared'. And in the CommandEndpoint section (Under NativeSettings) you set the brokerAddress to 'Broker-Command' then, when the *Connector* instatiates the CommandEndpoint it will set the brokerAddress to 'Broker-Command' and not 'Broker-Shared'.
+**Note**: The Shared settings are read and applied first. Settings in subsequent sections will override those with the same name that appear in the Shared settings. For example, if the brokerAddress is set in Shared as 'Broker-Shared', and it is set again in the CommandEndpoint section (under NativeSettings) as 'Broker-Command', the final value of brokerAddress will be 'Broker-Command' and not 'Broker-Shared'.
 
 - Command Endpoint
 ```json
@@ -72,7 +72,7 @@ In an attempt to not bloat the settings file the *Shared* section is there to sh
       }
         ...
 ```
-This is where we can specify what Topic, QoS Level and any other setting specific to the *Command Endpoint*
+This is where the topic name, QoS Level and any other settings specific to the *Command Endpoint* are set.
 
 - Response Endpoint
 ```json
@@ -91,7 +91,7 @@ This is where we can specify what Topic, QoS Level and any other setting specifi
       }
         ...
 ```
-This is where we can specify what Topic, QoS Level and any other setting specific to the *Response Endpoint*
+This is where the topic name, QoS Level and any other settings specific to the *Response Endpoint* are set.
 
 - Telemetry Endpoint
 ```json
@@ -111,7 +111,7 @@ This is where we can specify what Topic, QoS Level and any other setting specifi
         ...
 ```
 
-This is where we can specify what Topic, QoS Level and any other setting specific to the *Telemetry Endpoint*
+This is where the topic name, QoS Level and any other settings specific to the *Telemetry Endpoint* are set.
 
 ### Complete example of the *Communication* section in the settigns file:
 
@@ -191,12 +191,12 @@ This is where we can specify what Topic, QoS Level and any other setting specifi
 ---
 
 ###  How to configure MQTT
-Internally we use a 3rd party package to handle the specifics of the MQTT ([M2MqttDotnetCore](https://github.com/mohaqeq/paho.mqtt.m2mqtt)) protocol.
+Internally the connector uses a 3rd party package that handles the specifics of the MQTT protocol ([M2MqttDotnetCore](https://github.com/mohaqeq/paho.mqtt.m2mqtt)).
 
 #### NativeSettings
   ```json
-  In NativeSettings is where you can set all the MQTT specific settings that the M2MqttDotnetCore exposes
-  Below is a list of such settings (Note: These are commen settings but it is not meant to be an exaustive list)
+  All the MQTT specific settings that are exposed by the 'M2MqttDotnetCore' package, can be configured in this NativeSettings section.
+  Below is a list of these settings (Note: This list contains the most common settings, but it is not meant to be an exhaustive list)
 
  {
   ...,
@@ -228,15 +228,15 @@ Internally we use a 3rd party package to handle the specifics of the MQTT ([M2Mq
    ...
 }
 ```
-**Note**: Defaults will be applied for each setting not explicitly provided
+**Note**: Defaults will be applied for settings that are not explicitly configured.
 
 ###  How to Configure OPC UA
 
-Internally we use a 3rd party package to handle the specifics of the OPC UA ([OPC UA .NET Standard](https://github.com/OPCFoundation/UA-.NETStandard)) protocol.
+Internally the connector uses a 3rd party package that handles the specifics of the OPC UA protocol ([OPC UA .NET Standard](https://github.com/OPCFoundation/UA-.NETStandard)).
 
   ```json
-  In NativeSettings is where you can set all the OPC UA specific settings that the 'OPC UA .NET Standard' exposes
-  Below is a list of such settings (Note: These are commen settings but it is not meant to be an exaustive list)
+  All the MQTT specific settings that are exposed by the 'OPC UA .Net Standard' package, can be configured in this NativeSettings section.
+  Below is a list of these settings (Note: This list contains the most common settings, but it is not meant to be an exhaustive list)
 
  {
   ...,
@@ -255,7 +255,7 @@ Internally we use a 3rd party package to handle the specifics of the OPC UA ([OP
    ...
 }
 ```
-**Note**: Defaults will be applied for each setting not explicitly provided
+**Note**:  Defaults will be applied for settings that are not explicitly configured.
 
 ---
 
