@@ -29,7 +29,7 @@ In this document we intend to provide a guide to *Configure*, *Build*, *Run* and
 
 **Verry important**: An example settings file is provided **moduleSettings.example.json** (/samples/MqttSample/moduleSettings.example.json). Please copy the file and change the name to **moduleSettings.json** (/samples/MqttSample/moduleSettings.json). Change any and all settings to suite your environment here.
 
-###  Understanding how the *Connector's* Configuration works
+##  Understanding how the *Connector's* Configuration works
 To understand how the connector's configuration works it is important to understant how/where the Connector gets commands and send response/telemetry to-and-from the outside world.
 
 | Endpoint        | Description   |
@@ -38,6 +38,8 @@ To understand how the connector's configuration works it is important to underst
 | Response | This is the endpoint (MQTT Topic) where the *Connector* will send the Result of commands back  |
 | Telemetry | This is the endpoint (MQTT Topic) where the *Connector* will publish telemetry message  |
 
+
+###  Configuring the Endpoints for MQTT
 Then the configuration file has a couple of sections but for MQTT we will focus on the *Communication* section. 
 Under *Communication* there are 4 sub sections of importance
 - Shared
@@ -70,7 +72,7 @@ In an attempt to not bloat the settings file the *Shared* section is there to sh
       }
         ...
 ```
-This is where we specify what Topic, QoS Level and any other setting specific to the *Command Endpoint*
+This is where we can specify what Topic, QoS Level and any other setting specific to the *Command Endpoint*
 
 - Response Endpoint
 ```json
@@ -89,7 +91,7 @@ This is where we specify what Topic, QoS Level and any other setting specific to
       }
         ...
 ```
-This is where we specify what Topic, QoS Level and any other setting specific to the *Response Endpoint*
+This is where we can specify what Topic, QoS Level and any other setting specific to the *Response Endpoint*
 
 - Telemetry Endpoint
 ```json
@@ -109,7 +111,7 @@ This is where we specify what Topic, QoS Level and any other setting specific to
         ...
 ```
 
-This is where we specify what Topic, QoS Level and any other setting specific to the *Telemetry Endpoint*
+This is where we can specify what Topic, QoS Level and any other setting specific to the *Telemetry Endpoint*
 
 ### Complete example of the *Communication* section in the settigns file:
 
@@ -226,65 +228,50 @@ Internally we use a 3rd party package to handle the specifics of the MQTT ([M2Mq
    ...
 }
 ```
+**Note**: Defaults will be applied for each setting not explicitly provided
+
+###  How to Configure OPC UA
+
+Internally we use a 3rd party package to handle the specifics of the OPC UA ([OPC UA .NET Standard](https://github.com/OPCFoundation/UA-.NETStandard)) protocol.
+
+  ```json
+  In NativeSettings is where you can set all the OPC UA specific settings that the 'OPC UA .NET Standard' exposes
+  Below is a list of such settings (Note: These are commen settings but it is not meant to be an exaustive list)
+
+ {
+  ...,
+  "OpcUa": {
+    "DefaultServerBrowseDepth": 3,
+    "NodeBrowseDepth": 1,
+    "EnableRegisteredNodes": false,
+    "SubscriptionBatchSize": 100,/* We will batch to try and not overload the OPC UA Server */
+    "ReadBatchSize": 100,/* When sending commands for many nodes in a single request we will batch these command to try and not overload the OPC UA Server */
+    "RegisterNodeBatchSize": 100,/* We will batch to try and not overload the OPC UA Server */
+    "AwaitSessionLockTimeoutSecs": 3,
+    "ReconnectIntervalSecs": 10,/* We try and re-establish connection incase of network problem - How many seconds should we wait before retrying to connect*/
+    "NativeSettings": {
+    }
+  },
+   ...
+}
+```
+**Note**: Defaults will be applied for each setting not explicitly provided
+
 ---
 
 ## How to Run
-- MQTT
+
 
 ##### Docker Build
   ```
-  docker build -t mqqtTest1 -f Dockerfile.MqttSample .
+  docker build -t mqqttest1 -f Dockerfile.MqttSample .
+  ```
+  
+##### Docker Run
+  ```
+  docker run -t mqqttest1
   ```
 
 ## How to Test
 -Message Models
 
-
-### **Software under construction**
-
-- [Motivation](#motivation)
-- [Infrastructural View](#infrastructural-view)
-- [Application View](#application-view)
-- [Operational View](#operational-view)
-- [Getting Started and Contribution](#getting-started-and-contribution)
-- [Build and Installation](#build-and-installation)
-
-
-## Introduction
-
-- OPC UA is the major vendor independent machine protocol on production asset level
-- IT systems don't have support for OPC UA, but follow streaming approaches
-- There are currently no standalone, industrial-prove connectors for OPC UA available that convert OPC UA to a neutral format (e.g. MQTT or Kafka) and can be purely controlled by messages
-
-That's why the OMP IoT Connectivity Working Group saw the need for a connector software, that is able to run on the edge level. The key OPC UA functionalities are supported according to the [OPC Foundation Specifications](https://opcfoundation.org/developer-tools/specifications-unified-architecture) and the OMP Edge standards are followed as defined in the [OMP White Paper](https://open-manufacturing.org/wp-content/uploads/sites/101/2021/07/OMP-IIoT-Connectivity-Edge-Computing-20210701.pdf). Both further OPC UA functionalities and new integration capabilities are to be added in a modular approach in the future. The focus on easy integrability and flexible extensibility is intended to encourage usage and collaboration. 
-
-
-## Infrastructural View
-
-The OPC UA Edge Connector is hosted on the Edge Level and can connect to the cloud level and the production asset level. Southbound to the production asset level it connects via the OPC UA Client/Server protocol. Northbound it connects to a message broker like MQTT or Kafka, which is in the cloud level or in the edge level, either on the same edge node for local processing of the data or centrally in the plant data center. The OPC UA connector is a containerized software and can run on an Edge Node like an industrial PC or a container platform.
-
-![Infrastructural View](../images/infrastructural-view.PNG)
-
-## Application View
-
-The OPC UA Edge Connector is controlled by messages. Therefor it consumes JSON messages from a command topic. After receiving a command, it executes an OPC UA operation against the OPC UA Server on an device (e.g. read/write/subscribe). The information about the success or failure of the operation is sent via the command result topic. 
-
-A special function has the telemetry topic. Notifications of monitored items resulting from an active subscription are sent to the telemetry topic. 
-
-![Application View](./images/application-view.PNG)
-
-## Operational View
-
-In the configuration phase of the OPC UA Edge Connector a configuration needs to be applied. The configuration contains for example information about the message broker endpoints. The software is logging by default to the console. The user needs to bring a appropriate Monitoring Service and Management Service in place to be control, observe and operate the software centrally and in large scale.  
-
-![Operational View](/images/operational-view.PNG)
-
-## Getting Started and Contribution
-
-- Please check our documentation: (under construction)
-- Share your thoughts with us in our [Discussion Board](https://github.com/OpenManufacturingPlatform/iotcon-opc-ua-connector-dotnet/discussions)
-- You found a issue? Please create a [GitHub Issue](https://github.com/OpenManufacturingPlatform/iotcon-opc-ua-connector-dotnet/issues)
-
-Please respect our contribution guidlines. (LINK)
-
-## Build and Installation
