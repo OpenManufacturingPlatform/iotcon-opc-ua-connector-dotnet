@@ -5,7 +5,7 @@
     <LangVersion>latest</LangVersion>
     <AssemblyName>OMP.Connector.$(MSBuildProjectName)</AssemblyName>
     <RootNamespace>OMP.Connector.$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
-    <VersionPrefix>0.0.0.3</VersionPrefix>
+    <VersionPrefix>0.0.0.4</VersionPrefix>
     <RepositoryUrl>https://github.com/OpenManufacturingPlatform/iotcon-opc-ua-connector-dotnet</RepositoryUrl>
     <Authors>OMP</Authors>
     <PackageProjectUrl>https://github.com/OpenManufacturingPlatform/iotcon-opc-ua-connector-dotnet</PackageProjectUrl>
