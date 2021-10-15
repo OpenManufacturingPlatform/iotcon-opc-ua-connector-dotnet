@@ -24,7 +24,6 @@ namespace OMP.Connector.Infrastructure.Kafka
 {
     public class KafkaMessageSender : IMessageSender//, IDisposable
     {
-        private readonly IProducerFactory _producerFactory;
         private readonly ILogger<KafkaMessageSender> _logger;
         private readonly IResponseProducer _responseProducer;
         private readonly IConfigurationProducer _configurationProducer;
@@ -39,13 +38,11 @@ namespace OMP.Connector.Infrastructure.Kafka
             IProducerFactory producerFactory,
             ILogger<KafkaMessageSender> logger)
         {
-            IProducerFactory producerFactory1;
             this._connectorConfiguration = connectorConfiguration.Value;
-            this._producerFactory = producerFactory;
             this._logger = logger;
-            this._responseProducer = this._producerFactory.CreateResponseProducer();
-            this._configurationProducer = this._producerFactory.CreateConfigurationProducer();
-            this._telemetryProducer = this._producerFactory.CreateTelemetryProducer();
+            this._responseProducer = producerFactory.CreateResponseProducer();
+            this._configurationProducer = producerFactory.CreateConfigurationProducer();
+            this._telemetryProducer = producerFactory.CreateTelemetryProducer();
             this._responseEndpointTopic = _connectorConfiguration?.Communication?.ResponseEndpoint?.GetConfig<KafkaConfig>()?.Topic;
             this._configurationEndpointTopic = _connectorConfiguration?.Persistence?.GetConfig<KafkaConfig>()?.Topic;
 

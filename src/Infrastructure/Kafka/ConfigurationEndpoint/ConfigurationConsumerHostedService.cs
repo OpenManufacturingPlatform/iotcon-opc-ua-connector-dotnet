@@ -11,7 +11,7 @@ namespace OMP.Connector.Infrastructure.Kafka.ConfigurationEndpoint
 {
     public class ConfigurationConsumerHostedService : BaseConsumerHostedService
     {
-        private const int OffsetRetrievalTimeoutSec = 5;
+        private const int OffsetRetrievalTimeoutSec = 10;
         private readonly IKafkaApplicationConfigurationRepository _applicationConfigurationRepository;
         private IConfigurationConsumer _configurationConsumer;
 
@@ -31,18 +31,19 @@ namespace OMP.Connector.Infrastructure.Kafka.ConfigurationEndpoint
             {
                 if (StoppingCancellationTokenSource.IsCancellationRequested)
                     return;
-
+                
                 _configurationConsumer ??= ConsumerFactory.CreateConfigurationConsumer();
-
-                var consumeResult = GetConsumeResult();
+                
+                var consumeResult = GetConsumeResult(StoppingCancellationTokenSource.Token);
                 if (consumeResult is null)
                 {
                     _applicationConfigurationRepository.Initialize(appConfigDto);
+                    _configurationConsumer.Consumer.Close();
+                    SignalOuterLoopToStopConsumption();
                     return;
                 }
 
                 var latestMessageOffset = GetMaximumOffset(_configurationConsumer.Consumer) - 1;
-
                 var topicPartition = consumeResult.TopicPartition;
                 var currentPosition = _configurationConsumer.Consumer.Position(topicPartition) - 1;
 
@@ -53,21 +54,26 @@ namespace OMP.Connector.Infrastructure.Kafka.ConfigurationEndpoint
                     return;
                 }
 
-                Logger.LogInformation("**--CONSUME RESULT--**:\t{Key}:\t{Value}", consumeResult.Message.Key, consumeResult.Message.Value);
+                Logger.LogDebug("**--CONSUME RESULT--**:\t{Key}:\t{Value}", consumeResult.Message.Key,consumeResult.Message.Value);
 
                 Logger.LogTrace($"{nameof(ConfigurationConsumerHostedService)} notification for config sent, sequence number: {currentPosition}");
                 _applicationConfigurationRepository.Initialize(consumeResult.Message?.Value);
 
+                Logger.LogInformation("**\tConfiguration set in Repository\t**");
+                
                 _configurationConsumer.Consumer.Close();
                 SignalOuterLoopToStopConsumption();
-                Logger.LogInformation("**\tALL CONFIG READ OF TOPIC\tStopping Configuration consumer\t**");
             }
             catch (OperationCanceledException operationCanceledException)
             {
-                Logger.LogWarning($"Consuming configuration was cancelled [{operationCanceledException.Message}]");
+                _configurationConsumer?.Consumer.Close();
+                Logger.LogTrace($"Consuming configuration was cancelled [{operationCanceledException.Message}]");
             }
+        }
 
-            Logger.LogInformation("**\tConfiguration set in Repository\t**");
+        protected override void StopConsumer()
+        {
+            _configurationConsumer?.Consumer?.Close();
         }
 
         private void SignalOuterLoopToStopConsumption()
@@ -90,11 +96,12 @@ namespace OMP.Connector.Infrastructure.Kafka.ConfigurationEndpoint
             return currentMaximumOffset;
         }
 
-        private ConsumeResult<string, AppConfigDto> GetConsumeResult(int timeout = OffsetRetrievalTimeoutSec)
+        private ConsumeResult<string, AppConfigDto> GetConsumeResult(CancellationToken stoppingCancellationToken, int timeout = OffsetRetrievalTimeoutSec)
         {
-            var s_cts = new CancellationTokenSource();
-            s_cts.CancelAfter(TimeSpan.FromSeconds(timeout));
+            var timeoutCts = new CancellationTokenSource();
+            timeoutCts.CancelAfter(timeout);
 
+            var s_cts = CancellationTokenSource.CreateLinkedTokenSource(stoppingCancellationToken, timeoutCts.Token);
             return GetConsumeResult(s_cts.Token);
         }
 
@@ -104,7 +111,7 @@ namespace OMP.Connector.Infrastructure.Kafka.ConfigurationEndpoint
             {
                 return _configurationConsumer.Consume(cancellationToken);
             }
-            catch (TaskCanceledException)
+            catch (OperationCanceledException)
             {
                 Logger.LogTrace($"{nameof(ConfigurationConsumerHostedService)}.{nameof(GetConsumeResult)} timed out");
                 return default;

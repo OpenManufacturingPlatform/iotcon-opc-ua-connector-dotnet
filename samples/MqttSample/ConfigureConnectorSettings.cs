@@ -18,7 +18,7 @@ namespace OMP.Connector.EdgeModule
         public void Configure(string name, ConnectorConfiguration options)
         {
             options.OpcUa?.SetNativeConfig(this.GetOpcUaNativeConfiguration());
-            options.Persistence?.SetNativeConfig(this.GetPersistanceNativeConfiguration());
+            options.Persistence?.SetNativeConfig(this.GetPersistenceNativeConfiguration());
             options.Communication?.Shared.SetNativeConfig(this.GetSharedCommunicationNativeConfiguration());
 
             this.SetNativeAndSharedCommunicationSettings(options.Communication, options.Communication?.Shared);
@@ -48,7 +48,7 @@ namespace OMP.Connector.EdgeModule
         private IConfiguration GetOpcUaNativeConfiguration()
             => this.configuration.GetSection($"{nameof(ConnectorConfiguration.OpcUa)}{SectionSeparatorKey}{NativeSettingsKey}");
 
-        private IConfiguration GetPersistanceNativeConfiguration()
+        private IConfiguration GetPersistenceNativeConfiguration()
             => this.configuration.GetSection($"{nameof(ConnectorConfiguration.Persistence)}{SectionSeparatorKey}{NativeSettingsKey}");
 
         private IConfiguration GetResponseEndpointCommunicationNativeConfiguration()
