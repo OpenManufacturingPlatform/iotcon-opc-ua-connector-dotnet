@@ -1,0 +1,43 @@
+{
+  "id": "7cd70b85-2939-480d-917f-5d62c7f6b1b2",
+  "namespace": "iot.models.messages.opcua.commandrequest",
+  "$schema": "https://iotpebsdmstorage.blob.core.windows.net/schemas/message_schemas/2020-03-31/iot.message.opcua.command.request.schema.json",
+  "metadata": {
+    "timestamp": "2020-02-17T09:50:29+00:00",
+    "correlationIds": [],
+    "senderIdentifier": {
+      "id": "7cd70b85-2939-480d-917f-5d62c7f6b1b2",
+      "name": "IPS-T",
+      "type": "application",
+      "route": "/control"
+    },
+    "destinationIdentifiers": [      
+    ]
+  },
+  "payload": {
+    "requestTarget": {
+      "endpointUrl": "opc.tcp://opcuaserverintegration:52210/"
+    },
+    "requests": [
+      {
+        "commandType": "createSubscriptions",
+        "monitoredItems": [
+          {
+            "nodeid": "ns=4;i=1285",
+            "samplingInterval": "1000",
+            "publishingInterval": "2000",
+            "heartbeatInterval": "8000",
+            "skipFirst": "false"
+          },
+          {
+            "nodeid": "ns=5;i=20",
+            "samplingInterval": "1000",
+            "publishingInterval": "3000",
+            "heartbeatInterval": "8000",
+            "skipFirst": "false"
+          }
+        ]
+      }
+    ]
+  }
+}

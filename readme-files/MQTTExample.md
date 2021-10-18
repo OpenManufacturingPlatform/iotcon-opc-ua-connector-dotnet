@@ -273,22 +273,15 @@ Internally the connector uses a 3rd party package that handles the specifics of 
   ```
 
 ## How to Test
--Message Models
+Below is a list of commands that you can send over mqqt to the *Command* Topic of your choosing (same *Command* Topic that you configured in the connector prior to building).
+- ![Call Command](/samples/MessageModels/Commands/CallCommand.json)
+- ![Read Command](/samples/MessageModels/Commands/ReadCommand.json)
+- ![Write Command](/samples/MessageModels/Commands/WriteCommand.json)
+- ![Create Subscription(s)](/samples/MessageModels/Subscriptions/CreateSubscriptionRequest.json)
+- ![Remove Subscription(s)](/samples/MessageModels/Subscriptions/RemoveSubscriptionRequest.json)
+- ![Remove All Subscriptions](/samples/MessageModels/Subscriptions/RemoveAllSubscriptionsRequest.json)
 
-![Infrastructural View](./images/infrastructural-view.PNG)
+das
 
-## Application View
 
-The OPC UA Edge Connector is controlled by messages. Therefor it consumes JSON messages from a command topic. After receiving a command, it executes an OPC UA operation against the OPC UA Server on an device (e.g. read/write/subscribe). The information about the success or failure of the operation is sent via the command result topic. 
-
-A special function has the telemetry topic. Notifications of monitored items resulting from an active subscription are sent to the telemetry topic. 
-
-![Application View](.images/application-view.PNG)
-
-## Operational View
-
-In the configuration phase of the OPC UA Edge Connector a configuration needs to be applied. The configuration contains for example information about the message broker endpoints. The software is logging by default to the console. The user needs to bring a appropriate Monitoring Service and Management Service in place to be control, observe and operate the software centrally and in large scale.  
-
-![Operational View](/images/operational-view.PNG)
-![Operational View](../../operational-view.PNG)
 
