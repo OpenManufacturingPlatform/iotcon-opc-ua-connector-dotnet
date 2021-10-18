@@ -24,7 +24,6 @@ namespace OMP.Connector.Infrastructure.Kafka
 {
     public class KafkaMessageSender : IMessageSender//, IDisposable
     {
-        private readonly IProducerFactory _producerFactory;
         private readonly ILogger<KafkaMessageSender> _logger;
         private readonly IResponseProducer _responseProducer;
         private readonly IConfigurationProducer _configurationProducer;
@@ -40,24 +39,23 @@ namespace OMP.Connector.Infrastructure.Kafka
             ILogger<KafkaMessageSender> logger)
         {
             this._connectorConfiguration = connectorConfiguration.Value;
-            this._producerFactory = producerFactory;
             this._logger = logger;
-            this._responseProducer = this._producerFactory.CreateResponseProducer();
-            this._configurationProducer = this._producerFactory.CreateConfigurationProducer();
-            this._telemetryProducer = this._producerFactory.CreateTelemetryProducer();
+            this._responseProducer = producerFactory.CreateResponseProducer();
+            this._configurationProducer = producerFactory.CreateConfigurationProducer();
+            this._telemetryProducer = producerFactory.CreateTelemetryProducer();
             this._responseEndpointTopic = _connectorConfiguration?.Communication?.ResponseEndpoint?.GetConfig<KafkaConfig>()?.Topic;
-            this._configurationEndpointTopic = _connectorConfiguration?.Persistance?.GetConfig<KafkaConfig>()?.Topic;
+            this._configurationEndpointTopic = _connectorConfiguration?.Persistence?.GetConfig<KafkaConfig>()?.Topic;
 
             var argumentExceptions = new List<ArgumentException>();
 
             if (_responseProducer is null)
-                argumentExceptions.Add(new ArgumentException("Configuration for Response Comunication is empty or invalid"));
+                argumentExceptions.Add(new ArgumentException("Configuration for Response Communication is empty or invalid"));
 
             if (_configurationProducer is null)
-                argumentExceptions.Add(new ArgumentException("Configuration for Config Persistance is empty or invalid"));
+                argumentExceptions.Add(new ArgumentException("Configuration for Config Persistence is empty or invalid"));
 
             if (_telemetryProducer is null)
-                argumentExceptions.Add(new ArgumentException("Configuration for Telemetry Comunication is empty or invalid"));
+                argumentExceptions.Add(new ArgumentException("Configuration for Telemetry Communication is empty or invalid"));
 
             if (string.IsNullOrWhiteSpace(_responseEndpointTopic))
                 argumentExceptions.Add(new ArgumentException("Configuration for ResponseEndpoint Topic is empty or invalid"));
@@ -116,7 +114,7 @@ namespace OMP.Connector.Infrastructure.Kafka
         {
             result.Switch(
                 publishSucceeded => _logger.LogTrace($"Publish Succeeded: {message}"),
-                publishPartialSucceeded => _logger.LogTrace($"Publish Partialy Succeeded: {message}"),
+                publishPartialSucceeded => _logger.LogTrace($"Publish Partially Succeeded: {message}"),
                 publishedFailedMessageSizeTooLarge => _logger.LogTrace($"Publish Failed due to message size being to large: {message} => {publishedFailedMessageSizeTooLarge.Error}", publishedFailedMessageSizeTooLarge),
                 producerError => _logger.LogTrace($"Publish Failed: {message} => {producerError.Error}", producerError)
             );

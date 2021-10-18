@@ -27,7 +27,7 @@ namespace OMP.Connector.Infrastructure.Kafka.Common.Consumers
                 cancellationToken
             });
 
-            _backgroundTask = Task.Run(() => { StartConsumerLoop(); }, StoppingCancellationTokenSource.Token);
+            _backgroundTask = Task.Run(StartConsumerLoop, StoppingCancellationTokenSource.Token);
             return Task.CompletedTask;
         }
 
@@ -45,11 +45,17 @@ namespace OMP.Connector.Infrastructure.Kafka.Common.Consumers
             {
                 Logger.LogDebug("Could not stop consumer thread in time - Aborting thread");
             }
+            finally
+            {
+                StopConsumer();
+            }
 
             return Task.CompletedTask;
         }
 
         protected abstract void Consume();
+
+        protected abstract void StopConsumer();
 
         private void StartConsumerLoop()
         {

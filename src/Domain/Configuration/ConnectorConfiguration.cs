@@ -73,7 +73,7 @@ namespace OMP.Connector.Domain.Configuration
         public bool DisableSubscriptionRestoreService { get; set; }
         public bool EnableMessageFilter { get; set; }
         public CommunicationConfiguration Communication { get; set; }
-        public CommunicationChannelConfiguration Persistance { get; set; }
+        public CommunicationChannelConfiguration Persistence { get; set; }
     }
 
     public sealed class OpcUaConfiguration : BaseConnectorConfiguration

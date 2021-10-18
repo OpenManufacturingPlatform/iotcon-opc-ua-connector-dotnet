@@ -40,14 +40,14 @@ namespace OMP.Connector.Infrastructure.Kafka.Common.Consumers
 
         public IConfigurationConsumer CreateConfigurationConsumer()
         {
-            if (_connectorConfiguration.Persistance.Type != CommunicationType.Kafka)
+            if (_connectorConfiguration.Persistence.Type != CommunicationType.Kafka)
                 return null;
 
             ConsumerConfig sharedKafkaConfig = null;
             if (_connectorConfiguration.Communication.Shared.Type == CommunicationType.Kafka)
                 sharedKafkaConfig = _connectorConfiguration.Communication.Shared.GetConfig<ConsumerConfig>();
 
-            var (kafkaConfiguration, consumerConfig) = GetEndpointConfiguration(_connectorConfiguration.Persistance);
+            var (kafkaConfiguration, consumerConfig) = GetEndpointConfiguration(_connectorConfiguration.Persistence);
 
             if (sharedKafkaConfig != null)
             {
