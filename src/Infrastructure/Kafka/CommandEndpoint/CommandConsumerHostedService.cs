@@ -1,4 +1,5 @@
-﻿using Confluent.Kafka;
+﻿using System;
+using Confluent.Kafka;
 using Microsoft.Extensions.Logging;
 using OMP.Connector.Domain.Extensions;
 using OMP.Connector.Infrastructure.Kafka.Common.Consumers;
@@ -8,7 +9,7 @@ namespace OMP.Connector.Infrastructure.Kafka.CommandEndpoint
     public class CommandConsumerHostedService : BaseConsumerHostedService
     {
         private readonly IKafkaRequestHandler _kafkaRequestHandler;
-        private ICommandConsumer commandConsumer;
+        private ICommandConsumer _commandConsumer;
         public CommandConsumerHostedService(
             IConsumerFactory consumerFactory,
             IKafkaRequestHandler kafkaRequestHandler,
@@ -22,23 +23,27 @@ namespace OMP.Connector.Infrastructure.Kafka.CommandEndpoint
         {
             try
             {
-                if (commandConsumer is null)
-                    commandConsumer = ConsumerFactory.CreateCommandConsumer();
+                _commandConsumer ??= ConsumerFactory.CreateCommandConsumer();
 
-                var consumeResult = commandConsumer.Consume(StoppingCancellationTokenSource.Token);
+                var consumeResult = _commandConsumer.Consume(StoppingCancellationTokenSource.Token);
                 Logger.LogInformation("{Key}: {Value}", consumeResult.Message.Key, consumeResult.Message.Value);
                 _kafkaRequestHandler.OnMessageReceived(consumeResult);
-                commandConsumer.Consumer.Commit(consumeResult);
+                _commandConsumer.Consumer.Commit(consumeResult);
             }
             catch (ConsumeException cx)
             {
                 var message = cx.GetMessage();
                 Logger.LogDebug($"Unable to Consumer message:\t{message}", cx);
             }
-            catch (System.Exception)
+            catch (Exception)
             {
                 throw;
             }
+        }
+
+        protected override void StopConsumer()
+        {
+            _commandConsumer?.Consumer?.Close();
         }
     }
 }

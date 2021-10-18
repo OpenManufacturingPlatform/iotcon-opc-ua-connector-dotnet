@@ -11,10 +11,9 @@ namespace OMP.Connector.Infrastructure.Kafka.Common.Consumers
 {
     public class CustomKafkaConsumer<TKey, TValue> : IDisposable, ICustomKafkaConsumer<TKey, TValue>
     {
-        private readonly ConsumerBuilder<TKey, TValue> _builder;
         public IConsumer<TKey, TValue> Consumer { get; }
 
-        private KafkaConfig _kafkaConfiguration;
+        private readonly KafkaConfig _kafkaConfiguration;
         private ConsumerConfig _configuration;
 
         public CustomKafkaConsumer(
@@ -35,7 +34,7 @@ namespace OMP.Connector.Infrastructure.Kafka.Common.Consumers
             var consumerLogHandler = kafkaEventHandlerFactory.GetConsumerLogHandler<TKey, TValue>();
 
             _configuration = configuration;
-            _builder = new ConsumerBuilder<TKey, TValue>(configuration)
+            var builder = new ConsumerBuilder<TKey, TValue>(configuration)
                     .SetErrorHandler((consumer, e) => errorHandler?.Handle(consumer, e))
                     .SetStatisticsHandler((consumer, json) => statisticsHandler?.Handle(consumer, json))
                     .SetPartitionsAssignedHandler((c, partitions) => partitionsAssignedHandler?.Handle(c, partitions))
@@ -44,7 +43,7 @@ namespace OMP.Connector.Infrastructure.Kafka.Common.Consumers
                     .SetKeyDeserializer(keyDeserializer)
                     .SetValueDeserializer(valueDeserializer)
                     .SetLogHandler((c, logMessage) => consumerLogHandler?.Handle(c, logMessage));
-            Consumer = _builder.Build();
+            Consumer = builder.Build();
         }
 
         public ConsumeResult<TKey, TValue> Consume(CancellationToken cancellationToken = default)

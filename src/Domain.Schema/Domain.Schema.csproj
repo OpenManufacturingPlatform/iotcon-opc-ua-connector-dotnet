@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <LangVersion>latest</LangVersion>
-    <VersionPrefix>0.0.0.1</VersionPrefix>
+    <VersionPrefix>0.0.0.4</VersionPrefix>
     <AssemblyName>OMP.Connector.$(MSBuildProjectName)</AssemblyName>
     <RootNamespace>OMP.Connector.$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
     <RepositoryUrl>https://github.com/OpenManufacturingPlatform/iotcon-opc-ua-connector-dotnet</RepositoryUrl>

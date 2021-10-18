@@ -6,7 +6,6 @@
     <LangVersion>latest</LangVersion>
     <AssemblyName>OMP.Connector.EdgeModule</AssemblyName>
     <RootNamespace>OMP.Connector.EdgeModule</RootNamespace>
-    <VersionPrefix>3.5.0</VersionPrefix>
     <Configurations>Release;Debug</Configurations>
   </PropertyGroup>
 

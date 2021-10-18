@@ -5,8 +5,7 @@
     <TargetFramework>net5.0</TargetFramework>
     <LangVersion>latest</LangVersion>
     <AssemblyName>OMP.Connector.EdgeModule</AssemblyName>
-    <RootNamespace>OMP.Connector.EdgeModule</RootNamespace>
-    <VersionPrefix>3.5.0</VersionPrefix>
+    <RootNamespace>OMP.Connector.EdgeModule</RootNamespace>    
     <Configurations>Release;Debug</Configurations>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerfileContext>..\..</DockerfileContext>
