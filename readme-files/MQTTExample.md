@@ -281,7 +281,6 @@ Below is a list of commands that you can send over mqqt to the *Command* Topic o
 - [Remove Subscription(s)](/samples/MessageModels/Subscriptions/RemoveSubscriptionRequest.json)
 - [Remove All Subscriptions](/samples/MessageModels/Subscriptions/RemoveAllSubscriptionsRequest.json)
 
-das
-
-
-
+------------------------------------------------
+## What is coming next?
+Next we aim to provide an end-to-end environment via a docker compose file. Which will setup a OPC UA Server, MQTT Broker the actual *Connector* and a small sample app to send *commands* and see the results - a Preview link to the [Docker Compose](/samples/MqttSample/docker-compose.yaml) file can be seen here.
