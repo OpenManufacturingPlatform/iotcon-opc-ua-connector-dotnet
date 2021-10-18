@@ -47,3 +47,5 @@ In the configuration phase of the OPC UA Edge Connector a configuration needs to
 Please respect our contribution guidlines. (LINK)
 
 ## Build and Installation
+
+Please got the [MQTT Example](/readme-files/MQTTExample.md) to see how to build and run it.
