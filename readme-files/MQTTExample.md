@@ -269,7 +269,7 @@ Internally the connector uses a 3rd party package that handles the specifics of 
   
 ##### Docker Run
   ```
-  docker run -t mqqttest1
+  docker run -t mqtttest1
   ```
 
 ## How to Test
