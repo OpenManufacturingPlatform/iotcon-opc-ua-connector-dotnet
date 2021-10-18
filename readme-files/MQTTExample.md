@@ -261,8 +261,7 @@ Internally the connector uses a 3rd party package that handles the specifics of 
 
 ## How to Run
 
-
-##### Docker Build
+[Mqtt Docker file](Dockerfile.MqttSample)
   ```
   docker build -t mqqttest1 -f Dockerfile.MqttSample .
   ```
@@ -280,6 +279,8 @@ Below is a list of commands that you can send over mqqt to the *Command* Topic o
 - [Create Subscription(s)](/samples/MessageModels/Subscriptions/CreateSubscriptionRequest.json)
 - [Remove Subscription(s)](/samples/MessageModels/Subscriptions/RemoveSubscriptionRequest.json)
 - [Remove All Subscriptions](/samples/MessageModels/Subscriptions/RemoveAllSubscriptionsRequest.json)
+
+**Note**: The current message models (API) is being reviewed and will change in the comming weeks *[2021-10-18]*
 
 ------------------------------------------------
 ## What is coming next?
