@@ -22,9 +22,9 @@ namespace OMP.Connector.EdgeModule
             return Host.CreateDefaultBuilder()
                   .ConfigureAppConfiguration((hostContext, configApp) =>
                   {
-                      configApp.AddEnvironmentVariables();
                       configApp.SetBasePath(hostContext.HostingEnvironment.ContentRootPath)
-                      .AddJsonFile(_settingsJsonFileName, optional: true, true);
+                      .AddJsonFile(_settingsJsonFileName, optional: true, true)
+                      .AddEnvironmentVariables();
                   })
                   .ConfigureLogging((hostContext, logBuilder) =>
                   {

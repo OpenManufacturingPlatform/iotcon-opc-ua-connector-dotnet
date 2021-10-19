@@ -5,27 +5,10 @@
     <TargetFramework>net5.0</TargetFramework>
     <LangVersion>latest</LangVersion>
     <AssemblyName>OMP.Connector.EdgeModule</AssemblyName>
-    <RootNamespace>OMP.Connector.EdgeModule</RootNamespace>
-    <VersionPrefix>5.0.0</VersionPrefix>
-    <Configurations>DebugKafka;Release;DebugMqtt</Configurations>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='DebugKafka|netcoreapp3.1|AnyCPU'">
-    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
-    <TreatSpecificWarningsAsErrors />
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='DebugMqtt|netcoreapp3.1|AnyCPU'">
-    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
-    <TreatSpecificWarningsAsErrors />
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugKafka|AnyCPU'">
-    <DefineConstants>TRACE;DEBUG;DEBUGKAFKA</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugMqtt|AnyCPU'">
-    <DefineConstants>TRACE;DEBUG;DEBUGMQTT</DefineConstants>
+    <RootNamespace>OMP.Connector.EdgeModule</RootNamespace>    
+    <Configurations>Release;Debug</Configurations>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <DockerfileContext>..\..</DockerfileContext>
   </PropertyGroup>
 
   <ItemGroup>
@@ -33,6 +16,7 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.1" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.14.0" />
     <PackageReference Include="Quartz.Extensions.DependencyInjection" Version="3.3.2" />
     <PackageReference Include="Quartz.Extensions.Hosting" Version="3.3.2" />
     <PackageReference Include="System.Runtime.Loader" Version="4.3.0" />
