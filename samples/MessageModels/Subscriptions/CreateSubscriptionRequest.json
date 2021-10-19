@@ -25,16 +25,12 @@
           {
             "nodeid": "ns=4;i=1285",
             "samplingInterval": "1000",
-            "publishingInterval": "2000",
-            "heartbeatInterval": "8000",
-            "skipFirst": "false"
+            "publishingInterval": "2000"            
           },
           {
             "nodeid": "ns=5;i=20",
             "samplingInterval": "1000",
-            "publishingInterval": "3000",
-            "heartbeatInterval": "8000",
-            "skipFirst": "false"
+            "publishingInterval": "3000",            
           }
         ]
       }
