@@ -50,7 +50,6 @@ namespace OMP.Connector.EdgeModule
         {
             serviceCollection.TryAddSingleton<KafkaRepository>();
             serviceCollection.TryAddSingleton<IKafkaApplicationConfigurationRepository>(sc => sc.GetRequiredService<KafkaRepository>());
-            serviceCollection.TryAddSingleton<IEndpointDescriptionRepository>(sc => sc.GetRequiredService<KafkaRepository>());
             serviceCollection.TryAddSingleton<ISubscriptionRepository>(sc => sc.GetRequiredService<KafkaRepository>());
             serviceCollection.TryAddScoped(sc => (IConfigurationPersister)sc.GetRequiredService<IProducerFactory>().CreateConfigurationProducer());
 
