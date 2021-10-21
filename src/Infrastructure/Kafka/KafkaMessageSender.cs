@@ -10,8 +10,10 @@ using OMP.Connector.Domain.Configuration;
 using OMP.Connector.Domain.Enums;
 using OMP.Connector.Domain.Extensions;
 using OMP.Connector.Domain.Models;
+using OMP.Connector.Domain.Schema.Alarms;
 using OMP.Connector.Domain.Schema.Messages;
 using OMP.Connector.Domain.Schema.SensorTelemetry;
+using OMP.Connector.Infrastructure.Kafka.AlarmEndpoint;
 using OMP.Connector.Infrastructure.Kafka.Common.Configuration;
 using OMP.Connector.Infrastructure.Kafka.Common.Producers;
 using OMP.Connector.Infrastructure.Kafka.Common.Producers.Responses;
@@ -22,12 +24,13 @@ using OneOf;
 
 namespace OMP.Connector.Infrastructure.Kafka
 {
-    public class KafkaMessageSender : IMessageSender//, IDisposable
+    public class KafkaMessageSender : IMessageSender
     {
         private readonly ILogger<KafkaMessageSender> _logger;
         private readonly IResponseProducer _responseProducer;
         private readonly IConfigurationProducer _configurationProducer;
         private readonly ITelemetryProducer _telemetryProducer;
+        private readonly IAlarmProducer _alarmProducer;
         private readonly ConnectorConfiguration _connectorConfiguration;
 
         private readonly string _responseEndpointTopic;
@@ -43,6 +46,7 @@ namespace OMP.Connector.Infrastructure.Kafka
             this._responseProducer = producerFactory.CreateResponseProducer();
             this._configurationProducer = producerFactory.CreateConfigurationProducer();
             this._telemetryProducer = producerFactory.CreateTelemetryProducer();
+            this._alarmProducer = producerFactory.CreateAlarmProducer();
             this._responseEndpointTopic = _connectorConfiguration?.Communication?.ResponseEndpoint?.GetConfig<KafkaConfig>()?.Topic;
             this._configurationEndpointTopic = _connectorConfiguration?.Persistence?.GetConfig<KafkaConfig>()?.Topic;
 
@@ -93,6 +97,12 @@ namespace OMP.Connector.Infrastructure.Kafka
         {
             var result = await _telemetryProducer.ProduceAsync(telemetry.Id, telemetry);
             LogProduceResultMessage(result, EventTypes.SentTelemetryToBroker, telemetry.Id);
+        }
+
+        public async Task SendMessageToAlarmsAsync (AlarmMessage alarmMessage)
+        {
+            var result = await _alarmProducer.ProduceAsync(alarmMessage.Id, alarmMessage);
+            LogProduceResultMessage(result, EventTypes.SentAlarmToBroker, alarmMessage.Id);
         }
 
         private Task SendErrorResponseWhenOriginalSizeTooLargeAsync(CommandResponse commandResponse,

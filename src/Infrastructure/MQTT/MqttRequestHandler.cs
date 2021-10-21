@@ -20,10 +20,11 @@ namespace OMP.Connector.Infrastructure.MQTT
             IMapper mapper,
             ICommandService commandService,
             ISubscriptionServiceStateManager subscriptionServiceStateManager,
+            IAlarmSubscriptionServiceStateManager alarmSubscriptionServiceStateManager,
             IDiscoveryService discoveryService,
             IOptions<ConnectorConfiguration> connectorConfiguration,
             CommandRequestValidator commandRequestValidator)
-            : base(logger, messageSender, mapper, commandService, subscriptionServiceStateManager, discoveryService,
+            : base(logger, messageSender, mapper, commandService, subscriptionServiceStateManager, alarmSubscriptionServiceStateManager, discoveryService,
                 connectorConfiguration, commandRequestValidator)
         { }
 

@@ -28,7 +28,7 @@ namespace OMP.Connector.Application.Providers.Commands
             var methodInfoList = await this.GetMethodInfoListAsync();
             var callMethodRequests = this.MapCommandsToCallMethodRequests(methodInfoList);
 
-            var methodCallResults = await this.ExecuteMethodsAsync(callMethodRequests);
+            var methodCallResults = this.ExecuteMethods(callMethodRequests);
 
             var methodCallResponse = this.BuildMethodCallResponse(methodCallResults, methodInfoList);
             return methodCallResponse;
@@ -80,16 +80,10 @@ namespace OMP.Connector.Application.Providers.Commands
             }
         }
 
-        private async Task<CallMethodResultCollection> ExecuteMethodsAsync(IEnumerable<CallMethodRequest> callMethodRequests)
+        private CallMethodResultCollection ExecuteMethods(IEnumerable<CallMethodRequest> callMethodRequests)
         {
-            var callMethodRequestCollection = new CallMethodRequestCollection(callMethodRequests);
-
-            CallMethodResultCollection callMethodResultCollection = default;
-            await this.OpcSession.UseAsync((session, complexTypeSystem) =>
-            {
-                session.Call(default, callMethodRequestCollection, out callMethodResultCollection, out _);
-                this._connectedEndpointUrl = session.Endpoint.EndpointUrl;
-            });
+            var callMethodResultCollection = this.OpcSession.Call(callMethodRequests);
+            this._connectedEndpointUrl = this.OpcSession.Session.Endpoint.EndpointUrl;
 
             return callMethodResultCollection;
         }

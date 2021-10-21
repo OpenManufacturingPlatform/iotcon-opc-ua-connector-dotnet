@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using OMP.Connector.Domain;
 using OMP.Connector.Domain.Models;
+using OMP.Connector.Domain.Schema.Alarms;
 using OMP.Connector.Domain.Schema.Messages;
 using OMP.Connector.Domain.Schema.SensorTelemetry;
 using OMP.Connector.Infrastructure.MQTT.Common.Publishers;
@@ -40,6 +41,11 @@ namespace OMP.Connector.Infrastructure.MQTT
         public bool SendMessageToConfig(AppConfigDto configuration)
         {
             throw new NotSupportedException();
+        }
+
+        public Task SendMessageToAlarmsAsync(AlarmMessage alarmMessage)
+        {
+            throw new NotImplementedException();
         }
     }
 }

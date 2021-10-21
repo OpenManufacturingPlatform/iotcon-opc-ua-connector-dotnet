@@ -16,6 +16,7 @@ using OMP.Connector.Domain.Extensions;
 using OMP.Connector.Domain.OpcUa;
 using OMP.Connector.Domain.Schema.Interfaces;
 using OMP.Connector.Domain.Schema.Messages;
+using OMP.Connector.Domain.Schema.Request.AlarmSubscription.Base;
 using OMP.Connector.Domain.Schema.Request.Control.Base;
 using OMP.Connector.Domain.Schema.Request.Discovery.Base;
 using OMP.Connector.Domain.Schema.Request.Subscription.Base;
@@ -29,6 +30,7 @@ namespace OMP.Connector.Application.Clients.Base
         protected readonly IMapper Mapper;
         protected readonly ICommandService CommandService;
         protected readonly ISubscriptionServiceStateManager SubscriptionServiceStateManager;
+        protected readonly IAlarmSubscriptionServiceStateManager AlarmSubscriptionServiceStateManager;
         protected readonly IDiscoveryService DiscoveryService;
         private readonly ConnectorConfiguration _connectorConfiguration;
         protected readonly CommandRequestValidator RequestValidator;
@@ -40,6 +42,7 @@ namespace OMP.Connector.Application.Clients.Base
             IMapper mapper,
             ICommandService commandService,
             ISubscriptionServiceStateManager subscriptionServiceStateManager,
+            IAlarmSubscriptionServiceStateManager alarmSubscriptionServiceStateManager,
             IDiscoveryService discoveryService,
             IOptions<ConnectorConfiguration> connectorConfiguration,
             CommandRequestValidator commandRequestValidator)
@@ -49,6 +52,7 @@ namespace OMP.Connector.Application.Clients.Base
             this.Mapper = mapper;
             this.CommandService = commandService;
             this.SubscriptionServiceStateManager = subscriptionServiceStateManager;
+            this.AlarmSubscriptionServiceStateManager = alarmSubscriptionServiceStateManager;
             this.DiscoveryService = discoveryService;
             this._connectorConfiguration = connectorConfiguration.Value;
             this.RequestValidator = commandRequestValidator;
@@ -90,6 +94,7 @@ namespace OMP.Connector.Application.Clients.Base
 
             var opcUaCommands = new List<ICommandRequest>();
             var subscriptionCommands = new List<ICommandRequest>();
+            var alarmSubscriptionCommands = new List<ICommandRequest>();
             var discoveryCommands = new List<ICommandRequest>();
 
             foreach (var req in commandRequests)
@@ -102,6 +107,9 @@ namespace OMP.Connector.Application.Clients.Base
                     case SubscriptionRequest subscriptionRequest:
                         subscriptionCommands.Add(subscriptionRequest);
                         break;
+                    case AlarmSubscriptionRequest alarmSubscriptionRequest:
+                        alarmSubscriptionCommands.Add(alarmSubscriptionRequest);
+                        break;
                     case DiscoveryRequest discoveryRequest:
                         discoveryCommands.Add(discoveryRequest);
                         break;
@@ -113,6 +121,7 @@ namespace OMP.Connector.Application.Clients.Base
             //TODO: Consider a Task.WaitAll for better parallelism
             await this.ProcessCommandRequestsAsync(opcUaCommands, commandMessage);
             await this.ProcessSubscriptionRequestsAsync(subscriptionCommands, commandMessage);
+            await this.ProcessAlarmSubscriptionRequestsAsync(alarmSubscriptionCommands, commandMessage);
             await this.ProcessDiscoveryRequestsAsync(discoveryCommands, commandMessage);
 
             this.Logger.Debug($"{nameof(RequestHandler)} finished processing of request. RequestMessage.{nameof(commandMessage.Id)}: {commandMessage.Id}");
@@ -173,6 +182,31 @@ namespace OMP.Connector.Application.Clients.Base
                 var subscriptionService = this.SubscriptionServiceStateManager.GetSubscriptionServiceInstanceAsync(opcUaServerUrl, CancellationToken.None).GetAwaiter().GetResult();
 
                 response = await subscriptionService.ExecuteAsync(subscriptionRequest);
+            }
+            catch (Exception exception)
+            {
+                response = CommandResponseCreator.GetErrorResponseMessage(this.SchemaUrl, originalRequest);
+                this.Logger.Error(exception);
+            }
+
+            await this.MessageSender.SendMessageToComConUpAsync(response);
+
+            await this.CleanupStaleServices();
+        }
+
+        private async Task ProcessAlarmSubscriptionRequestsAsync(IReadOnlyCollection<ICommandRequest> filteredRequests, CommandRequest originalRequest)
+        {
+            if (!filteredRequests.Any())
+                return;
+
+            CommandResponse response;
+            try
+            {
+                var subscriptionRequest = this.CloneRequest(filteredRequests, originalRequest);
+                var opcUaServerUrl = originalRequest.Payload.RequestTarget.EndpointUrl;
+                var alarmSubscriptionService = this.AlarmSubscriptionServiceStateManager.GetAlarmSubscriptionServiceInstanceAsync(opcUaServerUrl, CancellationToken.None).GetAwaiter().GetResult();
+
+                response = await alarmSubscriptionService.ExecuteAsync(subscriptionRequest);
             }
             catch (Exception exception)
             {

@@ -33,6 +33,8 @@ namespace OMP.Connector.Domain.OpcUa
 
         void ReadNodes(List<NodeId> nodeIds, int batchSize, List<object> values, List<ServiceResult> errors);
 
+        CallMethodResultCollection Call(IEnumerable<CallMethodRequest> callMethodRequests);
+
         StatusCodeCollection WriteNodes(WriteValueCollection writeValues);
 
         void ConvertToOpcUaTypedValues(IEnumerable<WriteRequestWrapper> writeValues);

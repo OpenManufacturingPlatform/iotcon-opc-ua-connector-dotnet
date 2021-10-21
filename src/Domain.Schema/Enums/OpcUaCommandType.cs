@@ -24,6 +24,21 @@ namespace OMP.Connector.Domain.Schema.Enums
         [EnumMember(Value = "restoreSubscriptions")]
         RestoreSubscriptions,
 
+        [EnumMember(Value = "createAlarmSubscriptions")]
+        CreateAlarmSubscription,
+
+        [EnumMember(Value = "removeAlarmSubscriptions")]
+        RemoveAlarmSubscriptions,
+
+        [EnumMember(Value = "removeAllAlarmSubscriptions")]
+        RemoveAllAlarmSubscriptions,
+
+        [EnumMember(Value = "restoreAlarmSubscriptions")]
+        RestoreAlarmSubscriptions,
+
+        [EnumMember(Value = "respondToAlarmEvents")]
+        RespondToAlarmEvents,
+
         [EnumMember(Value = "serverDiscovery")]
         ServerDiscovery,
 

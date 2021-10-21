@@ -20,7 +20,7 @@ namespace OMP.Connector.Application.Extensions
             try
             {
                 var uriBuilder = new UriBuilder(endpointUrl);
-                return $"{Constants.OpcTcpPrefix}{uriBuilder.Host}:{uriBuilder.Port}/";
+                return $"{Constants.OpcTcpPrefix}{uriBuilder.Host}:{uriBuilder.Port}{uriBuilder.Path}";
             }
             catch (Exception ex)
             {

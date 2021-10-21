@@ -14,7 +14,6 @@ namespace OMP.Connector.Infrastructure.Kafka.Common.Consumers
         public IConsumer<TKey, TValue> Consumer { get; }
 
         private readonly KafkaConfig _kafkaConfiguration;
-        private ConsumerConfig _configuration;
 
         public CustomKafkaConsumer(
             KafkaConfig kafkaConfig,
@@ -33,7 +32,6 @@ namespace OMP.Connector.Infrastructure.Kafka.Common.Consumers
             var partitionsLostHandler = kafkaEventHandlerFactory.GetConsumerPartitionsLostHandler<TKey, TValue>();
             var consumerLogHandler = kafkaEventHandlerFactory.GetConsumerLogHandler<TKey, TValue>();
 
-            _configuration = configuration;
             var builder = new ConsumerBuilder<TKey, TValue>(configuration)
                     .SetErrorHandler((consumer, e) => errorHandler?.Handle(consumer, e))
                     .SetStatisticsHandler((consumer, json) => statisticsHandler?.Handle(consumer, json))

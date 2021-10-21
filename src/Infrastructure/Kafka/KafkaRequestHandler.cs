@@ -23,6 +23,7 @@ namespace OMP.Connector.Infrastructure.Kafka
             IMessageSender messageSender,
             ICommandService commandService,
             ISubscriptionServiceStateManager subscriptionServiceStateManager,
+            IAlarmSubscriptionServiceStateManager alarmSubscriptionServiceStateManager,
             IDiscoveryService discoveryService,
             IOptions<ConnectorConfiguration> connectorConfiguration,
             CommandRequestValidator commandRequestValidator)
@@ -32,6 +33,7 @@ namespace OMP.Connector.Infrastructure.Kafka
                   mapper,
                   commandService,
                   subscriptionServiceStateManager,
+                  alarmSubscriptionServiceStateManager,
                   discoveryService,
                   connectorConfiguration,
                   commandRequestValidator)

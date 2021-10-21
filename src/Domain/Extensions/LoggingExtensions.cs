@@ -78,6 +78,7 @@ namespace OMP.Connector.Domain.Extensions
                 EventTypes.ReceivedResponseFromOpcUa => "OpcUa command request execution completed",
                 EventTypes.SentResponseToBroker => "Sent upstream message to broker",
                 EventTypes.SentTelemetryToBroker => "Sent upstream telemetry message to broker",
+                EventTypes.SentAlarmToBroker => "Sent upstream alarm message to broker",
                 EventTypes.SentConfigToBroker => "Sent config message to broker",
                 _ => throw new NotImplementedException()
             };
