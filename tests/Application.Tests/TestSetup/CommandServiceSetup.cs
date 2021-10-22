@@ -36,22 +36,6 @@ namespace OMP.Connector.Application.Tests.TestSetup
 
             var logger = Substitute.For<ILogger<CommandService>>();
             commandProcessorFactory ??= Substitute.For<ICommandProviderFactory>();
-            var dataManagementServiceMock = Substitute.For<IEndpointDescriptionRepository>();
-            if (setupServerDetailsInEndpointRepo)
-            {
-                var endpointUrl = "";
-                dataManagementServiceMock
-                    .GetByEndpointUrl(Arg.Do<string>(x => endpointUrl = x))
-                    .Returns(new EndpointDescriptionDto
-                    {
-                        EndpointUrl = endpointUrl,
-                        ServerDetails = new ServerDetails
-                        {
-                            Name = expectedServerName,
-                            Route = expectedServerRoute
-                        }
-                    });
-            }
 
             var commandService = new CommandService(
                 commandProcessorFactory,
