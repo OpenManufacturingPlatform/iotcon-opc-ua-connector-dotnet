@@ -134,8 +134,8 @@ namespace OMP.Connector.Application.Services
             return new SensorTelemetrySource
             {
                 Id = string.Empty,
-                Name = string.Empty,
-                Route = string.Empty,
+                Name = session.Endpoint?.Server?.ApplicationName?.Text ?? string.Empty,
+                Route = session.Endpoint?.EndpointUrl ?? string.Empty,
                 EndpointUrl = endpointUrl
             };
         }
