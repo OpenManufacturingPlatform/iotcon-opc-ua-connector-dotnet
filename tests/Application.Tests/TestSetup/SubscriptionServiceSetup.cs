@@ -39,22 +39,6 @@ namespace OMP.Connector.Application.Tests.TestSetup
             });
 
             var logger = Substitute.For<ILogger<SubscriptionService>>();
-            var dataManagementServiceMock = Substitute.For<IEndpointDescriptionRepository>();
-            if (setupServerDetailsInEndpointRepo)
-            {
-                var endpointUrl = "";
-                dataManagementServiceMock
-                    .GetByEndpointUrl(Arg.Do<string>(x => endpointUrl = x))
-                    .Returns(new EndpointDescriptionDto
-                    {
-                        EndpointUrl = endpointUrl,
-                        ServerDetails = new ServerDetails
-                        {
-                            Name = expectedServerName,
-                            Route = expectedServerRoute
-                        }
-                    });
-            }
 
             var sessionPoolStateManager = sessionPoolStateManagerMock ?? Substitute.For<ISessionPoolStateManager>();
             var subscriptionProviderFactoryMock = Substitute.For<ISubscriptionProviderFactory>();

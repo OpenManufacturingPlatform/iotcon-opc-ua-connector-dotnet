@@ -32,12 +32,10 @@ namespace OMP.Connector.Application.Services
         private readonly IMapper _mapper;
         private readonly IDiscoveryProvider _discoveryProvider;
         private readonly ISessionPoolStateManager _sessionPoolManager;
-        private readonly IEndpointDescriptionRepository _endpointDescriptionRepository;
 
         public DiscoveryService(
             IDiscoveryProvider discoveryProvider,
             ISessionPoolStateManager sessionPoolStateManager,
-            IEndpointDescriptionRepository dataManagementService,
             IOptions<ConnectorConfiguration> connectorConfiguration,
             IMapper mapper,
             ILogger<DiscoveryService> logger
@@ -49,7 +47,6 @@ namespace OMP.Connector.Application.Services
             this._schemaUrl = connectorConfiguration.Value.Communication.SchemaUrl;
             this._discoveryProvider = discoveryProvider;
             this._sessionPoolManager = sessionPoolStateManager;
-            this._endpointDescriptionRepository = dataManagementService;
         }
 
         public async Task<ServerDiscoveryResponse> ExecuteAsync(string endpointUrl)
@@ -158,15 +155,6 @@ namespace OMP.Connector.Application.Services
                 throw new ArgumentException($"{nameof(ServerDiscoveryRequest)} can not be null");
 
             var response = await this.ExecuteAsync(commandRequest.GetEndpointUrl());
-
-            var endpointDescription = new EndpointDescriptionDto
-            {
-                EndpointUrl = commandRequest.GetEndpointUrl(),
-                ServerDetails = request.ServerDetails
-            };
-            var endpointUpdateSuccess = this._endpointDescriptionRepository.Add(endpointDescription);
-            if (!endpointUpdateSuccess)
-                response.Message = "Bad: Configuration update error";
 
             return response;
         }
