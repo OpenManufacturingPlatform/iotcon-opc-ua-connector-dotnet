@@ -13,7 +13,7 @@ namespace OMP.Connector.Infrastructure.Kafka.CommandEndpoint
             KafkaConfig kafkaConfig,
             ConsumerConfig configuration,
             ISerializerFactory serializerFactory,
-            IKafkaEventHandlerFactory kafkaEventHandlerFactory)
+            IKafkaEventHandlerFactory kafkaEventHandlerFactory = null)
             : base(kafkaConfig, configuration, serializerFactory, kafkaEventHandlerFactory)
         { }
     }

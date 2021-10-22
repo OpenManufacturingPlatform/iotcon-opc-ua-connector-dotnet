@@ -73,7 +73,16 @@ namespace OMP.Connector.Infrastructure.Kafka.ConfigurationEndpoint
 
         protected override void StopConsumer()
         {
-            _configurationConsumer?.Consumer?.Close();
+            try
+            {
+                _configurationConsumer?.Consumer?.Dispose();
+                //if(handler is not null)
+                    //_configurationConsumer?.Consumer?.Close();
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
         }
 
         private void SignalOuterLoopToStopConsumption()
