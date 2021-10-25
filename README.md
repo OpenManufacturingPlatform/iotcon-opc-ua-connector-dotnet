@@ -48,5 +48,5 @@ Please respect our contribution guidlines. (LINK)
 
 ## Build and Installation
 
-- Please got the [MQTT Example](/readme-files/MQTTExample.md) to see how to build and run it.
-- Please got the [Kafka Example](/readme-files/KafkaExample.md) to see how to build and run it.
+- Please go the [MQTT Example](/readme-files/MQTTExample.md) to see how to build and run it.
+- Please go the [Kafka Example](/readme-files/KafkaExample.md) to see how to build and run it.
