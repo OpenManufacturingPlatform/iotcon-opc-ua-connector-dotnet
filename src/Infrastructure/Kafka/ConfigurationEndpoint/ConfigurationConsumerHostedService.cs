@@ -31,9 +31,9 @@ namespace OMP.Connector.Infrastructure.Kafka.ConfigurationEndpoint
             {
                 if (StoppingCancellationTokenSource.IsCancellationRequested)
                     return;
-                
+
                 _configurationConsumer ??= ConsumerFactory.CreateConfigurationConsumer();
-                
+
                 var consumeResult = GetConsumeResult(StoppingCancellationTokenSource.Token);
                 if (consumeResult is null)
                 {
@@ -54,13 +54,13 @@ namespace OMP.Connector.Infrastructure.Kafka.ConfigurationEndpoint
                     return;
                 }
 
-                Logger.LogDebug("**--CONSUME RESULT--**:\t{Key}:\t{Value}", consumeResult.Message.Key,consumeResult.Message.Value);
+                Logger.LogDebug("**--CONSUME RESULT--**:\t{Key}:\t{Value}", consumeResult.Message.Key, consumeResult.Message.Value);
 
                 Logger.LogTrace($"{nameof(ConfigurationConsumerHostedService)} notification for config sent, sequence number: {currentPosition}");
                 _applicationConfigurationRepository.Initialize(consumeResult.Message?.Value);
 
                 Logger.LogInformation("**\tConfiguration set in Repository\t**");
-                
+
                 _configurationConsumer.Consumer.Close();
                 SignalOuterLoopToStopConsumption();
             }
@@ -72,18 +72,8 @@ namespace OMP.Connector.Infrastructure.Kafka.ConfigurationEndpoint
         }
 
         protected override void StopConsumer()
-        {
-            try
-            {
-                _configurationConsumer?.Consumer?.Dispose();
-                //if(handler is not null)
-                    //_configurationConsumer?.Consumer?.Close();
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
-        }
+            => _configurationConsumer?.Consumer?.Dispose();
+
 
         private void SignalOuterLoopToStopConsumption()
             => StoppingCancellationTokenSource.Cancel(true);
