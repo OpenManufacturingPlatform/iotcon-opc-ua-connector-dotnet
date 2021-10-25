@@ -59,7 +59,6 @@
         "BootstrapServers": "...",
         "Username": "000",
         "Debug": "consumer,cgrp,topic,fetch",
-        "Key": "....",
         "saslMechanism": "PLAIN",
         "saslUsername": "...",
         "saslPassword": "...",
