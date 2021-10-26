@@ -15,7 +15,7 @@ namespace OMP.Connector.Infrastructure.Kafka.TelemetryEndpoint
             ProducerConfig configuration,
             ILogger<TelemetryProducer> logger,
             ISerializerFactory serializerFactory,
-            IKafkaEventHandlerFactory kafkaEventHandlerFactory)
+            IKafkaEventHandlerFactory kafkaEventHandlerFactory = null)
             : base(kafkaConfig, configuration, logger, serializerFactory, kafkaEventHandlerFactory)
         { }
     }

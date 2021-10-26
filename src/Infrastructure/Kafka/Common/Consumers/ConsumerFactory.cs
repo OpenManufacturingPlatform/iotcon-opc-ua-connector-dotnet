@@ -18,7 +18,7 @@ namespace OMP.Connector.Infrastructure.Kafka.Common.Consumers
         public ConsumerFactory(
             IOptions<ConnectorConfiguration> connectorConfiguration,
             ISerializerFactory serializerFactory,
-            IKafkaEventHandlerFactory kafkaEventHandlerFactory)
+            IKafkaEventHandlerFactory kafkaEventHandlerFactory = null)
         {
             _connectorConfiguration = connectorConfiguration.Value;
             _serializerFactory = serializerFactory;

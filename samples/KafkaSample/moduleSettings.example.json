@@ -56,10 +56,8 @@
     "Shared": {
       "Type": "kafka",
       "NativeSettings": {
-        "BootstrapServers": "...",
-        "Username": "000",
+        "BootstrapServers": "...",        
         "Debug": "consumer,cgrp,topic,fetch",
-        "Key": "....",
         "saslMechanism": "PLAIN",
         "saslUsername": "...",
         "saslPassword": "...",
