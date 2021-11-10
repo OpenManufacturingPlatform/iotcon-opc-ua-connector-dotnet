@@ -24,6 +24,10 @@
   "nodes": [
     {
       "nodeId": "ns=2;i=16397",
+      "status": {
+        "isSuccessfull": true,
+        "message": null
+      },
       "nodeType": null,
       "nodeClass": null,
       "dataType": null,
@@ -40,18 +44,9 @@
     },
     {
       "nodeId": "ns=2;i=16398",
-      "nodeType": null,
-      "nodeClass": null,
-      "dataType": null,
-      "value": null,
-      "valueRank": null,
-      "accessLevel": null,
-      "userAccessLevel": null,
-      "minimumSamplingInterval": null,
-      "historizing": null,      
-      "arrayDimensions": {
-        "dataType": null,
-        "values": [ ]
+      "status": {
+        "isSuccessfull": false,
+        "message": "Node does not exists"
       }
     }
   ]

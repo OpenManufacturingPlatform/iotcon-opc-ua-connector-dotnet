@@ -55,7 +55,7 @@
         "isSuccessfull": false,
         "message": "No such node exists"
       },
-      "key":"argumentName2",
+      "key": null,
       "value" : null,
       "dataType": null
     }
