@@ -1,0 +1,205 @@
+﻿@page "/hands-on-view"
+
+<PageTitle>Hands On View</PageTitle>
+
+@using OmpHandsOnUi
+@using System.Linq
+@using OmpHandsOnUi.Services
+@using Microsoft.AspNetCore.SignalR.Client
+@inject NavigationManager NavigationManager
+@inject RequestService RequestService
+@inject ConfigurationService ConfigurationService;
+@inject MqttService MqttService;
+
+@if (hubStartError is null)
+{
+	<hr class="rounded">
+	<div class="row">
+		<div class="column">
+			<div class="card">
+				<h2>Request</h2>
+				<textarea rows="10" @bind="@requestJson"></textarea>
+				<hr class="rounded">
+				<button class="btn btn-primary" @onclick="SendNewRequest">Send Request</button>
+			</div>
+		</div>
+		<div class="column">
+			<div class="card">
+				<h2>Responses</h2>
+				<table class="table">
+					<thead>
+						<tr>
+							<th>CommandType</th>
+							<th>Status</th>
+							<th>Message</th>
+						</tr>
+					</thead>
+					<tbody>
+						@foreach (var responseMessage in responseMessageList)
+						{
+							<tr>
+								<td>@string.Join( ";",responseMessage.Payload.Responses.Select(r => r.CommandType).ToArray())</td>
+								<td>@responseMessage.Payload.ResponseStatus</td>
+								<td>@string.Join( ";",responseMessage.Payload.Responses.Select(r => r.Message).ToArray())</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+	<hr class="rounded">
+	<div class="row">
+		<div class="column-full-width">
+			<div class="card">
+				<h2>Telemetry</h2>
+				<table class="table">
+					<thead>
+						<tr>
+							<th>NodeId</th>
+							<th>Value</th>
+							<th>Type</th>
+							<th>Status</th>
+							<th>Last Change Timestamp</th>
+							<th>Measurement Timestamp</th>
+						</tr>
+					</thead>
+					<tbody>
+						@foreach (var telemetary in telemetaryList)
+						{
+							<tr>
+								<td>@telemetary.Payload.Data.Key</td>
+								<td>@telemetary.Payload.Data.Value</td>
+								<td>@telemetary.Payload.Data.DataType</td>
+								<td>@telemetary.Payload.Data.Status</td>
+								<td>@telemetary.Payload.Data.LastChangeTimestamp.ToLongTimeString()</td>
+								<td>@telemetary.Payload.Data.MeasurementTimestamp.ToLongTimeString()</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+}
+else
+{
+	<h3>Error while starting hub</h3>
+	<span>@hubStartError.Message</span>
+	<br />
+	<span>@hubStartError.StackTrace</span>
+}
+
+
+
+
+@code {
+
+	private List<TelemetryMessage> telemetaryList = new List<TelemetryMessage>();
+	private List<ResponseMessage> responseMessageList = new List<ResponseMessage>();
+	//private HubConnection? hubConnection;
+	private string? requestJson;
+	ConfigurationModel configurationModel = new();
+	Exception? hubStartError = null;
+
+	protected override Task OnInitializedAsync()
+	{
+		try
+		{
+			MqttService.Clear();
+			MqttService.Start();
+			MqttService.OnTelemetryMessage += TelemetaryService_OnTelemetryMessage;
+			MqttService.OnResponseMessage += ResponseService_OnResponseMessage;
+
+			//TelemetaryService.
+			//configurationModel = ConfigurationService.GetConfiguration();
+			//var hubAddress = configurationModel.HubAddress;
+			//var hubUri = NavigationManager.ToAbsoluteUri("/handsOnHub");
+			//if (!string.IsNullOrWhiteSpace(hubAddress))
+			//	hubUri = new Uri(hubAddress); ;
+
+			//hubConnection = new HubConnectionBuilder()
+			//.WithUrl(hubUri)
+			//.Build();
+
+			//subscribeToResponseMessages();
+			//subscribeToTelemetryMessages();
+
+			//await hubConnection.StartAsync();
+		}
+		catch (Exception ex)
+		{
+			hubStartError = ex;
+		}
+
+		return Task.CompletedTask;
+	}
+
+	//private void subscribeToResponseMessages()
+	//{
+	//	//hubConnection!.On<ResponseMessage>(HandsOnHub.ResponseMessageEventName, (responseMessage) =>
+	//	//{
+	//	//	responseMessageList.Insert(0, responseMessage);
+	//	//	if (responseMessageList.Count > 10)
+	//	//		responseMessageList.RemoveAt(9);
+
+	//	//	StateHasChanged();
+	//	//});
+	//}
+
+	//private void subscribeToTelemetryMessages()
+	//{
+	//	//hubConnection!.On<TelemetryMessage>(HandsOnHub.TelemetryReceivedEventName, (telemetary) =>
+	//	//{
+	//	//	telemetaryList.Insert(0, telemetary);
+	//	//	if (telemetaryList.Count > 10)
+	//	//		telemetaryList.RemoveAt(9);
+
+	//	//	StateHasChanged();
+	//	//});
+	//}
+
+	private void TelemetaryService_OnTelemetryMessage(object? sender, TelemetryMessage telemetary)
+	{
+		telemetaryList.Insert(0, telemetary);
+		if (telemetaryList.Count > 10)
+			telemetaryList.RemoveAt(9);
+
+		UpdateState();
+	}
+
+	private void ResponseService_OnResponseMessage(object? sender, ResponseMessage responseMessage)
+	{
+		responseMessageList.Insert(0, responseMessage);
+		if (responseMessageList.Count > 10)
+			responseMessageList.RemoveAt(9);
+
+		UpdateState();
+	}
+
+	private void SendNewRequest()
+	{
+		if (string.IsNullOrWhiteSpace(requestJson))
+			return;
+
+		RequestService.SendRequest(requestJson);
+	}
+
+	private void UpdateState()
+	{
+		try
+		{
+			InvokeAsync(() => { StateHasChanged(); });
+		}
+		catch (Exception ex)
+		{
+
+		}
+	}
+
+	//public bool IsConnected
+	//	=> hubConnection.State == HubConnectionState.Connected;
+
+	//public void Dispose()
+	//	=> _ = hubConnection.DisposeAsync();
+}

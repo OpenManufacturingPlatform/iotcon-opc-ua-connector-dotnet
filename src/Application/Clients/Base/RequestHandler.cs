@@ -54,18 +54,25 @@ namespace OMP.Connector.Application.Clients.Base
             this.RequestValidator = commandRequestValidator;
         }
 
-        public virtual async Task OnMessageReceivedAsync(CommandRequest commandMessage)
+        public virtual Task OnMessageReceivedAsync(CommandRequest commandMessage)
         {
             try
             {
+                if (commandMessage is null)
+                {
+                    this.Logger.Error($"{nameof(RequestHandler)} could not process NULL request message.");
+                    var nullRequestResponse = CommandResponseCreator.GetNullRequestErrorResponseMessage();
+                    return this.MessageSender.SendMessageToComConUpAsync(nullRequestResponse);
+                }
+
                 this.Logger.LogEvent(EventTypes.ReceivedRequestFromBroker, commandMessage.Id);
-                await this.ProcessCommand(commandMessage);
+                return this.ProcessCommand(commandMessage);
             }
             catch (Exception e)
             {
                 this.Logger.Error(e, $"{nameof(RequestHandler)} could not process request message. Id: {commandMessage.Id}");
                 var requestNotProcessedResponse = CommandResponseCreator.GetCommandResponseMessage(this.SchemaUrl, commandMessage, null);
-                await this.MessageSender.SendMessageToComConUpAsync(requestNotProcessedResponse);
+                return this.MessageSender.SendMessageToComConUpAsync(requestNotProcessedResponse);
             }
         }
 

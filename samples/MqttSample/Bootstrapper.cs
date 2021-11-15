@@ -26,7 +26,7 @@ namespace OMP.Connector.EdgeModule
     public static class Bootstrapper
     {
         public static IServiceProvider Bootstrap(HostBuilderContext hostingContext, IServiceCollection serviceCollection)
-        {
+        {            
             serviceCollection.Configure<ConnectorConfiguration>(hostingContext.Configuration);
 
             serviceCollection.AddSingleton<IConfigureOptions<ConnectorConfiguration>, ConfigureConnectorSettings>();
@@ -72,28 +72,31 @@ namespace OMP.Connector.EdgeModule
             serviceCollection.AddTransient<ConfigRestoreService>();
             serviceCollection.AddTransient<ConfigurationRestoreJob>();
 
-            serviceCollection.AddQuartz(q =>
+            var disableSubscriptionRestoreService = hostingContext.Configuration["DisableSubscriptionRestoreService"];
+            if (!string.IsNullOrWhiteSpace(disableSubscriptionRestoreService) && disableSubscriptionRestoreService.Equals(false.ToString(), StringComparison.InvariantCultureIgnoreCase))
             {
-                q.SchedulerId = "Connector Scheduler Id";
-                q.SchedulerName = "Connector Scheduler Id";
-                q.UseMicrosoftDependencyInjectionJobFactory();
-                q.ScheduleJob<ConfigurationRestoreJob>(trigger =>
-                        trigger
-                            .StartAt(DateBuilder.EvenMinuteDate(DateTimeOffset.UtcNow.AddSeconds(15)))
-                            .WithSimpleSchedule(x =>
-                                x.WithInterval(TimeSpan.FromSeconds(30))
-                                 .RepeatForever()
-                             )
-                            .WithDescription("Trigger for restoring/applying missing or un-applied configuration")
-                            .WithIdentity(nameof(ConfigurationRestoreJob))
-                    );
-            });
+                serviceCollection.AddQuartz(q =>
+                {
+                    q.SchedulerId = "Connector Scheduler Id";
+                    q.SchedulerName = "Connector Scheduler Id";
+                    q.UseMicrosoftDependencyInjectionJobFactory();
+                    q.ScheduleJob<ConfigurationRestoreJob>(trigger =>
+                            trigger
+                                .StartAt(DateBuilder.EvenMinuteDate(DateTimeOffset.UtcNow.AddSeconds(15)))
+                                .WithSimpleSchedule(x =>
+                                    x.WithInterval(TimeSpan.FromSeconds(30))
+                                     .RepeatForever()
+                                 )
+                                .WithDescription("Trigger for restoring/applying missing or un-applied configuration")
+                                .WithIdentity(nameof(ConfigurationRestoreJob))
+                        );
+                });
 
-            serviceCollection.AddQuartzHostedService(options =>
-            {
-                options.WaitForJobsToComplete = false;
-            });
-
+                serviceCollection.AddQuartzHostedService(options =>
+                {
+                    options.WaitForJobsToComplete = false;
+                });
+            }
 
             return serviceCollection.BuildServiceProvider();
         }

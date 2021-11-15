@@ -1,18 +1,18 @@
 version: '3.1'
 services:
-  opc-ua-server:
+  hos-opc-ua-server:
     image: "mcr.microsoft.com/iot/opc-ua-test-server:latest"
-    container_name: opc-ua-server
-    hostname: opc-ua-server
+    container_name: hos-opc-ua-server
+    hostname: hos-opc-ua-server
     restart: always
     command: --port 4840
     ports:
       - "4840:4840"
 
-  broker-mqtt:
+  hos-broker-mqtt:
     image: "eclipse-mosquitto:1.6.15"
-    container_name: broker-mqtt
-    hostname: broker-mqtt
+    container_name: hos-broker-mqtt
+    hostname: hos-broker-mqtt
     ports:
       - "1883:1883"
     restart: always    
@@ -20,9 +20,9 @@ services:
   omp-opc-ua-connector:
     image: "mqttest1"
     depends_on:
-      - broker-mqtt
-      - opc-ua-server
-    container_name: omp-opc-ua-connector
+      - hos-broker-mqtt
+      - hos-opc-ua-server
+    container_name: hos-omp-opc-ua-connector
     restart: always
     environment:
       OpcUa__DefaultServerBrowseDepth: 3
@@ -32,7 +32,7 @@ services:
       OpcUa__ReadBatchSize: 100
       OpcUa__RegisterNodeBatchSize: 100
       Communication__SchemaUrl: 'https://iotpeweubsdm001st.blob.core.windows.net/schemas/'
-      Communication__Shared__NativeSettings__brokerAddress: broker-mqtt
+      Communication__Shared__NativeSettings__brokerAddress: hos-broker-mqtt
       Communication__Shared__NativeSettings__brokerPort: 1883
       Communication__Shared__NativeSettings__username: ''
       Communication__Shared__NativeSettings__password: ''
@@ -48,4 +48,22 @@ services:
       Logging__LogLevel__Default: 'Information'
       DisableSubscriptionRestoreService: 'true'
       EnableMessageFilter: 'false'
-      ConnectorId: '00000000-0000-0000-0000-000000000001'
+      ConnectorId: '00000000-0000-0000-0000-000000000001'    
+
+  omp-hos-ui:
+    image: "omphostui"
+    depends_on:
+      - omp-opc-ua-connector
+    container_name: hos-ui
+    hostname: hos-ui
+    ports:
+      - "8087:80"
+    restart: always
+    environment:
+      mqtt__clientId: omp-hos-ui-client
+      mqtt__brokkerAddress: hos-broker-mqtt
+      mqtt__brokkerPort: 1883
+      mqtt__requestTopicName: commands
+      mqtt__responseTopicName: responses
+      mqtt__telemetryTopicName: telemetry
+      mqtt__hubAddress: http://hos-ui:8087/handsOnHub

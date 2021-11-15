@@ -36,7 +36,7 @@ namespace OMP.Connector.Infrastructure.MQTT.CommandEndpoint
 
         private void Client_OnMessageReceived(object sender, MqttMessageEventArgs e)
         {
-            var commandRequest = TryConvertMessageToRequest(e);
+            var commandRequest = TryConvertMessageToRequest(e);            
             this._requestHandler.OnMessageReceived(commandRequest).GetAwaiter().GetResult();
         }
 

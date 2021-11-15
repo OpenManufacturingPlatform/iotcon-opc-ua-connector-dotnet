@@ -1,0 +1,101 @@
+﻿@page "/configuration"
+
+<PageTitle>Configuration</PageTitle>
+
+@using OmpHandsOnUi.Services
+@using System.Linq
+@using Microsoft.AspNetCore.SignalR.Client
+@inject NavigationManager NavigationManager
+@inject ConfigurationService ConfigurationService;
+
+<EditForm Model="@configurationModel">
+	<h3>Edit Configuration</h3>
+	<hr />
+	<div class="form-group row">
+		<label for="BrokkerAddress" class="col-sm-2 col-form-label">
+			Brokker Address
+		</label>
+		<div class="col-sm-10">
+			<InputText id="BrokkerAddress" class="form-control" placeholder="localhost"
+					   @bind-Value="configurationModel.BrokkerAddress" />
+		</div>
+	</div>
+	<div class="form-group row">
+		<label for="BrokkerPort" class="col-sm-2 col-form-label">
+			Brokker Port
+		</label>
+		<div class="col-sm-10">
+			<InputNumber id="brokerPort" class="form-control" placeholder="1883"
+						 @bind-Value="configurationModel.BrokkerPort" />
+		</div>
+	</div>
+	<div class="form-group row">
+		<label for="ClientId" class="col-sm-2 col-form-label">
+			ClientId
+		</label>
+		<div class="col-sm-10">
+			<InputText id="email" class="form-control" placeholder="ClientId"
+					   @bind-Value="configurationModel.ClientId" />
+		</div>
+	</div>
+	<div class="form-group row">
+		<label for="RequestTopicName" class="col-sm-2 col-form-label">
+			Request Topic name
+		</label>
+		<div class="col-sm-10">
+			<InputText id="RequestTopicName" class="form-control" placeholder="Requests"
+					   @bind-Value="configurationModel.RequestTopicName" />
+		</div>
+	</div>
+	<div class="form-group row">
+		<label for="ResponseTopicName" class="col-sm-2 col-form-label">
+			Response topic name
+		</label>
+		<div class="col-sm-10">
+			<InputText id="email" class="form-control" placeholder="Responses"
+					   @bind-Value="configurationModel.ResponseTopicName" />
+		</div>
+	</div>
+	<div class="form-group row">
+		<label for="TelemetryTopicName" class="col-sm-2 col-form-label">
+			Telemetry Topic name
+		</label>
+		<div class="col-sm-10">
+			<InputText id="email" class="form-control" placeholder="TelemetryTopicName"
+					   @bind-Value="configurationModel.TelemetryTopicName" />
+		</div>
+	</div>
+</EditForm>
+<button class="btn btn-primary" @onclick="SaveConfiguration">Save</button>
+
+@*@if (ConfigurationService.DemoDataServiceEnabled)
+{
+	<button class="btn btn-primary" @onclick="ToggleDataService">Stop Demo Data Service</button>
+	
+}
+else
+{
+	<button class="btn btn-primary" @onclick="ToggleDataService">Start Demo Data Service</button>
+}*@
+
+
+@code {
+
+	ConfigurationModel configurationModel = new();
+
+	protected override Task OnInitializedAsync()
+	{
+		configurationModel = ConfigurationService.GetConfiguration();
+		return Task.CompletedTask;
+	}
+
+	private void SaveConfiguration()
+	{
+		ConfigurationService.UpdateConfiguration(configurationModel);
+	}
+
+	private void ToggleDataService()
+	{
+		ConfigurationService.ToggleDemoDataService();
+	}
+}

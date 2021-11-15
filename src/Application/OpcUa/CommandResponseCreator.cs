@@ -32,7 +32,7 @@ namespace OMP.Connector.Application.OpcUa
             responseMessage.MetaData = new MessageMetaData()
             {
                 TimeStamp = DateTime.UtcNow,
-                SenderIdentifier = new Participant()
+                SenderIdentifier = destinationToSender is null ? default: new Participant()
                 {
                     Id = destinationToSender?.Id,
                     Name = destinationToSender?.Name,
@@ -57,6 +57,9 @@ namespace OMP.Connector.Application.OpcUa
             return responseMessage;
         }
 
+        public static CommandResponse GetNullRequestErrorResponseMessage()
+            => GetErrorResponseMessage("http://No-Schema-found.json", "Unknown RequestId", GetMessageMetaDataForNullRequestMessage(), GetResponseSourceForNullRequestMessage());
+
         public static CommandResponse GetErrorResponseMessage(string schemaUrl, CommandResponse failedResponse)
             => GetErrorResponseMessage(schemaUrl, failedResponse.Id, failedResponse.MetaData, failedResponse.Payload.ResponseSource);
 
@@ -74,7 +77,7 @@ namespace OMP.Connector.Application.OpcUa
             {
                 CorrelationIds = new List<string>() { requestMessage.Id },
                 DestinationIdentifiers = new List<Participant>() { requestMessage.MetaData?.SenderIdentifier },
-                SenderIdentifier = requestMessage.MetaData?.DestinationIdentifiers?.First(),
+                SenderIdentifier = requestMessage.MetaData?.DestinationIdentifiers?.FirstOrDefault(),
                 TimeStamp = DateTime.UtcNow
             };
             var messageId = Guid.NewGuid().ToString();
@@ -96,6 +99,29 @@ namespace OMP.Connector.Application.OpcUa
             };
             return message;
         }
+
+        public static ResponseSource GetResponseSourceForNullRequestMessage()
+            => new ResponseSource()
+            {
+                EndpointUrl = "http://endpoint-unknonw-due-to-null-request",
+                Id = string.Empty,
+                Name = string.Empty,
+                Route = string.Empty
+            };
+        public static MessageMetaData GetMessageMetaDataForNullRequestMessage()
+            =>  new MessageMetaData()
+            {
+                CorrelationIds = new List<string>(),
+                DestinationIdentifiers = new List<Participant>() ,
+                SenderIdentifier = new Participant
+                {
+                    Id = string.Empty,
+                    Name = string.Empty,
+                    Route = string.Empty,
+                    Type = ParticipantType.Application
+                },
+                TimeStamp = DateTime.UtcNow
+            };
 
         private static OpcUaResponseStatus GetResponseStatus(IEnumerable<ICommandResponse> commandResponses)
         {
