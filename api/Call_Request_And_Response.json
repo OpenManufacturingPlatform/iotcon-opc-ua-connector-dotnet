@@ -45,9 +45,13 @@
         "isSuccessfull": true,
         "message": null
       },
-      "key":"argumentName1",
-      "value" : "What will be a good example?",
-      "dataType": "string"
+      "outputArguments": [
+        {
+          "key": "argumentName1",
+          "value": "Value",
+          "dataType": "String | Int32 | Boolean etc."
+        }
+      ]
     },
     { 
       "nodeId":"ns=3;i=16398",
@@ -55,9 +59,13 @@
         "isSuccessfull": false,
         "message": "No such node exists"
       },
-      "key": null,
-      "value" : null,
-      "dataType": null
+      "outputArguments": [
+        {
+          "key": "argumentName2",
+          "value": "Value",
+          "dataType": "String | Int32 | Boolean etc."
+        }
+      ]
     }
   ]
 }
