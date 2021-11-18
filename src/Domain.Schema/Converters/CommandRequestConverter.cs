@@ -37,6 +37,6 @@ namespace OMP.Connector.Domain.Schema.Converters
                 OpcUaCommandType.BrowseChildNodesFromRoot => new BrowseChildNodesFromRootRequest(),
                 _ => default
             };
-        }
+        }        
     }
 }

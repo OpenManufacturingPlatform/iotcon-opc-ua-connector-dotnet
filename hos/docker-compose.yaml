@@ -1,16 +1,19 @@
 version: '3.1'
 services:
   hos-opc-ua-server:
-    image: "mcr.microsoft.com/iot/opc-ua-test-server:latest"
+    image: "omphosacr.azurecr.io/opcuaserver/omp-opcua-milo-test-server-jvm"
     container_name: hos-opc-ua-server
     hostname: hos-opc-ua-server
     restart: always
-    command: --port 4840
+    command: --port 12686
     ports:
-      - "4840:4840"
+      - "12686:12686"
+    environment:
+      OMP_OPCUA_MILO_SERVER_ENABLEANONYMOUS: 'true'
+      ENABLEANONYMOUS: 'true'
 
   hos-broker-mqtt:
-    image: "eclipse-mosquitto:1.6.15"
+    image: "omphosacr.azurecr.io/mqtt/eclipse-mosquitto"
     container_name: hos-broker-mqtt
     hostname: hos-broker-mqtt
     ports:
@@ -18,7 +21,7 @@ services:
     restart: always    
 
   omp-opc-ua-connector:
-    image: "mqttest1"
+    image: "omphosacr.azurecr.io/connectors/opcua-over-mqtt"
     depends_on:
       - hos-broker-mqtt
       - hos-opc-ua-server
@@ -51,7 +54,7 @@ services:
       ConnectorId: '00000000-0000-0000-0000-000000000001'    
 
   omp-hos-ui:
-    image: "omphostui"
+    image: "omphosacr.azurecr.io/ui/omphostui"
     depends_on:
       - omp-opc-ua-connector
     container_name: hos-ui

@@ -49,7 +49,7 @@ namespace OMP.Connector.Application.Services
             }
             catch (ServiceResultException ex)
             {
-                responseMessage = CommandResponseCreator.GetErrorResponseMessage(this._schemaUrl, requestMessage);
+                responseMessage = CommandResponseCreator.GetErrorResponseMessage(this._schemaUrl, requestMessage, ex.ToLongString());
                 this._logger.Error(ex, $"Subscription Request Service Error: [Endpoint: {requestMessage.Payload.RequestTarget.EndpointUrl}]");
             }
             catch (Exception ex)

@@ -68,17 +68,6 @@
 </EditForm>
 <button class="btn btn-primary" @onclick="SaveConfiguration">Save</button>
 
-@*@if (ConfigurationService.DemoDataServiceEnabled)
-{
-	<button class="btn btn-primary" @onclick="ToggleDataService">Stop Demo Data Service</button>
-	
-}
-else
-{
-	<button class="btn btn-primary" @onclick="ToggleDataService">Start Demo Data Service</button>
-}*@
-
-
 @code {
 
 	ConfigurationModel configurationModel = new();
@@ -92,10 +81,5 @@ else
 	private void SaveConfiguration()
 	{
 		ConfigurationService.UpdateConfiguration(configurationModel);
-	}
-
-	private void ToggleDataService()
-	{
-		ConfigurationService.ToggleDemoDataService();
 	}
 }

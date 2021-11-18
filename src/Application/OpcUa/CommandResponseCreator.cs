@@ -32,7 +32,7 @@ namespace OMP.Connector.Application.OpcUa
             responseMessage.MetaData = new MessageMetaData()
             {
                 TimeStamp = DateTime.UtcNow,
-                SenderIdentifier = destinationToSender is null ? default: new Participant()
+                SenderIdentifier = destinationToSender is null ? default : new Participant()
                 {
                     Id = destinationToSender?.Id,
                     Name = destinationToSender?.Name,
@@ -63,7 +63,7 @@ namespace OMP.Connector.Application.OpcUa
         public static CommandResponse GetErrorResponseMessage(string schemaUrl, CommandResponse failedResponse)
             => GetErrorResponseMessage(schemaUrl, failedResponse.Id, failedResponse.MetaData, failedResponse.Payload.ResponseSource);
 
-        public static CommandResponse GetErrorResponseMessage(string schemaUrl, CommandRequest requestMessage)
+        public static CommandResponse GetErrorResponseMessage(string schemaUrl, CommandRequest requestMessage, string errorMessage = null)
         {
             var responseSource = new ResponseSource()
             {
@@ -82,7 +82,7 @@ namespace OMP.Connector.Application.OpcUa
             };
             var messageId = Guid.NewGuid().ToString();
 
-            return GetErrorResponseMessage(schemaUrl, messageId, metaData, responseSource);
+            return GetErrorResponseMessage(requestMessage, schemaUrl, messageId, metaData, responseSource, errorMessage);
         }
 
         private static CommandResponse GetErrorResponseMessage(string schemaUrl, string messageId, MessageMetaData metaData, ResponseSource responseSource)
@@ -100,6 +100,34 @@ namespace OMP.Connector.Application.OpcUa
             return message;
         }
 
+        private static CommandResponse GetErrorResponseMessage(CommandRequest requestMessage, string schemaUrl, string messageId, MessageMetaData metaData, ResponseSource responseSource, string errorMessage = null)
+        {
+            var message = ModelFactory.CreateInstance<CommandResponse>(schemaUrl);
+            var commandTypePropertyName = nameof(Domain.Schema.Request.Base.CommandRequest.OpcUaCommandType);
+            var requestResponses = ExtractErrorResponsesFromRequest(requestMessage, responseSource, commandTypePropertyName, errorMessage);
+
+            message.Id = messageId;
+            message.MetaData = metaData;
+            message.Payload = new ResponsePayload
+            {
+                ResponseStatus = OpcUaResponseStatus.Bad,
+                ResponseSource = responseSource,
+                Responses = requestResponses ?? new List<ICommandResponse>()
+            };
+            return message;
+        }
+
+        private static List<ICommandResponse>? ExtractErrorResponsesFromRequest(CommandRequest requestMessage, ResponseSource responseSource, string commandTypePropertyName, string errorMessage = null)
+        {
+            return requestMessage.Payload?.Requests?.Select(req => new Domain.Schema.Responses.Base.CommandResponse
+            {
+                OpcUaCommandType = (OpcUaCommandType)Convert.ChangeType(req.GetType().GetProperty(commandTypePropertyName).GetValue(req), typeof(OpcUaCommandType)),
+                ErrorSource = responseSource.EndpointUrl,
+                Message = errorMessage ?? "Unknown error",
+                StatusCode = nameof(OpcUaResponseStatus.Bad)
+            }).Cast<ICommandResponse>().ToList();
+        }
+
         public static ResponseSource GetResponseSourceForNullRequestMessage()
             => new ResponseSource()
             {
@@ -109,10 +137,10 @@ namespace OMP.Connector.Application.OpcUa
                 Route = string.Empty
             };
         public static MessageMetaData GetMessageMetaDataForNullRequestMessage()
-            =>  new MessageMetaData()
+            => new MessageMetaData()
             {
                 CorrelationIds = new List<string>(),
-                DestinationIdentifiers = new List<Participant>() ,
+                DestinationIdentifiers = new List<Participant>(),
                 SenderIdentifier = new Participant
                 {
                     Id = string.Empty,

@@ -20,9 +20,6 @@ namespace OMP.Connector.EdgeModule
             builder.Services.AddSingleton<ConfigurationService>();
             builder.Services.AddSingleton<MqttService>();
             builder.Services.AddSingleton<RequestService>();
-            //builder.Services.AddHostedService<ResponseService>();
-            //builder.Services.AddHostedService<TelemetaryService>();
-            //builder.Services.AddHostedService<DemoDataService>();
 
             var app = builder.Build();
 

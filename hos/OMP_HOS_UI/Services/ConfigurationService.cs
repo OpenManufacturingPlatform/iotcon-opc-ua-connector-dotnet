@@ -5,7 +5,6 @@
         public event EventHandler<ConfigurationModel>? OnConfigurationChange;
         public event EventHandler<bool>? OnDemoDataServiceToggled;
         private ConfigurationModel currentConfiguration = new ConfigurationModel();
-        public bool DemoDataServiceEnabled {get; private set;}
 
 		public ConfigurationService(IConfiguration configuration)
 		{
@@ -16,12 +15,6 @@
         {
             this.OnConfigurationChange?.Invoke(this, configuration);
             this.currentConfiguration = configuration;
-        }
-
-        public void ToggleDemoDataService()
-        {
-            DemoDataServiceEnabled = !DemoDataServiceEnabled;
-            this.OnDemoDataServiceToggled?.Invoke(this, DemoDataServiceEnabled);
         }
 
         public ConfigurationModel GetConfiguration()

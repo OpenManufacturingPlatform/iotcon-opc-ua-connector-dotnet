@@ -4,7 +4,7 @@ using OMP.Connector.Domain.Schema.Interfaces;
 
 namespace OMP.Connector.Domain.Schema.Responses.Base
 {
-    public abstract class CommandResponse : Command, ICommandResponse
+    public class CommandResponse : Command, ICommandResponse
     {
         [JsonProperty("message", Required = Required.Always)]
         [Description("Status and information about execution of the command is provided in message")]
