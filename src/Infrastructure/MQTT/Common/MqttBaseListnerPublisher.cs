@@ -19,6 +19,7 @@ namespace OMP.Connector.Infrastructure.MQTT.Common
 
         #region [Fields]
         protected readonly object _lockObject;
+        protected readonly object _connectionLockObject;
         protected readonly ILogger Logger;
         protected readonly TClient Client;
         protected readonly TSettings MqttClientSettings;
@@ -32,10 +33,10 @@ namespace OMP.Connector.Infrastructure.MQTT.Common
         #region [Ctor]
 
         protected MqttBaseListnerPublisher(
-            TClient client, 
+            TClient client,
             TSettings mqttClientSettings,
             ISerializer serializer,
-            ILogger logger = null, 
+            ILogger logger = null,
             int autoReconnectTimeInSeconds = Constants.ReconnectTimeInSeconds)
         {
             if (string.IsNullOrWhiteSpace(mqttClientSettings.BrokerAddress))
@@ -47,8 +48,10 @@ namespace OMP.Connector.Infrastructure.MQTT.Common
             this.ReconnectTimer = new Timer(this.DoReconnect, null, Timeout.Infinite, Timeout.Infinite);
             this.Client = client;
             this.Client.ClosedConnection += this.OnClientConnectionClosed;
+            this.Client.OnMessagePublished += Client_OnMessagePublished;
             this.AutoReconnectTime = autoReconnectTimeInSeconds;
             this._lockObject = new object();
+            this._connectionLockObject = new object();
         }
 
         #endregion
@@ -70,13 +73,15 @@ namespace OMP.Connector.Infrastructure.MQTT.Common
         {
             lock (this._lockObject)
             {
-                if (!this.IsUpAndRunning() && !this.EstablishConnection())
-                    this.StartAutoReconnect(this.AutoReconnectTime);
+                SpinWait.SpinUntil(() => this.EstablishConnection() == true, TimeSpan.FromSeconds(5));
             }
 
             var bytes = this.ConvertToBytes(message);
             foreach (var topic in this.MqttClientSettings.Topics)
-                this.Client.Publish(topic.TopicName, bytes, topic.QosLevel, false);
+            {
+                var messageId = this.Client.Publish(topic.TopicName, bytes, topic.QosLevel, false);
+                Logger.LogDebug($"Published to {topic} | MessageId => {messageId}");
+            }
 
             return Task.CompletedTask;
         }
@@ -105,46 +110,55 @@ namespace OMP.Connector.Infrastructure.MQTT.Common
         {
             this.OnErrorOccured?.Invoke(sender, new ErrorEventArgs(exception));
         }
-        
+
         protected virtual bool EstablishConnection()
         {
             this.ShouldBeConnected = true;
-            if (this.Client.IsConnected)
+            if (this.IsUpAndRunning())
                 return true;
-            try
+
+            lock (this._connectionLockObject)
             {
-                this.Logger?.LogInformation("Connecting to {brokerAddress} as {clientId}...", this.MqttClientSettings.BrokerAddress, this.MqttClientSettings.ClientId);
-
-                var returnCode = this.Client.Connect(
-                    this.MqttClientSettings.ClientId,
-                    this.MqttClientSettings.Username,
-                    this.MqttClientSettings.Password,
-                    this.MqttClientSettings.WillRetain,
-                    this.MqttClientSettings.WillQosLevel,
-                    this.MqttClientSettings.WillFlag,
-                    this.MqttClientSettings.WillTopic,
-                    this.MqttClientSettings.WillMessage,
-                    this.MqttClientSettings.CleanSession,
-                    this.MqttClientSettings.KeepAlivePeriod);
-
-                if (this.Client.IsConnectionAccepted(returnCode))
+                this.StopAutoReconnect();
+                try
                 {
-                    this.Logger?.LogInformation("Successfully Connected to {brokerAddress} as {clientId}...", this.MqttClientSettings.BrokerAddress, this.MqttClientSettings.ClientId);
-                    return true;
-                }
+                    this.Logger?.LogInformation("Connecting to {brokerAddress} as {clientId}...", this.MqttClientSettings.BrokerAddress, this.MqttClientSettings.ClientId);
 
-                var reason = this.Client.CodeToText(returnCode);
-                this.Logger?.LogError("Could not connect to {brokerAddress} as {clientId}. Reason: {reason}", this.MqttClientSettings.BrokerAddress, this.MqttClientSettings.ClientId, reason);
-                return false;
-                
-            }
-            catch (Exception e)
-            {
-                this.Logger?.LogError(e, "{exception} occurred {BrokerAddress}", e.GetType().Name, this.MqttClientSettings.BrokerAddress);
-                this.RaiseOnErrorOccurred(this, e);
-                return false;
+                    var returnCode = this.Client.Connect(
+                        this.MqttClientSettings.ClientId,
+                        this.MqttClientSettings.Username,
+                        this.MqttClientSettings.Password,
+                        this.MqttClientSettings.WillRetain,
+                        this.MqttClientSettings.WillQosLevel,
+                        this.MqttClientSettings.WillFlag,
+                        this.MqttClientSettings.WillTopic,
+                        this.MqttClientSettings.WillMessage,
+                        this.MqttClientSettings.CleanSession,
+                        this.MqttClientSettings.KeepAlivePeriod);
+
+                    if (this.Client.IsConnectionAccepted(returnCode))
+                    {
+                        this.OnAfterConnectionEstablished();
+                        this.StartAutoReconnect(this.AutoReconnectTime);
+                        this.Logger?.LogInformation("Successfully Connected to {brokerAddress} as {clientId}...", this.MqttClientSettings.BrokerAddress, this.MqttClientSettings.ClientId);
+                        return true;
+                    }
+
+                    var reason = this.Client.CodeToText(returnCode);
+                    this.Logger?.LogError("Could not connect to {brokerAddress} as {clientId}. Reason: {reason}", this.MqttClientSettings.BrokerAddress, this.MqttClientSettings.ClientId, reason);
+                    return false;
+
+                }
+                catch (Exception e)
+                {
+                    this.Logger?.LogError(e, "{exception} occurred {BrokerAddress}", e.GetType().Name, this.MqttClientSettings.BrokerAddress);
+                    this.RaiseOnErrorOccurred(this, e);
+                    return false;
+                }
             }
         }
+
+        protected virtual void OnAfterConnectionEstablished() { }
 
         protected virtual void DropConnection()
         {
@@ -158,26 +172,33 @@ namespace OMP.Connector.Infrastructure.MQTT.Common
             this.Client.Disconnect();
         }
 
-        protected void OnClientConnectionClosed(object sender, EventArgs e)
+        protected virtual void OnClientConnectionClosed(object sender, EventArgs e)
         {
             if (!this.ShouldBeConnected)
                 return;
 
             this.Logger?.LogWarning("{brokerAddress} connection lost, will automatically reconnect.", this.MqttClientSettings.BrokerAddress);
-            this.StartAutoReconnect();
+            //this.DoReconnect(_connectionLockObject);
         }
 
-        protected void StartAutoReconnect(int delaySeconds = 0)
+        protected virtual void StartAutoReconnect(int delaySeconds = 0)
             => this.ReconnectTimer.Change(TimeSpan.FromSeconds(delaySeconds), TimeSpan.FromSeconds(60));
 
-        protected void StopAutoReconnect()
+        protected virtual void StopAutoReconnect()
             => this.ReconnectTimer.Change(Timeout.Infinite, Timeout.Infinite);
 
-        protected void DoReconnect(object state)
+        protected virtual void DoReconnect(object state)
         {
-            if (this.EstablishConnection())
-                this.StopAutoReconnect();
+            lock (this._lockObject)
+            {
+                SpinWait.SpinUntil(() => this.EstablishConnection() == true, TimeSpan.FromSeconds(5));
+            }
+            #endregion
         }
-        #endregion
+
+        private void Client_OnMessagePublished(object sender, uPLibrary.Networking.M2Mqtt.Messages.MqttMsgPublishedEventArgs e)
+        {
+            this.Logger.LogDebug($"Message published {e.MessageId}");
+        }
     }
 }

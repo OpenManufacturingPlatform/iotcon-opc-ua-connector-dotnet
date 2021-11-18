@@ -21,7 +21,7 @@ services:
     restart: always    
 
   omp-opc-ua-connector:
-    image: "omphosacr.azurecr.io/connectors/opcua-over-mqtt"
+    image: "omphosacr.azurecr.io/connectors/opcua-over-mqtt:2.1"
     depends_on:
       - hos-broker-mqtt
       - hos-opc-ua-server
@@ -34,6 +34,7 @@ services:
       OpcUa__SubscriptionBatchSize: 100
       OpcUa__ReadBatchSize: 100
       OpcUa__RegisterNodeBatchSize: 100
+      OpcUa__DelayBetweenEndpointConnectionAttemptsInMilliseconds: 1000
       Communication__SchemaUrl: 'https://iotpeweubsdm001st.blob.core.windows.net/schemas/'
       Communication__Shared__NativeSettings__brokerAddress: hos-broker-mqtt
       Communication__Shared__NativeSettings__brokerPort: 1883
@@ -54,7 +55,7 @@ services:
       ConnectorId: '00000000-0000-0000-0000-000000000001'    
 
   omp-hos-ui:
-    image: "omphosacr.azurecr.io/ui/omphostui"
+    image: "omphosacr.azurecr.io/ui/omphostui:2.0"
     depends_on:
       - omp-opc-ua-connector
     container_name: hos-ui

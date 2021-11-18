@@ -54,34 +54,28 @@ namespace OMP.Connector.Infrastructure.MQTT.CommandEndpoint
             return Task.CompletedTask;
         }
 
-        protected override bool EstablishConnection()
+        protected override void  OnAfterConnectionEstablished()
         {
-            if (base.EstablishConnection())
+            try
             {
-                try
+                var topics = this.MqttClientSettings.Topics;
+                if (topics.Any(t => string.IsNullOrEmpty(t.TopicName)))
                 {
-                    var topics = this.MqttClientSettings.Topics;
-                    if (topics.Any(t => string.IsNullOrEmpty(t.TopicName)))
-                    {
-                        this.Logger?.LogCritical($"Unable to subscribe. Invalid topic configuration{string.Join(",", topics.Select(t => $"'{t}'"))}");
-                        return false;
-                    }
-                    
-                    this.Logger?.LogInformation($"Subscribing to topics {string.Join(",", topics.Select(t => $"'{t}'"))}");
-                    this.Client.Subscribe(topics.Select(t => t.TopicName).ToArray(), topics.Select(t => t.QosLevel).ToArray());
-                    return true;
+                    this.Logger?.LogCritical($"Unable to subscribe. Invalid topic configuration{string.Join(",", topics.Select(t => $"'{t}'"))}");
+                    return;
                 }
-                catch (Exception e)
-                {
-                    this.Logger?.LogError(e, "{exception} occured: {BrokerAddress}", e.GetType().Name, this.MqttClientSettings.BrokerAddress);
-                    base.RaiseOnErrorOccurred(this, e);
-                    return false;
-                }
+
+                this.Logger?.LogInformation($"Subscribing to topics {string.Join(",", topics.Select(t => $"'{t}'"))}");
+                this.Client.Subscribe(topics.Select(t => t.TopicName).ToArray(), topics.Select(t => t.QosLevel).ToArray());
+                return;
             }
-            else
+            catch (Exception e)
             {
-                return false;
+                this.Logger?.LogError(e, "{exception} occured: {BrokerAddress}", e.GetType().Name, this.MqttClientSettings.BrokerAddress);
+                base.RaiseOnErrorOccurred(this, e);
             }
+            
+            return;
         }
 
         private CommandRequest TryConvertMessageToRequest(MqttMessageEventArgs message)

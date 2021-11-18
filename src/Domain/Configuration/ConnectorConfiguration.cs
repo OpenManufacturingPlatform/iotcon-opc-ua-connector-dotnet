@@ -79,6 +79,7 @@ namespace OMP.Connector.Domain.Configuration
     public sealed class OpcUaConfiguration : BaseConnectorConfiguration
     {
         public bool EnableRegisteredNodes { get; set; }
+        public int DelayBetweenEndpointConnectionAttemptsInMilliseconds { get; set; } =  750;
         public int SubscriptionBatchSize { get; set; }
         public int ReadBatchSize { get; set; }
         public int RegisterNodeBatchSize { get; set; }

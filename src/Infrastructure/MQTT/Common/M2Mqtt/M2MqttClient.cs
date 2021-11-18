@@ -12,6 +12,7 @@ namespace OMP.Connector.Infrastructure.MQTT.Common
     {
         public event ClosedConnectionEventHandler ClosedConnection;
         public event OnMessageEventHandler OnMessageReceived;
+        public event OnMessagePublishedEventHandler OnMessagePublished;
 
         public M2MqttClient(string brokerHostName, int brokerPort, bool secure, X509Certificate caCert, X509Certificate clientCert, MqttSslProtocols sslProtocol,
             RemoteCertificateValidationCallback userCertificateValidationCallback)
@@ -19,7 +20,12 @@ namespace OMP.Connector.Infrastructure.MQTT.Common
         {
             this.ConnectionClosed += M2MqttClient_ConnectionClosed;
             this.MqttMsgPublishReceived += M2MqttClient_MqttMsgPublishReceived;
+            this.MqttMsgPublished += M2MqttClient_MqttMsgPublished;
+            this.Settings.InflightQueueSize = 10;
         }
+
+        private void M2MqttClient_MqttMsgPublished(object sender, MqttMsgPublishedEventArgs e)
+            => this.OnMessagePublished?.Invoke(this, e);
 
         private void M2MqttClient_MqttMsgPublishReceived(object sender, MqttMsgPublishEventArgs e)
         {
@@ -36,7 +42,7 @@ namespace OMP.Connector.Infrastructure.MQTT.Common
         }
 
         private void M2MqttClient_ConnectionClosed(object sender, EventArgs e)
-        => this.ClosedConnection?.Invoke(sender, e);
+            => this.ClosedConnection?.Invoke(sender, e);
 
         public string CodeToText(byte returnCode)
         {

@@ -13,6 +13,7 @@
   },
   "OpcUa": {
     "DefaultServerBrowseDepth": 3,
+    "DelayBetweenEndpointConnectionAttemptsInMilliseconds": 750,
     "NodeBrowseDepth": 1,
     "EnableRegisteredNodes": false,
     "SubscriptionBatchSize": 100,

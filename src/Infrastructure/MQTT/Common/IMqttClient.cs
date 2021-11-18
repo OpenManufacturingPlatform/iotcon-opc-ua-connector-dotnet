@@ -6,6 +6,7 @@ namespace OMP.Connector.Infrastructure.MQTT.Common
     {
         event ClosedConnectionEventHandler ClosedConnection;
         event OnMessageEventHandler OnMessageReceived;
+        event OnMessagePublishedEventHandler OnMessagePublished;
         bool IsConnected { get; }
         byte Connect(string clientId);
         byte Connect(string clientId, string username, string password);

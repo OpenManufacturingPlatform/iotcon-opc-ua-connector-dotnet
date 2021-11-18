@@ -83,7 +83,7 @@ namespace OMP.Connector.Infrastructure.OpcUa
             var identity = _identityProvider.GetUserIdentity(endpointDescription);
             await ConnectAsync(endpointDescription, identity);
         }
-        
+
         private async Task ConnectAsync(EndpointDescription endpointDescription, IUserIdentity identity)
         {
             try
@@ -94,12 +94,12 @@ namespace OMP.Connector.Infrastructure.OpcUa
                 var locked = await LockSessionAsync().ConfigureAwait(false);
 
                 if (!locked) { return; }
-                
-                var sessionName = $"{_applicationConfiguration.ApplicationUri}:{Guid.NewGuid()}"; 
+
+                var sessionName = $"{_applicationConfiguration.ApplicationUri}:{Guid.NewGuid()}";
                 var endPointConfiguration = EndpointConfiguration.Create(_applicationConfiguration);
                 var configuredEndpoint = new ConfiguredEndpoint(endpointDescription.Server, endPointConfiguration);
                 configuredEndpoint.Update(endpointDescription);
-                
+
                 _session = await Session.Create(
                     _applicationConfiguration,
                     configuredEndpoint,
@@ -144,13 +144,16 @@ namespace OMP.Connector.Infrastructure.OpcUa
                     var message =
                         $"Unable to create Session to Endpoint with: [{endpointDescription.EndpointUrl}] with SecurityMode: [{endpointDescription.SecurityMode}] and Level: [{endpointDescription.SecurityLevel}] = {e.Message}::{e.InnerException?.Message}";
                     _logger.Warning(message);
-                    await Task.Delay(500); // fix for Milo server not being happy with endpoint connections in quick succession
+                    await DelayNextConnectionToPreventServerFromSuspectingAttack();
                 }
             }
 
             if (_session == default)
                 throw new Exception($"Unable to create a session to OPC Server: [{endpointDescriptionCollection.FirstOrDefault()?.EndpointUrl}] on all its endpoints");
         }
+
+        private Task DelayNextConnectionToPreventServerFromSuspectingAttack()
+            => Task.Delay(_opcUaSettings.DelayBetweenEndpointConnectionAttemptsInMilliseconds);
 
         public async Task UseAsync(Action<Session, IComplexTypeSystem> action)
         {
