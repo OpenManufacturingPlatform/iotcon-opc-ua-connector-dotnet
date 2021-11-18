@@ -144,6 +144,7 @@ namespace OMP.Connector.Infrastructure.OpcUa
                     var message =
                         $"Unable to create Session to Endpoint with: [{endpointDescription.EndpointUrl}] with SecurityMode: [{endpointDescription.SecurityMode}] and Level: [{endpointDescription.SecurityLevel}] = {e.Message}::{e.InnerException?.Message}";
                     _logger.Warning(message);
+                    await Task.Delay(500); // fix for Milo server not being happy with endpoint connections in quick succession
                 }
             }
 
