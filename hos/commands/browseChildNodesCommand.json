@@ -27,7 +27,7 @@
     "requests": [
       {
         "commandType": "browseChildNodes",
-        "nodeId": "ns=3;s=OMP/Simulation/Device 0000",
+        "nodeId": "ns=3;s=OMP/Simulation/Device 0002/Physical Properties",
         "browseDepth": "3"
       }
     ]

@@ -55,7 +55,7 @@ services:
       ConnectorId: '00000000-0000-0000-0000-000000000001'    
 
   omp-hos-ui:
-    image: "omphosacr.azurecr.io/ui/omphostui:2.0"
+    image: "omphosacr.azurecr.io/ui/omphostui:2.1"
     depends_on:
       - omp-opc-ua-connector
     container_name: hos-ui
