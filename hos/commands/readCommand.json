@@ -1,0 +1,27 @@
+{
+    "id": "7cd70b85-2939-480d-917f-5d62c7f6b1b2",
+    "namespace": "iot.models.messages.opcua.commandrequest",
+    "$schema": "https://iotpebsdmstorage.blob.core.windows.net/schemas/message_schemas/2020-03-31/iot.message.opcua.command.request.schema.json",
+    "metadata": {
+        "timestamp": "2020-02-17T09:50:29+00:00",
+        "correlationIds": [],
+        "senderIdentifier": {
+            "id": "7cd70b85-2939-480d-917f-5d62c7f6b1b2",
+            "name": "IPS-T",
+            "type": "application",
+            "route": "/control"
+        },
+        "destinationIdentifiers": []
+    },
+    "payload": {
+        "requestTarget": {
+            "endpointUrl": "opc.tcp://hos-opc-ua-server:12686/milo"
+        },
+        "requests": [
+            {
+                "commandType": "read",
+                "nodeid": "ns=3;s=OMP/Simulation/Device 0000/temperature"
+            }
+        ]
+    }
+}
