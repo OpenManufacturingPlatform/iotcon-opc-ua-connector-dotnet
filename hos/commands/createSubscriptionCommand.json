@@ -23,7 +23,7 @@
         "commandType": "createSubscriptions",
         "monitoredItems": [          
           {
-            "nodeid": "<PLEASE INSERT THE NODEID>",
+            "nodeid": "<PLEASE INSERT THE NODE ID>",
             "samplingInterval": "<PLEASE INSERT THE SAMPLING INTERVAL>",
             "publishingInterval": "<PLEASE INSERT THE PUBLISHING INTERVAL>",            
           }
