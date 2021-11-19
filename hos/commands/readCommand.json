@@ -15,12 +15,12 @@
     },
     "payload": {
         "requestTarget": {
-            "endpointUrl": "opc.tcp://hos-opc-ua-server:12686/milo"
+            "endpointUrl": "<PLEASE INSERT THE ENDPOINT URL>"
         },
         "requests": [
             {
                 "commandType": "read",
-                "nodeid": "ns=3;s=OMP/Simulation/Device 0000/temperature"
+                "nodeid": "<PLEASE INSERT THE NODE ID>"
             }
         ]
     }
