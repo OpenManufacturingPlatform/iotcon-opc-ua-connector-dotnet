@@ -7,7 +7,7 @@
         "correlationIds": [],
         "senderIdentifier": {
             "id": "7cd70b85-2939-480d-917f-5d62c7f6b1b2",
-            "name": "IPS-T",
+            "name": "MyCloudApplication",
             "type": "application",
             "route": "/control"
         },
