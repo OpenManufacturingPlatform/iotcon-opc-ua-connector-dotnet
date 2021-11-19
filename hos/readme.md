@@ -1,4 +1,4 @@
-# OMP Hand on session for OPC UA Connector via MQTT
+# OMP Hands on session for OPC UA Connector via MQTT
 
 ## How to Run
 
