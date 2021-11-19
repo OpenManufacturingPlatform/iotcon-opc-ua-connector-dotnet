@@ -28,7 +28,7 @@
       {
         "commandType": "browseChildNodes",
         "nodeId": "<PLEASE INSERT THE NODE ID>",
-        "browseDepth": "3"
+        "browseDepth": "1"
       }
     ]
   }
