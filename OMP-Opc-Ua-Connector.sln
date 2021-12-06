@@ -52,6 +52,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MqttSample", "samples\MqttS
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "nugets", "nugets", "{085C45A8-D5EE-49DF-8C8F-71007F3090C8}"
 	ProjectSection(SolutionItems) = preProject
+		.github\workflows\nugets\Domain.Release.yml = .github\workflows\nugets\Domain.Release.yml
 		.github\workflows\nugets\Domain.Shcema.Release.yml = .github\workflows\nugets\Domain.Shcema.Release.yml
 	EndProjectSection
 EndProject
