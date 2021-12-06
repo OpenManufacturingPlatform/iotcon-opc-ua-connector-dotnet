@@ -22,7 +22,7 @@ namespace OMP.Connector.Infrastructure.Kafka.Common.Producers
             IOptions<ConnectorConfiguration> connectorConfiguration,
             ILoggerFactory loggerFactory,
             ISerializerFactory serializerFactory,
-            IKafkaEventHandlerFactory kafkaEventHandlerFactory)
+            IKafkaEventHandlerFactory kafkaEventHandlerFactory = null)
         {
             _connectorConfiguration = connectorConfiguration.Value;
             _loggerFactory = loggerFactory;

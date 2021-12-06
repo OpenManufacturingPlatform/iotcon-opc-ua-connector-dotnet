@@ -19,7 +19,7 @@ namespace OMP.Connector.Infrastructure.Kafka.ConfigurationEndpoint
             ProducerConfig configuration,
             ILogger<ConfigurationProducer> logger,
             ISerializerFactory serializerFactory,
-            IKafkaEventHandlerFactory kafkaEventHandlerFactory)
+            IKafkaEventHandlerFactory kafkaEventHandlerFactory = null)
             : base(kafkaConfig, configuration, logger, serializerFactory, kafkaEventHandlerFactory)
         { }
 

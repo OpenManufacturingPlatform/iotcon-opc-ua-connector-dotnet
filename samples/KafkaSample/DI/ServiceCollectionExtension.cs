@@ -30,7 +30,7 @@ namespace OMP.Connector.EdgeModule
         {
 
             serviceCollection.TryAddScoped<IKafkaRequestHandler, KafkaRequestHandler>();
-            serviceCollection.TryAddTransient<ISerializerFactory, JsonSerializerFactory>();
+            serviceCollection.TryAddTransient<ISerializerFactory, SerializerFactory>();
             serviceCollection.TryAddSingleton<IKafkaEventHandlerFactory, DefaultKafkaEventHandlerFactory>();
             serviceCollection.TryAddSingleton<IConsumerFactory, ConsumerFactory>();
             serviceCollection.TryAddScoped<IProducerFactory, ProducerFactory>();

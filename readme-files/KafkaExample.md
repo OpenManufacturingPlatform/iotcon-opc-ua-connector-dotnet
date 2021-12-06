@@ -1,6 +1,6 @@
-# OMP OPC UA Connector via MQTT
+# OMP OPC UA Connector via Kafka
 
-The **OMP OPC UA Connector** (hereafter referred to as the **Connector**) via an **MQTT** broker, provides a mechanism to interact with **OPC UA Servers** over **MQTT**, wihtout having to implement the OPC UA protocol. The **Connector** allows you to:
+The **OMP OPC UA Connector** (hereafter referred to as the **Connector**) via an **Kafka** broker, provides a mechanism to interact with **OPC UA Servers** over **Kafka**, wihtout having to implement the OPC UA protocol. The **Connector** allows you to:
 - *Subscribe* to nodes in order to receive telemetry messages when values change on these nodes
 - Do *Read* operations on nodes
 - Do *Write* operations on nodes
@@ -8,7 +8,7 @@ The **OMP OPC UA Connector** (hereafter referred to as the **Connector**) via an
 - Browse nodes
 - ...and more
 
-This document serves as a guide to *Configure*, *Build*, *Run* and *Test* a generic implementation of the connector utilizing an **MQTT** broker.
+This document serves as a guide to *Configure*, *Build*, *Run* and *Test* a generic implementation of the connector utilizing an **Kafka** broker.
 
 ## Index
 
@@ -22,24 +22,24 @@ This document serves as a guide to *Configure*, *Build*, *Run* and *Test* a gene
 ## Prerequisites
 - Docker - To Build and run the Connector via Docker
 - OPC UA Server
-- MQTT Broker
+- Kafka Broker
 
 ---
 ## How to Configure the Connector
 
-**Very important**: An example settings file is provided **moduleSettings.example.json** (/samples/MqttSample/moduleSettings.example.json). Please copy the file and change the name to **moduleSettings.json** (/samples/MqttSample/moduleSettings.json). Change the required settings to suit your environment.
+**Very important**: An example settings file is provided **moduleSettings.example.json** (/samples/KafkaSample/moduleSettings.example.json). Please copy the file and change the name to **moduleSettings.json** (/samples/KafkaSample/moduleSettings.json). Change the required settings to suit your environment.
 
 ##  Understanding how the *Connector's* Configuration works
 To understand how the connector's configuration works, it is important to understand how/where the Connector receives command requests and sends response/telemetry messages to and from the outside world.
 
 | Endpoint        | Description   |
 | ------------- | ------------- |
-| Command | This is the endpoint (MQTT Topic) where the outside world sends commands to the *Connector*  |
-| Response | This is the endpoint (MQTT Topic) where the *Connector* sends the results of commands back  |
-| Telemetry | This is the endpoint (MQTT Topic) where the *Connector* publishes telemetry messages for subscriptions  |
+| Command | This is the endpoint (Kafka Topic) where the outside world sends commands to the *Connector*  |
+| Response | This is the endpoint (Kafka Topic) where the *Connector* sends the results of commands back  |
+| Telemetry | This is the endpoint (Kafka Topic) where the *Connector* publishes telemetry messages for subscriptions  |
 
 
-###  Configuring the Endpoints for MQTT
+###  Configuring the Endpoints for Kafka
 The configuration file has a couple of sections, but for brevity, we focus on the *Communication* section here.
 Under *Communication* there are 4 sub-sections of importance
 - Shared
@@ -48,10 +48,10 @@ Under *Communication* there are 4 sub-sections of importance
   ...,
   "Communication": {    
     "Shared": {
-      "Type": "mqtt",
+      "Type": "kafka",
        ...
 ```
-The *Shared* section groups MQTT settings (e.g Username, Password,..) that are shared between different endpoints (when the same **MQTT Broker** is used for all endpoints (Topics)). This reduces unnecessary repetition and bloating of the settings file.
+The *Shared* section groups Kafka settings (e.g Username, Password,..) that are shared between different endpoints (when the same **Kafka Broker** is used for all endpoints (Topics)). This reduces unnecessary repetition and bloating of the settings file.
 
 **Note**: The Shared settings are read and applied first. Settings in subsequent sections will override those with the same name that appear in the Shared settings. For example, if the brokerAddress is set in Shared as 'Broker-Shared', and it is set again in the CommandEndpoint section (under NativeSettings) as 'Broker-Command', the final value of brokerAddress will be 'Broker-Command' and not 'Broker-Shared'.
 
@@ -60,7 +60,7 @@ The *Shared* section groups MQTT settings (e.g Username, Password,..) that are s
  {
   ...,
   "CommandEndpoint": {
-      "Type": "mqtt",
+      "Type": "kafka",
       "NativeSettings": {
         "topics": [
           {
@@ -79,7 +79,7 @@ This is where the topic name, QoS Level and any other settings specific to the *
  {
   ...,
   "ResponseEndpoint": {
-      "Type": "mqtt",
+      "Type": "kafka",
       "NativeSettings": {
         "topics": [
           {
@@ -98,7 +98,7 @@ This is where the topic name, QoS Level and any other settings specific to the *
 {
   ...,
     "TelemetryEndpoint": {
-      "Type": "mqtt",
+      "Type": "kafka",
       "NativeSettings": {
         "topics": [
           {
@@ -121,31 +121,28 @@ This is where the topic name, QoS Level and any other settings specific to the *
   "Communication": {
     "SchemaUrl": "https://someSchemaStore.com/schemas/",
     "Shared": {
-      "Type": "mqtt",
+      "Type": "kafka",
       "NativeSettings": {
-        "brokerAddress": "localhost",
-        "brokerPort": "1883",
-        "username": "test",
-        "password": "test",
-        "clientId": null,
-        "secure": false,
-        "caCertData": null,
-        "clientCaCertData": null,
-        "ignoreCertificateValidation": false,
-        "cleanSession": true,
-        "willFlag": false,
-        "willQosLevel": 0,
-        "willTopic": null,
-        "willMessage": null,
-        "willRetain": false,
-        "keepAlivePeriod": 60,
-        "autoReconnectTimeInSeconds": 10,
-        "sslProtocols": "None",
-        "protocolVersion": "Version_3_1"
+        "bootstrapServers": "localhost:9092",
+        "debug": "consumer,cgrp,topic,fetch",
+        "saslMechanism": "PLAIN",
+        "saslUsername": "test",
+        "saslPassword": "test",
+        "securityProtocol": "SaslSsl",
+        "sslCaLocation": "cert.pem",
+        "socketKeepaliveEnable": "True",
+        "SocketTimeoutMs": 30000,
+        "acks": -1,
+        "topicMetadataRefreshIntervalMs": 300000,
+        "autoOffsetReset": "earliest",
+        "enableAutoCommit": "False",
+        "enablePartitionEof": "False",
+        "statisticsIntervalMs": 5000,
+        "groupId": "connectorCG"
       }
     },
     "TelemetryEndpoint": {
-      "Type": "mqtt",
+      "Type": "kafka",
       "NativeSettings": {
         "topics": [
           {
@@ -157,19 +154,20 @@ This is where the topic name, QoS Level and any other settings specific to the *
       }
     },
     "CommandEndpoint": {
-      "Type": "mqtt",
+      "Type": "kafka",
       "NativeSettings": {
+        "groupId": "connectorCommandCG",
         "topics": [
           {
             "topicName": "commands",
             "qosLevel": 1,
             "retain": false
-          }
+          },
         ]
       }
     },
     "ResponseEndpoint": {
-      "Type": "mqtt",
+      "Type": "kafka",
       "NativeSettings": {
         "topics": [
           {
@@ -190,39 +188,36 @@ This is where the topic name, QoS Level and any other settings specific to the *
 ```
 ---
 
-###  How to configure MQTT
-Internally the connector uses a 3rd party package that handles the specifics of the MQTT protocol ([M2MqttDotnetCore](https://github.com/mohaqeq/paho.mqtt.m2mqtt)).
+###  How to configure Kafka
+Internally the connector uses a 3rd party package that handles the specifics of the Kafka protocol ([Confluent.Kafka](https://github.com/confluentinc/confluent-kafka-dotnet/)).
 
 #### NativeSettings
   ```json
-  All the MQTT specific settings that are exposed by the 'M2MqttDotnetCore' package, can be configured in this NativeSettings section.
+  All the Kafka specific settings that are exposed by the 'Confluent.Kafka' package, can be configured in this NativeSettings section.
   Below is a list of these settings (Note: This list contains the most common settings, but it is not meant to be an exhaustive list)
 
  {
   ...,
   "Communication": {
     "Shared": {
-      "Type": "mqtt",
+      "Type": "kafka",
       "NativeSettings": {
-        "brokerAddress": "localhost",
-        "brokerPort": "1883",
-        "username": "test",
-        "password": "test",
-        "clientId": null,
-        "secure": false,
-        "caCertData": null,
-        "clientCaCertData": null,
-        "ignoreCertificateValidation": false,
-        "cleanSession": true,
-        "willFlag": false,
-        "willQosLevel": 0,
-        "willTopic": null,
-        "willMessage": null,
-        "willRetain": false,
-        "keepAlivePeriod": 60,
-        "autoReconnectTimeInSeconds": 10,
-        "sslProtocols": "None",
-        "protocolVersion": "Version_3_1"
+        "bootstrapServers": "localhost:9092",
+        "debug": "consumer,cgrp,topic,fetch",
+        "saslMechanism": "PLAIN",
+        "saslUsername": "test",
+        "saslPassword": "test",
+        "securityProtocol": "SaslSsl",
+        "sslCaLocation": "cert.pem",
+        "socketKeepaliveEnable": "True",
+        "SocketTimeoutMs": 30000,
+        "acks": -1,
+        "topicMetadataRefreshIntervalMs": 300000,
+        "autoOffsetReset": "earliest",
+        "enableAutoCommit": "False",
+        "enablePartitionEof": "False",
+        "statisticsIntervalMs": 5000,
+        "groupId": "connectorCG"
       }
     },
    ...
@@ -235,7 +230,7 @@ Internally the connector uses a 3rd party package that handles the specifics of 
 Internally the connector uses a 3rd party package that handles the specifics of the OPC UA protocol ([OPC UA .NET Standard](https://github.com/OPCFoundation/UA-.NETStandard)).
 
   ```json
-  All the MQTT specific settings that are exposed by the 'OPC UA .Net Standard' package, can be configured in this NativeSettings section.
+  All the library specific settings that are exposed by the 'OPC UA .Net Standard' package, can be configured in this NativeSettings section.
   Below is a list of these settings (Note: This list contains the most common settings, but it is not meant to be an exhaustive list)
 
  {
@@ -261,18 +256,18 @@ Internally the connector uses a 3rd party package that handles the specifics of 
 
 ## How to Run
 
-[Mqtt Docker file](Dockerfile.MqttSample)
+[Kafka Docker file](Dockerfile.KafkaSample)
   ```
-  docker build -t mqqttest1 -f Dockerfile.MqttSample .
+  docker build -t kafkatest1 -f Dockerfile.KafkaSample .
   ```
   
 ##### Docker Run
   ```
-  docker run -t mqtttest1
+  docker run -t kafkatest1
   ```
 
 ## How to Test
-Below is a list of commands that you can send over mqtt to the *Command* Topic of your choosing (same *Command* Topic that you configured in the connector prior to building).
+Below is a list of commands that you can send over kafka to the *Command* Topic of your choosing (same *Command* Topic that you configured in the connector prior to building).
 - [Call Command](/samples/MessageModels/Commands/CallCommand.json)
 - [Read Command](/samples/MessageModels/Commands/ReadCommand.json)
 - [Write Command](/samples/MessageModels/Commands/WriteCommand.json)
@@ -284,4 +279,4 @@ Below is a list of commands that you can send over mqtt to the *Command* Topic o
 
 ------------------------------------------------
 ## What is coming next?
-Next we aim to provide an end-to-end environment via a docker compose file. Which will setup a OPC UA Server, MQTT Broker the actual *Connector* and a small sample app to send *commands* and see the results - a Preview link to the [Docker Compose](/samples/MqttSample/docker-compose.yaml) file can be seen here.
+Next we aim to provide an end-to-end environment via a docker compose file. Which will setup a OPC UA Server, Kafka Broker the actual *Connector* and a small sample app to send *commands* and see the results.
