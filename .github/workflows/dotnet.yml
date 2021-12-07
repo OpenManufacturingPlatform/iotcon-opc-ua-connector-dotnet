@@ -1,11 +1,10 @@
-name: Release Nuget Packages
+name: .NET
 
-on:  
-  release:
-    types: [published]
+on:
   push:
-    branches:
-      - components/nuget-builds
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   build:
@@ -14,13 +13,13 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Setup .NET Core
+    - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: '5.0.x'
-    - name: Build Packages
-      run: dotnet build OMP-Opc-Ua-Connector-NuGet-Release.sln -c Release -v n /p:Version=0.0.0.1-alpha0z /p:PackageReleaseNotes="See https://github.com/OpenManufacturingPlatform/iotcon-opc-ua-connector-dotnet/tags/${{ github.event.release.tag_name }}" --output packages
-    - name: Publish Packages to GitHub
-      run: dotnet nuget push **/*.nupkg --api-key ${{ secrets.PACKAGE_PUSH_KEY }} --source "https://nuget.pkg.github.com/OpenManufacturingPlatform/index.json" --no-symbols true
-      working-directory: packages
-      
+        dotnet-version: 5.0.x
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet build --no-restore
+    - name: Test
+      run: dotnet test --no-build --verbosity normal

@@ -1,4 +1,4 @@
-name: Manually Release Domain Nuget
+name: Manually Release OpcUA Nuget
 
 on:  
   workflow_dispatch:
@@ -23,7 +23,7 @@ jobs:
       majorVersion: ${{ github.event.inputs.majorVersion }}
       minorVersion: ${{ github.event.inputs.minorVersion }}
       patchVersion: ${{ github.event.inputs.patchVersion }}
-      projectName: 'Domain.Schema'
-      workingDirectory: 'src/Domain'
+      projectName: 'OpcUa'
+      workingDirectory: 'src/Infrastructure/OpcUa'
     secrets:
       PACKAGE_PUSH_KEY: ${{ secrets.PACKAGE_PUSH_KEY }}
