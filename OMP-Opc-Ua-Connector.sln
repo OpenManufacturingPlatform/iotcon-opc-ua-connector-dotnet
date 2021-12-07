@@ -24,6 +24,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{E0040D9F-3461-4507-9443-31AC1E01A81A}"
 	ProjectSection(SolutionItems) = preProject
 		.github\workflows\dotnet.yml = .github\workflows\dotnet.yml
+		.github\workflows\release.yml = .github\workflows\release.yml
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests.Support", "tests\Tests.Support\Tests.Support.csproj", "{BF9B5E1E-C679-4A80-9C65-C5AE1A34479C}"
@@ -52,8 +53,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MqttSample", "samples\MqttS
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "nugets", "nugets", "{085C45A8-D5EE-49DF-8C8F-71007F3090C8}"
 	ProjectSection(SolutionItems) = preProject
+		.github\workflows\nugets\Application.yml = .github\workflows\nugets\Application.yml
+		.github\workflows\nugets\BaseNugetRelease.yml = .github\workflows\nugets\BaseNugetRelease.yml
 		.github\workflows\nugets\Domain.Release.yml = .github\workflows\nugets\Domain.Release.yml
 		.github\workflows\nugets\Domain.Shcema.Release.yml = .github\workflows\nugets\Domain.Shcema.Release.yml
+		.github\workflows\nugets\Kafka.yml = .github\workflows\nugets\Kafka.yml
+		.github\workflows\nugets\MQTT.yml = .github\workflows\nugets\MQTT.yml
+		.github\workflows\nugets\OpcUA.yml = .github\workflows\nugets\OpcUA.yml
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoMapper", "src\Infrastructure\AutoMapper\AutoMapper.csproj", "{1E695754-6DEB-4B34-A58A-595EB443F830}"
