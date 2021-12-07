@@ -26,6 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Infrastructure\AutoMapper\AutoMapper.csproj" />
     <ProjectReference Include="..\..\src\Infrastructure\MQTT\MQTT.csproj" />
     <ProjectReference Include="..\..\src\Infrastructure\OpcUa\OpcUa.csproj" />
   </ItemGroup>

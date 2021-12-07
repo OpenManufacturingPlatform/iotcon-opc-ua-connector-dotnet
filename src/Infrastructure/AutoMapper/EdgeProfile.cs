@@ -12,7 +12,7 @@ using OMP.Connector.Domain.Schema;
 using OMP.Connector.Domain.Schema.Abstraction;
 using OMP.Connector.Domain.Schema.Messages;
 using OMP.Connector.Domain.Schema.Request;
-using OMP.Connector.EdgeModule.MapperProfiles.Converters;
+using OMP.Connector.Infrastructure.AutoMapper.Converters;
 using Opc.Ua;
 using Opc.Ua.Client;
 using CallRequest = OMP.Connector.Domain.Schema.Request.Control.CallRequest;
@@ -21,7 +21,7 @@ using OpcNode = OMP.Connector.Domain.Models.OpcUa.Nodes.Base.OpcNode;
 using WriteRequest = OMP.Connector.Domain.Schema.Request.Control.WriteRequest;
 using Xml = System.Xml;
 
-namespace OMP.Connector.EdgeModule.MapperProfiles
+namespace OMP.Connector.Infrastructure.AutoMapper
 {
     public class EdgeProfile : Profile
     {
@@ -29,16 +29,16 @@ namespace OMP.Connector.EdgeModule.MapperProfiles
 
         public EdgeProfile(ILoggerFactory loggerFactory)
         {
-            this._loggerFactory = loggerFactory;
+            _loggerFactory = loggerFactory;
 
-            this.NodeMappings();
-            this.HelperMappings();
-            this.CommandMappings();
+            NodeMappings();
+            HelperMappings();
+            CommandMappings();
         }
 
         private void NodeMappings()
         {
-            this.CreateMap<Node, OpcNode>()
+            CreateMap<Node, OpcNode>()
                 .Include<DataTypeNode, OpcDataType>()
                 .Include<MethodNode, OpcMethod>()
                 .Include<ObjectNode, OpcObject>()
@@ -48,48 +48,48 @@ namespace OMP.Connector.EdgeModule.MapperProfiles
                 .Include<VariableTypeNode, OpcVariableType>()
                 .Include<ViewNode, OpcView>();
 
-            this.CreateMap<DataTypeNode, OpcDataType>();
-            this.CreateMap<MethodNode, OpcMethod>();
-            this.CreateMap<ObjectNode, OpcObject>();
-            this.CreateMap<Argument, OpcArgument>();
-            this.CreateMap<ObjectTypeNode, OpcObjectType>();
-            this.CreateMap<ReferenceTypeNode, OpcReferenceType>();
+            CreateMap<DataTypeNode, OpcDataType>();
+            CreateMap<MethodNode, OpcMethod>();
+            CreateMap<ObjectNode, OpcObject>();
+            CreateMap<Argument, OpcArgument>();
+            CreateMap<ObjectTypeNode, OpcObjectType>();
+            CreateMap<ReferenceTypeNode, OpcReferenceType>();
 
-            this.CreateMap<VariableNode, VariableNodeWithType>();
-            this.CreateMap<VariableNode, OpcVariable>()
+            CreateMap<VariableNode, VariableNodeWithType>();
+            CreateMap<VariableNode, OpcVariable>()
                 .Include<VariableNodeWithType, OpcVariable>()
                 .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value.Value.ToString()));
 
-            this.CreateMap<VariableNodeWithType, OpcVariable>()
+            CreateMap<VariableNodeWithType, OpcVariable>()
                 .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value.Value.ToString()))
                 .ForMember(dest => dest.DataTypeName, opt => opt.MapFrom(src => src.DataTypeName));
 
-            this.CreateMap<VariableTypeNode, OpcVariableType>()
+            CreateMap<VariableTypeNode, OpcVariableType>()
                 .Include<VariableTypeNodeWithType, OpcVariableType>()
                 .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value.Value.ToString()));
 
-            this.CreateMap<VariableTypeNodeWithType, OpcVariableType>()
+            CreateMap<VariableTypeNodeWithType, OpcVariableType>()
                 .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value.Value.ToString()))
                 .ForMember(dest => dest.DataTypeName, opt => opt.MapFrom(src => src.DataTypeName));
 
-            this.CreateMap<VariableTypeNode, VariableTypeNodeWithType>();
+            CreateMap<VariableTypeNode, VariableTypeNodeWithType>();
 
-            this.CreateMap<ViewNode, OpcView>();
-            this.CreateMap<NodeId, OpcNodeId>()
+            CreateMap<ViewNode, OpcView>();
+            CreateMap<NodeId, OpcNodeId>()
                 .ForMember(dest => dest.FriendlyName, opt => opt.MapFrom(src => src.ToString()));
-            this.CreateMap<ExpandedNodeId, OpcExpandedNodeId>();
-            this.CreateMap<LocalizedText, OpcLocalizedText>();
-            this.CreateMap<QualifiedName, OpcQualifiedName>();
-            this.CreateMap<StatusCode, OpcStatusCode>();
-            this.CreateMap<DataValue, OpcDataValue>()
+            CreateMap<ExpandedNodeId, OpcExpandedNodeId>();
+            CreateMap<LocalizedText, OpcLocalizedText>();
+            CreateMap<QualifiedName, OpcQualifiedName>();
+            CreateMap<StatusCode, OpcStatusCode>();
+            CreateMap<DataValue, OpcDataValue>()
                 .ForMember(dest => dest.Value, opt => opt.MapFrom(f => this.DataValueValueConverter(f.Value)));
-            this.CreateMap<Xml.XmlElement, OpcXmlElement>();
-            this.CreateMap<Uuid, Guid>().ConvertUsing(c => new Guid(c.GuidString));
+            CreateMap<Xml.XmlElement, OpcXmlElement>();
+            CreateMap<Uuid, Guid>().ConvertUsing(c => new Guid(c.GuidString));
 
-            this.CreateMap<Variant, OpcVariant>();
-            this.CreateMap<TypeInfo, OpcTypeInfo>();
+            CreateMap<Variant, OpcVariant>();
+            CreateMap<TypeInfo, OpcTypeInfo>();
 
-            this.CreateMap<VariableNode, BrowsedOpcNode>()
+            CreateMap<VariableNode, BrowsedOpcNode>()
                 .ForMember(dest => dest.NodeClass, opt => opt.MapFrom(src => src.NodeClass.ToString()))
                 .ForMember(dest => dest.BrowseName, opt => opt.MapFrom(src => src.BrowseName.Name))
                 .ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.DisplayName.Text))
@@ -105,7 +105,7 @@ namespace OMP.Connector.EdgeModule.MapperProfiles
                 .ForMember(dest => dest.Historizing, opt => opt.MapFrom(src => src.Historizing))
                 .ForAllOtherMembers(opt => opt.Ignore());
 
-            this.CreateMap<BrowsedNode, DiscoveredOpcNode>()
+            CreateMap<BrowsedNode, DiscoveredOpcNode>()
                 .ForMember(dest => dest.NodeId, opt => opt.MapFrom(src => src.Node.NodeId))
                 .ForMember(dest => dest.NodeClass, opt => opt.MapFrom(src => src.Node.NodeClass))
                 .ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.Node.DisplayName))
@@ -127,51 +127,51 @@ namespace OMP.Connector.EdgeModule.MapperProfiles
 
         private void HelperMappings()
         {
-            this.CreateMap<BrowsedNode, OpcNode>()
+            CreateMap<BrowsedNode, OpcNode>()
                 .ConstructUsing((s, ctx) => ctx.Mapper.Map<OpcNode>(s.Node))
                 .ForMember(q => q.ChildNodes, option => option.MapFrom(q => q.ChildNodes))
                 .ForAllOtherMembers(o => o.Ignore());
 
-            this.CreateMap<EndpointDescription, OpcUaEndpoint>()
+            CreateMap<EndpointDescription, OpcUaEndpoint>()
                 .ForMember(dest => dest.ServerCertificate,
                     opt => opt.MapFrom(src => JsonConvert.SerializeObject(src.ServerCertificate, Formatting.None)));
 
-            this.CreateMap<OpcUaEndpoint, EndpointDescription>()
+            CreateMap<OpcUaEndpoint, EndpointDescription>()
                 .ForMember(dest => dest.ServerCertificate, opt => opt.MapFrom(src => JsonConvert.DeserializeObject<byte[]>($"\"{src.ServerCertificate}\"")))
                 .ForMember(dest => dest.SecurityLevel, opt => opt.MapFrom(src => byte.Parse(src.SecurityLevel)))
                 .ForMember(dest => dest.SecurityMode, opt => opt.MapFrom(src => JsonConvert.DeserializeObject<MessageSecurityMode>($"\"{src.SecurityMode}\"")))
                 .ForMember(dest => dest.UserIdentityTokens, opt => opt.Ignore());
 
-            this.CreateMap<MonitoredItem, OpcUaMonitoredItem>()
+            CreateMap<MonitoredItem, OpcUaMonitoredItem>()
                 .ForMember(dest => dest.NodeId, opt => opt.MapFrom(src => src.ResolvedNodeId.ToString()))
                 .ForAllOtherMembers(opt => opt.Ignore());
 
             #region Cloning request without commands
-            this.CreateMap<CommandRequest, CommandRequest>();
-            this.CreateMap<RequestPayload, RequestPayload>()
+            CreateMap<CommandRequest, CommandRequest>();
+            CreateMap<RequestPayload, RequestPayload>()
                 .ForMember(dest => dest.Requests, opt => opt.Ignore());
             #endregion
         }
 
         private void CommandMappings()
         {
-            this.CreateMap<WriteRequest, WriteValue>()
+            CreateMap<WriteRequest, WriteValue>()
                 .ForMember(dest => dest.NodeId, opt => opt.MapFrom(src => NodeId.Parse(src.NodeId)))
                 .ForMember(dest => dest.AttributeId, opt => opt.MapFrom(src => Attributes.Value))
-                .ForMember(dest => dest.Value, opt => opt.ConvertUsing(new DataValueConverter(this._loggerFactory.CreateLogger<DataValueConverter>()), src => src));
+                .ForMember(dest => dest.Value, opt => opt.ConvertUsing(new DataValueConverter(_loggerFactory.CreateLogger<DataValueConverter>()), src => src));
 
-            this.CreateMap<WriteRequestWrapper, WriteValue>()
+            CreateMap<WriteRequestWrapper, WriteValue>()
                 .ForMember(dest => dest.NodeId, opt => opt.MapFrom(src => NodeId.Parse(src.RegisteredNodeId)))
                 .ForMember(dest => dest.AttributeId, opt => opt.MapFrom(src => Attributes.Value))
-                .ForMember(dest => dest.Value, opt => opt.ConvertUsing(new DataValueConverter(this._loggerFactory.CreateLogger<DataValueConverter>()), src => src));
+                .ForMember(dest => dest.Value, opt => opt.ConvertUsing(new DataValueConverter(_loggerFactory.CreateLogger<DataValueConverter>()), src => src));
 
-            this.CreateMap<CallRequest, CallMethodRequest>()
+            CreateMap<CallRequest, CallMethodRequest>()
                 .ForMember(dest => dest.MethodId, opt => opt.MapFrom(src => NodeId.Parse(src.NodeId)))
                 .ForMember(dest => dest.InputArguments,
             opt => opt.MapFrom(src => new VariantCollection(
                 src.Arguments.Select(i => new Variant(new Opc.Ua.KeyValuePair() { Key = i.Key, Value = i.Value })))));
 
-            this.CreateMap<WriteRequest, WriteRequestWrapper>();
+            CreateMap<WriteRequest, WriteRequestWrapper>();
         }
     }
 }

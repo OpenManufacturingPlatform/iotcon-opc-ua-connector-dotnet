@@ -56,6 +56,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "nugets", "nugets", "{085C45
 		.github\workflows\nugets\Domain.Shcema.Release.yml = .github\workflows\nugets\Domain.Shcema.Release.yml
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoMapper", "src\Infrastructure\AutoMapper\AutoMapper.csproj", "{1E695754-6DEB-4B34-A58A-595EB443F830}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -106,6 +108,10 @@ Global
 		{01550D8D-162A-4AAE-9809-7334799B6084}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{01550D8D-162A-4AAE-9809-7334799B6084}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{01550D8D-162A-4AAE-9809-7334799B6084}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1E695754-6DEB-4B34-A58A-595EB443F830}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1E695754-6DEB-4B34-A58A-595EB443F830}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1E695754-6DEB-4B34-A58A-595EB443F830}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1E695754-6DEB-4B34-A58A-595EB443F830}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -126,6 +132,7 @@ Global
 		{730B7491-42F5-42D5-A968-82475D24AB46} = {88003BD2-8019-42B6-9791-1D5E288F3D02}
 		{01550D8D-162A-4AAE-9809-7334799B6084} = {88003BD2-8019-42B6-9791-1D5E288F3D02}
 		{085C45A8-D5EE-49DF-8C8F-71007F3090C8} = {E0040D9F-3461-4507-9443-31AC1E01A81A}
+		{1E695754-6DEB-4B34-A58A-595EB443F830} = {45155A97-3609-4B83-8EE0-F4378B7AAD29}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A0CE2A75-8CEA-40E8-B1DF-E77D1204B110}
