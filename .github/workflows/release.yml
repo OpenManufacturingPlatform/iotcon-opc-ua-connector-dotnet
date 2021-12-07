@@ -3,9 +3,6 @@ name: Release Nuget Packages
 on:  
   release:
     types: [published]
-  push:
-    branches:
-      - components/nuget-builds
 
 jobs:
   build:
