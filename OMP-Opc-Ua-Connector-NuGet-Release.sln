@@ -19,6 +19,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{C88F
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{E0040D9F-3461-4507-9443-31AC1E01A81A}"
 	ProjectSection(SolutionItems) = preProject
+		.github\workflows\autoMapper.yml = .github\workflows\autoMapper.yml
 		.github\workflows\dotnet.yml = .github\workflows\dotnet.yml
 		.github\workflows\release.yml = .github\workflows\release.yml
 	EndProjectSection
