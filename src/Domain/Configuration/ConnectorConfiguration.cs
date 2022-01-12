@@ -108,7 +108,7 @@ namespace OMP.Connector.Domain.Configuration
         public string SchemaUrl { get; set; }
         public SharedConfiguration Shared { get; set; }
         public CommunicationChannelConfiguration TelemetryEndpoint { get; set; }
-        public CommunicationChannelConfiguration CommandEndpoint { get; set; }
+        public CommunicationChannelConfiguration RequestEndpoint { get; set; }
         public CommunicationChannelConfiguration ResponseEndpoint { get; set; }
     }
 

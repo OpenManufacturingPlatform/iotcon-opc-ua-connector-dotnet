@@ -28,7 +28,7 @@ namespace OMP.Connector.Domain.Configuration
 
         private void SetNativeAndSharedCommunicationSettings(CommunicationConfiguration communicationConfiguration, SharedConfiguration sharedConfiguration)
         {
-            SetNativeAndSharedCommunicationSettings(communicationConfiguration?.CommandEndpoint, GetCommandEndpointCommunicationNativeConfiguration(), sharedConfiguration);
+            SetNativeAndSharedCommunicationSettings(communicationConfiguration?.RequestEndpoint, GetCommandEndpointCommunicationNativeConfiguration(), sharedConfiguration);
             SetNativeAndSharedCommunicationSettings(communicationConfiguration?.ResponseEndpoint, GetResponseEndpointCommunicationNativeConfiguration(), sharedConfiguration);
             SetNativeAndSharedCommunicationSettings(communicationConfiguration?.TelemetryEndpoint, GetTelemetaryCommunicationNativeConfiguration(), sharedConfiguration);
         }
@@ -54,7 +54,7 @@ namespace OMP.Connector.Domain.Configuration
             => configuration.GetSection($"{nameof(ConnectorConfiguration.Communication)}{SectionSeparatorKey}{nameof(ConnectorConfiguration.Communication.ResponseEndpoint)}{SectionSeparatorKey}{NativeSettingsKey}");
 
         private IConfiguration GetCommandEndpointCommunicationNativeConfiguration()
-            => configuration.GetSection($"{nameof(ConnectorConfiguration.Communication)}{SectionSeparatorKey}{nameof(ConnectorConfiguration.Communication.CommandEndpoint)}{SectionSeparatorKey}{NativeSettingsKey}");
+            => configuration.GetSection($"{nameof(ConnectorConfiguration.Communication)}{SectionSeparatorKey}{nameof(ConnectorConfiguration.Communication.RequestEndpoint)}{SectionSeparatorKey}{NativeSettingsKey}");
 
         private IConfiguration GetSharedCommunicationNativeConfiguration()
             => configuration.GetSection($"{nameof(ConnectorConfiguration.Communication)}{SectionSeparatorKey}{nameof(ConnectorConfiguration.Communication.Shared)}{SectionSeparatorKey}{NativeSettingsKey}");

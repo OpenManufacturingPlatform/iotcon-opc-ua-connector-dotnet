@@ -24,11 +24,11 @@ namespace OMP.Connector.Infrastructure.MQTT.CommandEndpoint
             IMqttRequestHandler requestHandler,
             ISerializer serializer,
             ILogger<MqttCommandListner> logger)
-            : base(mqttClientFactory.CreateClient(connectorConfiguration.Value.Communication.CommandEndpoint, connectorConfiguration.Value.Communication.Shared),
-                 connectorConfiguration.Value.Communication.CommandEndpoint.GetConfig<MqttClientSettings>(),
+            : base(mqttClientFactory.CreateClient(connectorConfiguration.Value.Communication.RequestEndpoint, connectorConfiguration.Value.Communication.Shared),
+                 connectorConfiguration.Value.Communication.RequestEndpoint.GetConfig<MqttClientSettings>(),
                  serializer,
                  logger,
-                 connectorConfiguration.Value.Communication.CommandEndpoint.GetConfig<MqttClientSettings>().AutoReconnectTimeInSeconds)
+                 connectorConfiguration.Value.Communication.RequestEndpoint.GetConfig<MqttClientSettings>().AutoReconnectTimeInSeconds)
         {
             this.Client.OnMessageReceived += Client_OnMessageReceived;
             this._requestHandler = requestHandler;

@@ -27,10 +27,10 @@ namespace OMP.Connector.Infrastructure.Kafka.Common.Consumers
 
         public ICommandConsumer CreateCommandConsumer()
         {
-            if (_connectorConfiguration.Communication.CommandEndpoint.Type != CommunicationType.Kafka)
+            if (_connectorConfiguration.Communication.RequestEndpoint.Type != CommunicationType.Kafka)
                 return null;
 
-            var (kafkaConfiguration, consumerConfig) = GetEndpointConfiguration(_connectorConfiguration.Communication.CommandEndpoint);
+            var (kafkaConfiguration, consumerConfig) = GetEndpointConfiguration(_connectorConfiguration.Communication.RequestEndpoint);
             return new CommandConsumer(
                 kafkaConfiguration,
                 consumerConfig,
