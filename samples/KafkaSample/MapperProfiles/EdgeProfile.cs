@@ -89,7 +89,7 @@ namespace OMP.Connector.EdgeModule.MapperProfiles
             this.CreateMap<Variant, OpcVariant>();
             this.CreateMap<TypeInfo, OpcTypeInfo>();
 
-            this.CreateMap<VariableNode, BrowsedOpcNode>()
+            this.CreateMap<VariableNode, BrowsedOpcNode>(MemberList.None)
                 .ForMember(dest => dest.NodeClass, opt => opt.MapFrom(src => src.NodeClass.ToString()))
                 .ForMember(dest => dest.BrowseName, opt => opt.MapFrom(src => src.BrowseName.Name))
                 .ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.DisplayName.Text))
@@ -103,9 +103,10 @@ namespace OMP.Connector.EdgeModule.MapperProfiles
                 .ForMember(dest => dest.UserAccessLevel, opt => opt.MapFrom(src => src.UserAccessLevel.ToString()))
                 .ForMember(dest => dest.MinimumSamplingInterval, opt => opt.MapFrom(src => src.MinimumSamplingInterval.ToString()))
                 .ForMember(dest => dest.Historizing, opt => opt.MapFrom(src => src.Historizing))
-                .ForAllOtherMembers(opt => opt.Ignore());
+                //.ForAllOtherMembers(opt => opt.Ignore())
+                ;
 
-            this.CreateMap<BrowsedNode, DiscoveredOpcNode>()
+            this.CreateMap<BrowsedNode, DiscoveredOpcNode>(MemberList.None)
                 .ForMember(dest => dest.NodeId, opt => opt.MapFrom(src => src.Node.NodeId))
                 .ForMember(dest => dest.NodeClass, opt => opt.MapFrom(src => src.Node.NodeClass))
                 .ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.Node.DisplayName))
@@ -114,7 +115,8 @@ namespace OMP.Connector.EdgeModule.MapperProfiles
                 .ForMember(dest => dest.UserWriteMask, opt => opt.MapFrom(src => src.Node.UserWriteMask))
                 .ForMember(dest => dest.WriteMask, opt => opt.MapFrom(src => src.Node.WriteMask))
                 .ForMember(dest => dest.ChildNodes, opt => opt.MapFrom(src => src.ChildNodes))
-                .ForAllOtherMembers(opt => opt.Ignore());
+                //.ForAllOtherMembers(opt => opt.Ignore())
+                ;
         }
 
         public object DataValueValueConverter(object value)
@@ -127,10 +129,11 @@ namespace OMP.Connector.EdgeModule.MapperProfiles
 
         private void HelperMappings()
         {
-            this.CreateMap<BrowsedNode, OpcNode>()
+            this.CreateMap<BrowsedNode, OpcNode>(MemberList.None)
                 .ConstructUsing((s, ctx) => ctx.Mapper.Map<OpcNode>(s.Node))
                 .ForMember(q => q.ChildNodes, option => option.MapFrom(q => q.ChildNodes))
-                .ForAllOtherMembers(o => o.Ignore());
+                //.ForAllOtherMembers(o => o.Ignore())
+                ;
 
             this.CreateMap<EndpointDescription, OpcUaEndpoint>()
                 .ForMember(dest => dest.ServerCertificate,
@@ -142,9 +145,10 @@ namespace OMP.Connector.EdgeModule.MapperProfiles
                 .ForMember(dest => dest.SecurityMode, opt => opt.MapFrom(src => JsonConvert.DeserializeObject<MessageSecurityMode>($"\"{src.SecurityMode}\"")))
                 .ForMember(dest => dest.UserIdentityTokens, opt => opt.Ignore());
 
-            this.CreateMap<MonitoredItem, OpcUaMonitoredItem>()
+            this.CreateMap<MonitoredItem, OpcUaMonitoredItem>(MemberList.None)
                 .ForMember(dest => dest.NodeId, opt => opt.MapFrom(src => src.ResolvedNodeId.ToString()))
-                .ForAllOtherMembers(opt => opt.Ignore());
+                //.ForAllOtherMembers(opt => opt.Ignore())
+                ;
 
             #region Cloning request without commands
             this.CreateMap<CommandRequest, CommandRequest>();

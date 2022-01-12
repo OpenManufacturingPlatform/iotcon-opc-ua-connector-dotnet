@@ -127,6 +127,7 @@ namespace OMP.Connector.Application.OpcUa
             }
 
             var typeMap = mapper.ConfigurationProvider
+                    .
                     .GetAllTypeMaps()
                     .FirstOrDefault(x => x.SourceType == propertyValue.GetType());
 
