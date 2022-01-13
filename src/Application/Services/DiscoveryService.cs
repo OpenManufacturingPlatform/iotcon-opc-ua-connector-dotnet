@@ -10,7 +10,6 @@ using OMP.Connector.Application.Extensions;
 using OMP.Connector.Application.OpcUa;
 using OMP.Connector.Domain.Configuration;
 using OMP.Connector.Domain.Extensions;
-using OMP.Connector.Domain.Models;
 using OMP.Connector.Domain.OpcUa;
 using OMP.Connector.Domain.Providers;
 using OMP.Connector.Domain.Schema;
