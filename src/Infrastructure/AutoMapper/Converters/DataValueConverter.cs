@@ -8,7 +8,7 @@ using OMP.Connector.Domain.Models.Command.Requests.Basic.NodeCommands;
 using Opc.Ua;
 using WriteRequest = OMP.Connector.Domain.Schema.Request.Control.WriteRequest;
 
-namespace OMP.Connector.EdgeModule.MapperProfiles.Converters
+namespace OMP.Connector.Infrastructure.AutoMapper.Converters
 {
     public class DataValueConverter : IValueConverter<WriteRequest, DataValue>,
                                       IValueConverter<WriteRequestWrapper, DataValue>
@@ -17,7 +17,7 @@ namespace OMP.Connector.EdgeModule.MapperProfiles.Converters
 
         public DataValueConverter(ILogger<DataValueConverter> logger)
         {
-            this._logger = logger;
+            _logger = logger;
         }
 
         public DataValue Convert(WriteRequest sourceMember, ResolutionContext _)
@@ -47,7 +47,7 @@ namespace OMP.Connector.EdgeModule.MapperProfiles.Converters
             }
             catch (Exception ex)
             {
-                this._logger.LogError(ex.Demystify(), "Could not convert WriteRequest to DataValue");
+                _logger.LogError(ex.Demystify(), "Could not convert WriteRequest to DataValue");
                 dataValue.StatusCode = StatusCodes.Bad;
             }
 

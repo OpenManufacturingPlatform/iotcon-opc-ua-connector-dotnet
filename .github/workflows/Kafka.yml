@@ -18,7 +18,7 @@ on:
 
 jobs:
   call-workflow-passing-data:
-    uses: OpenManufacturingPlatform/iotcon-opc-ua-connector-dotnet/.github/workflows/nugets/BaseNugetRelease.yml@main
+    uses: OpenManufacturingPlatform/iotcon-opc-ua-connector-dotnet/.github/workflows/BaseNugetRelease.yml@main
     with:
       majorVersion: ${{ github.event.inputs.majorVersion }}
       minorVersion: ${{ github.event.inputs.minorVersion }}
