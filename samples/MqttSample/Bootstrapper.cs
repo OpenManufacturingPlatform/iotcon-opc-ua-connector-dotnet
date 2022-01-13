@@ -14,7 +14,7 @@ using OMP.Connector.Domain.OpcUa;
 using OMP.Connector.Domain.OpcUa.Services;
 using OMP.Connector.Domain.Providers;
 using OMP.Connector.EdgeModule.Jobs;
-using OMP.Connector.EdgeModule.MapperProfiles;
+using OMP.Connector.Infrastructure.AutoMapper;
 using OMP.Connector.Infrastructure.OpcUa;
 using OMP.Connector.Infrastructure.OpcUa.ConfigBuilders;
 using OMP.Connector.Infrastructure.OpcUa.Reconnect;
