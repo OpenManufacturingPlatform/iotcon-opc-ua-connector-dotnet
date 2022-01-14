@@ -951,7 +951,7 @@ namespace OMP.Connector.Infrastructure.OpcUa.ComplexTypes.Types
         #endregion
 
         #region Private Fields
-        private ServiceMessageContext m_context;
+        private IServiceMessageContext m_context;
         private StructureBaseDataType m_structureBaseType;
         protected IList<ComplexTypePropertyAttribute> m_propertyList;
         protected Dictionary<string, ComplexTypePropertyAttribute> m_propertyDict;
