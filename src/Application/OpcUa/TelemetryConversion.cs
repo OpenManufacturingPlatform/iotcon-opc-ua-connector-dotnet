@@ -57,6 +57,14 @@ namespace OMP.Connector.Application.OpcUa
                 }
 
                 var itemType = item.GetType();
+
+                //array of structs is returned as an array of ExtensionObjects with the 
+                //strongly typed struct contained in the body
+                if(item is ExtensionObject eo)
+                {
+                    item = eo.Body;
+                    itemType = item.GetType();
+                }
                 measurement.DataType = typeof(IBaseComplexType).IsAssignableFrom(itemType)
                     ? FormatStructTypeName(itemType.Name, false)
                     : itemType.Name;

@@ -479,7 +479,7 @@ namespace OMP.Connector.Infrastructure.OpcUa
             }
             else
             {
-                await CreateOpcUaStructArrayAsync(command, (NodeId)dataValue.Value);
+                command.Value = await CreateOpcUaStructArrayAsync(command, (NodeId)dataValue.Value);
             }
         }
 
