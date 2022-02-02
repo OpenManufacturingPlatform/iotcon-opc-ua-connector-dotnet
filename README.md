@@ -40,7 +40,7 @@ In the configuration phase of the OPC UA Edge Connector a configuration needs to
 
 ## Getting Started and Contribution
 
-- Please check our documentation: [Readme](https://github.com/OpenManufacturingPlatform/iotcon-opc-ua-connector-dotnet/tree/main/readme-files)
+- Please check our documentation: [README](https://github.com/OpenManufacturingPlatform/iotcon-opc-ua-connector-dotnet/tree/main/readme-files)
 - Share your thoughts with us in our [Discussion Board](https://github.com/OpenManufacturingPlatform/iotcon-opc-ua-connector-dotnet/discussions)
 - You found a issue? Please create a [GitHub Issue](https://github.com/OpenManufacturingPlatform/iotcon-opc-ua-connector-dotnet/issues)
 
