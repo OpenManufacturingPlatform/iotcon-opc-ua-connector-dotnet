@@ -1,0 +1,27 @@
+{
+  "id": "7cd70b85-2939-480d-917f-5d62c7f6b1b2", // requestId
+  "connectorId": "AA2A77F6-2246-4A60-BF3B-E2B322BEDAE5",
+  "requestType": "discoverEndpoints",
+  "endpointUrl": "opc.tcp://opcuaserverintegration:52210/"
+}
+/*  Response  */
+{
+  "requestId": "7cd70b85-2939-480d-917f-5d62c7f6b1b2", // requestId
+  "connectorId": "AA2A77F6-2246-4A60-BF3B-E2B322BEDAE5",
+  "timestamps": {
+    "receivedTime": "2021-10-26T09:50:29+00:00",/* Time we received the command*/
+    "responseTime": "2021-10-26T09:51:00+00:00" /* Time we are responding with a result*/
+  },
+  "requestType": "discoverEndpoints",
+  "status":{
+    "isSuccessfull": false,
+    "message": "Endpoint does not exists"
+  },
+  "endpoints":[
+    {
+      "EndpointUrl":"",
+      "SecurityMode":" Invalid" /* None, Sign, SignAndEncrypt */,
+      "SecurityLevel": 1
+    }
+  ]
+}
