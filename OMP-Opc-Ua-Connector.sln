@@ -53,16 +53,17 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MqttSample", "samples\MqttS
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "nugets", "nugets", "{085C45A8-D5EE-49DF-8C8F-71007F3090C8}"
 	ProjectSection(SolutionItems) = preProject
-		.github\workflows\nugets\Application.yml = .github\workflows\nugets\Application.yml
-		.github\workflows\nugets\BaseNugetRelease.yml = .github\workflows\nugets\BaseNugetRelease.yml
-		.github\workflows\nugets\Domain.Release.yml = .github\workflows\nugets\Domain.Release.yml
-		.github\workflows\nugets\Domain.Shcema.Release.yml = .github\workflows\nugets\Domain.Shcema.Release.yml
-		.github\workflows\nugets\Kafka.yml = .github\workflows\nugets\Kafka.yml
-		.github\workflows\nugets\MQTT.yml = .github\workflows\nugets\MQTT.yml
-		.github\workflows\nugets\OpcUA.yml = .github\workflows\nugets\OpcUA.yml
+		.github\workflows\Application.yml = .github\workflows\Application.yml
+		.github\workflows\autoMapper.yml = .github\workflows\autoMapper.yml
+		.github\workflows\BaseNugetRelease.yml = .github\workflows\BaseNugetRelease.yml
+		.github\workflows\Domain.Release.yml = .github\workflows\Domain.Release.yml
+		.github\workflows\Domain.Shcema.Release.yml = .github\workflows\Domain.Shcema.Release.yml
+		.github\workflows\Kafka.yml = .github\workflows\Kafka.yml
+		.github\workflows\MQTT.yml = .github\workflows\MQTT.yml
+		.github\workflows\OpcUA.yml = .github\workflows\OpcUA.yml
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoMapper", "src\Infrastructure\AutoMapper\AutoMapper.csproj", "{1E695754-6DEB-4B34-A58A-595EB443F830}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AutoMapper", "src\Infrastructure\AutoMapper\AutoMapper.csproj", "{1E695754-6DEB-4B34-A58A-595EB443F830}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
