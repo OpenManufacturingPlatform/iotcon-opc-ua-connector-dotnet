@@ -56,19 +56,21 @@
           {
             "topicName": "telemetry",
             "qosLevel": 1,
-            "retain": false
+            "retain": false,
+            "clientId": "TelemetryClientId"
           }
         ]
       }
     },
-    "CommandEndpoint": {
+    "RequestEndpoint": {
       "Type": "mqtt",
       "NativeSettings": {
         "topics": [
           {
             "topicName": "commands",
             "qosLevel": 1,
-            "retain": false
+            "retain": false,
+            "clientId": "RequestsClientId"
           }
         ]
       }
@@ -80,7 +82,8 @@
           {
             "topicName": "responses",
             "qosLevel": 1,
-            "retain": false
+            "retain": false,
+            "clientId": "ResponsesClientId"
           }
         ]
       }
