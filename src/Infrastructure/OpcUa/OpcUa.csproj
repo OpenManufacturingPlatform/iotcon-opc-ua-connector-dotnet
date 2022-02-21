@@ -14,6 +14,7 @@
 
   <ItemGroup>
     <PackageReference Include="OPCFoundation.NetStandard.Opc.Ua" Version="1.4.368.33" />
+    <PackageReference Include="OPCFoundation.NetStandard.Opc.Ua.Client.ComplexTypes" Version="1.4.368.33" />
   </ItemGroup>
 
   <ItemGroup>
