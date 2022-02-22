@@ -22,8 +22,8 @@
   
    <ItemGroup>
     <PackageReference Include="Ben.Demystifier" Version="0.4.1" />
-    <PackageReference Include="OneOf" Version="3.0.205" />
-    <PackageReference Include="OPCFoundation.NetStandard.Opc.Ua" Version="1.4.367.75" />
+    <PackageReference Include="OneOf" Version="3.0.211" />
+    <PackageReference Include="OPCFoundation.NetStandard.Opc.Ua" Version="1.4.368.33" />
    </ItemGroup>
   
    <ItemGroup>
