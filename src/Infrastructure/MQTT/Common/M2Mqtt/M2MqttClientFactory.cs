@@ -21,7 +21,7 @@ namespace OMP.Connector.Infrastructure.MQTT.Common.M2Mqtt
             this._mqttClientDictionary = new ConcurrentDictionary<string, M2MqttClient>();
         }
 
-        public IMqttClient CreateClient(CommunicationChannelConfiguration channelConfiguration, SharedConfiguration? _)
+        public IMqttClient CreateClient(CommunicationChannelConfiguration channelConfiguration, SharedConfiguration _)
         {
             var mqttClientSettings = channelConfiguration.GetConfig<MqttClientSettings>();
             var connectionKey = GetConnectionKey(mqttClientSettings);

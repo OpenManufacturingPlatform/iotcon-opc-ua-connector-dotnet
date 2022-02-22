@@ -4,6 +4,6 @@ namespace OMP.Connector.Infrastructure.MQTT.Common
 {
     public interface IMqttClientFactory
     {
-        IMqttClient CreateClient(CommunicationChannelConfiguration channelConfiguration, SharedConfiguration? sharedConfiguration);
+        IMqttClient CreateClient(CommunicationChannelConfiguration channelConfiguration, SharedConfiguration sharedConfiguration);
     }
 }

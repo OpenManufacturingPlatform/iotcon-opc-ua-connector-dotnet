@@ -13,7 +13,7 @@ namespace MQTT.Tests
     public class M2MqttClientFactoryTests
     {
         [Fact]
-        public void Ensure_CreateClient_Returns_new_Connection_When_Mqtt_Broker_Differs()
+        public void Ensure_CreateClient_Returns_new_Connection_When_Mqtt_Broker_Differs_But_ClientId_Are_Equal()
         {
             var channelConfiguration = new MqttConfigurationForTests
             {
@@ -45,9 +45,9 @@ namespace MQTT.Tests
 
             var client3 = factory.CreateClient(channelConfiguration, null);
 
-            client.Should().NotBeEquivalentTo(client2);
-            client.Should().NotBeEquivalentTo(client3);
-            client2.Should().NotBeEquivalentTo(client3);
+            client.GetHashCode().Should().NotBe(client2.GetHashCode());
+            client.GetHashCode().Should().NotBe(client3.GetHashCode());
+            client2.GetHashCode().Should().NotBe(client3.GetHashCode());
         }
 
 
@@ -88,13 +88,11 @@ namespace MQTT.Tests
 
             client.Should().NotBeNull();
 
-            channelConfiguration.MqttClientSettings!.BrokerAddress = "Some INVALID broker address to force the ctor of the M2MqttClient to break if it is called again";
-
             var client2 = factory.CreateClient(channelConfiguration, null);
 
             client2.Should().NotBeNull();
 
-            client.Should().Be(client2);
+            client.GetHashCode().Should().Be(client2.GetHashCode());
         }
 
         [Fact]
