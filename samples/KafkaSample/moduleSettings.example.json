@@ -56,7 +56,7 @@
     "Shared": {
       "Type": "kafka",
       "NativeSettings": {
-        "BootstrapServers": "...",        
+        "BootstrapServers": "...",
         "Debug": "consumer,cgrp,topic,fetch",
         "saslMechanism": "PLAIN",
         "saslUsername": "...",
@@ -78,28 +78,32 @@
       "Type": "kafka",
       "UploadTimeoutMs": null,
       "NativeSettings": {
-        "MaxRetries": 5, 
-        "WaitTimeBetweenRetriesInSeconds": 3, 
-        "Topic": "TelemetryTopic"
+        "MaxRetries": 5,
+        "WaitTimeBetweenRetriesInSeconds": 3,
+        "Topic": "TelemetryTopic",
+        "groupId": "TelemetryGroupId"
       }
     },
-    "CommandEndpoint": {
+    "RequestEndpoint": {
       "Type": "kafka",
       "NativeSettings": {
-        "Topic": "CommandTopic"
+        "Topic": "CommandTopic",
+        "groupId": "RequestsGroupId"
       }
     },
     "ResponseEndpoint": {
       "Type": "kafka",
       "NativeSettings": {
-        "Topic": "ResponseTopic"
+        "Topic": "ResponseTopic",
+        "groupId": "ResponseGroupId"
       }
     }
   },
   "Persistence": {
-    "Type": "kafka", 
+    "Type": "kafka",
     "NativeSettings": {
-      "Topic": "ConfigurationTopic"
+      "Topic": "ConfigurationTopic",
+      "groupId": "ConfigurationGroupId"
     }
   }
 }
