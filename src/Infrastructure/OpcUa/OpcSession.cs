@@ -41,7 +41,7 @@ namespace OMP.Connector.Infrastructure.OpcUa
         private IOpcSessionReconnectHandler _reconnectHandler;
         private Session _session;
         private IRegisteredNodeStateManager _registeredNodeStateManager;
-        private ComplexTypeSystemWithInterface _complexTypeSystem;
+        private IComplexTypeSystem _complexTypeSystem;
         private readonly EndpointConfiguration _endpointConfiguration;
         private readonly IMapper _mapper;
         private readonly IUserIdentityProvider _identityProvider;
@@ -316,8 +316,9 @@ namespace OMP.Connector.Infrastructure.OpcUa
             if (_complexTypeSystem == null)
             {
                 _logger.Trace("Loading OPC UA complex type system...");
-                _complexTypeSystem = new ComplexTypeSystemWithInterface(_session);
-                await _complexTypeSystem.Load();
+                var complexTypeSystemWrapper = new ComplexTypeSystemWrapper(_session);
+                _complexTypeSystem = complexTypeSystemWrapper;
+                await complexTypeSystemWrapper.Load();
                 _logger.Trace("Finished loading OPC UA complex type system.");
             }
         }
