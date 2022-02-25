@@ -24,10 +24,6 @@ namespace OMP.Connector.Infrastructure.Kafka.Common.Consumers.Handlers
                 "], all: [" +
                 string.Join(',', consumer.Assignment.Concat(partitions).Select(p => p.Partition.Value)) +
                 "]");
-
-            // Possibly manually specify start offsets by returning a list of topic/partition/offsets
-            // to assign to, e.g.:
-            // return partitions.Select(tp => new TopicPartitionOffset(tp, externalOffsets[tp]));
         }
     }
 }
