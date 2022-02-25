@@ -52,6 +52,9 @@ namespace OMP.Connector.Infrastructure.Kafka.Common.Consumers
         public ConsumeResult<TKey, TValue> Consume(CancellationToken cancellationToken = default)
            => Subscribe().Consumer.Consume(cancellationToken);
 
+        public ConsumeResult<TKey, TValue> Consume(TimeSpan timeout)
+           => Subscribe().Consumer.Consume(timeout);
+
         public void Dispose()
         {
             try
