@@ -1,4 +1,4 @@
-## OPC UA Server Stack Support Feature Matrix
+## OPC UA Server Stack Feature Matrix
 <br>
 
 
@@ -25,4 +25,5 @@
 | Message Encryption and signing | Basic256Sha256 Sign & Encrypt | Basic256Sha256 Sign & Encrypt | Basic256Sha256 Sign & Encrypt (sign only also available)<br>Aes128\_Sha256\_RsaOaep Sign & Encrypt (sign only also available)<br>Aes256\_Sha256\_RsaPss Sign & Encrypt (sign only also available) |
 | Certificates | NodeOPCUA generates a server certificate and has a flag to accept unknown clients certificates automatically, which allows any client with a certificate to connect using a secured endpoint. | Milo also generates the server certificates, however Milo requires clients certificates to be moved manually from the rejected certificates folder to the trusted certificates folder in order for clients to connect. | Server configuration has a flag to auto-accept unknown client certificates, which allows any client with a certificate to connect using a secured endpoint. |
 
-*For an updated list of supported features, please refer to the OPC UA stack repository*
+<br>
+*For an up to date list of supported features, please refer to each OPC UA stack repository.*
