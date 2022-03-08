@@ -54,5 +54,5 @@ In the configuration phase of the OPC UA Edge Connector a configuration needs to
 
 ## Create your own OPC UA Server
 
-- If you wish to create your own OPCUA server to test the OPC UA connector against. We suggest having a look at 
+- If you wish to create your own OPC UA server. We suggest having a look at 
   the [OPC UA Server Stack Feature Matrix](/readme-files/OPCUAServerStackFeatureMatrix.md)
