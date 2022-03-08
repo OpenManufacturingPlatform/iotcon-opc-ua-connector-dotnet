@@ -1,12 +1,15 @@
 # OMP OPC UA Edge Connector 
 ### **Software under construction**
 
-- [Motivation](#motivation)
-- [Infrastructural View](#infrastructural-view)
-- [Application View](#application-view)
-- [Operational View](#operational-view)
-- [Getting Started and Contribution](#getting-started-and-contribution)
-- [Build and Installation](#build-and-installation)
+- [OMP OPC UA Edge Connector](#omp-opc-ua-edge-connector)
+    - [**Software under construction**](#software-under-construction)
+  - [Introduction](#introduction)
+  - [Infrastructural View](#infrastructural-view)
+  - [Application View](#application-view)
+  - [Operational View](#operational-view)
+  - [Getting Started and Contribution](#getting-started-and-contribution)
+  - [Build and Installation](#build-and-installation)
+  - [Create your own OPC UA Server](#create-your-own-opc-ua-server)
 
 
 ## Introduction
@@ -48,3 +51,8 @@ In the configuration phase of the OPC UA Edge Connector a configuration needs to
 
 - Please go to the [MQTT Example](/readme-files/MQTTExample.md) to see how to build and run it.
 - Please go to the [Kafka Example](/readme-files/KafkaExample.md) to see how to build and run it.
+
+## Create your own OPC UA Server
+
+- If you wish to create your own OPCUA server to test the OPC UA connector against. We suggest having a look at 
+  the [OPC UA Server Stack Feature Matrix](/readme-files/OPCUAServerStackFeatureMatrix.md)
