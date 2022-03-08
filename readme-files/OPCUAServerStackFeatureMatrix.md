@@ -1,7 +1,7 @@
 ## OPC UA Server Stack Feature Matrix
 <br>
-<br>
 For an up to date list of supported features, please refer to each OPC UA stack repository
+<br>
 <br>
 
 |            | NodeOPCUA | Eclipse Milo | OPCFoundation |
