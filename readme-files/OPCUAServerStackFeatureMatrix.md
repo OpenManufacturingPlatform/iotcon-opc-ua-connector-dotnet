@@ -1,9 +1,9 @@
-|     | NodeJs | Eclipse Milo | OPCFoundation |
-| --- | --- | --- | --- |  
-|     | [https://node-opcua.github.io/](https://node-opcua.github.io/) | [https://github.com/eclipse/milo](https://github.com/eclipse/milo) | [https://github.com/OPCFoundation/UA-.NETStandard](https://github.com/OPCFoundation/UA-.NETStandard) |
+|            | NodeJs | Eclipse Milo | OPCFoundation |
+| :--------- | :----- | :----------- | :------------ |  
+| Repository | [NodeOPCUA](https://node-opcua.github.io/) | [Milo](https://github.com/eclipse/milo) | [UA-.NETStandard](https://github.com/OPCFoundation/UA-.NETStandard) |
 | Programming language | JavaScript TypeScript | Java | C#  |
-| Supports OPCU UA specification 1.03  <br>(Published 2015) | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
-| Supports OPCU UA specification 1.04<br>(Published 2017) | :grey_question: | :x: | :heavy_check_mark: |
+| Supports OPCU UA specification 1.03 (Published 2015) | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+| Supports OPCU UA specification 1.04 (Published 2017) | :grey_question: | :x: | :heavy_check_mark: |
 | NodesSet2.xml import | :heavy_check_mark: | :x: | :x: |
 | Proprietary xml import | :x: | :x: | :heavy_check_mark: (predefined xml output from model compiler) |
 | Add Namespace / Addressspace by code | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
