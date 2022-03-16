@@ -1,4 +1,4 @@
-# OPC UA Server Stacks Features
+# OPC UA Server Stacks Comparison
 
 The following matrix shows a comparison about the features of common OPC UA server stacks. The comparison was done in December 2021. For an up to date list of supported features, please refer to each individual OPC UA stack repository.
 
@@ -23,9 +23,8 @@ Cells with a question mark we could not determine exactly. If you have informati
 | Value Simulation | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
 | Struct/Extension Objects | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
 | Support for special chars in node ids (including user defined types)  <br>(for simulation of Siemens OPC UA Models) | :grey_question: | :grey_question: | :heavy_check_mark: |
-| Transport protocol | OPC.TCP - Binary<br>HTTP/HTTPS - Binary | OPC.TCP - Binary<br>HTTP/HTTPS - Binary | OPC.TCP - Binary<br>HTTP/HTTPS - Binary |
+| Transport protocol | <ul><li>OPC.TCP - Binary</li><li>HTTP/HTTPS - Binary</li></ul> | <ul><li>OPC.TCP - Binary</li><li>HTTP/HTTPS - Binary</li></ul> | <ul><li>OPC.TCP - Binary</li><li>HTTP/HTTPS - Binary</li></ul> |
 | Security Policies | <ul><li>None</li><li>Basic128Rsa15</li><li>Basic256</li><li>Basic256Sha256</li></ul>| <ul><li>None</li><li>Basic256Sha256</li></ul> | <ul><li>None</li><li>Basic256Sha256</li><li>Aes128\_Sha256\_RsaOaep</li><li>Aes256\_Sha256\_RsaPss</li><li>Basic256Sha256</li></ul>  |
-| Authentication | Anonymous<br>Username / Password<br>X509 Certificate | Anonymous<br>Username / Password<br>X509 Certificate | Anonymous<br>Username / Password<br>X509 Certificate |
-| Message encryption and signing | Basic256Sha256 Sign & Encrypt | Basic256Sha256 Sign & Encrypt | Basic256Sha256 Sign & Encrypt (sign only also available)<br>Aes128\_Sha256\_RsaOaep Sign & Encrypt (sign only also available)<br>Aes256\_Sha256\_RsaPss Sign & Encrypt (sign only also available) |
+| Authentication | <ul><li>Anonymous</li><li>Username / Password</li><li>X.509 Certificate</li></ul> | <ul><li>Anonymous</li><li>Username / Password</li><li>X.509 Certificate</li></ul> | <ul><li>Anonymous</li><li>Username / Password</li><li>X.509 Certificate</li></ul> |
+| Message encryption and signing | Basic256Sha256 Sign & Encrypt | Basic256Sha256 Sign & Encrypt | <ul><li>Basic256Sha256 Sign & Encrypt (sign only also available)</li><li>Aes128\_Sha256\_RsaOaep Sign & Encrypt (sign only also available)</li><li>Aes256\_Sha256\_RsaPss Sign & Encrypt (sign only also available)</li></ul> |
 | Certificates | NodeOPCUA generates a server certificate and has a flag to accept unknown clients certificates automatically, which allows any client with a certificate to connect using a secured endpoint. | Milo also generates the server certificates, however Milo requires clients certificates to be moved manually from the rejected certificates folder to the trusted certificates folder in order for clients to connect. | Server configuration has a flag to auto-accept unknown client certificates, which allows any client with a certificate to connect using a secured endpoint. |
-
