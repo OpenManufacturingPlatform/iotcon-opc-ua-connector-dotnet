@@ -1,6 +1,6 @@
 # OPC UA Server Stacks Comparison
 
-The following matrix shows a comparison about the features of common OPC UA server stacks. The comparison was done in December 2021. For an up to date list of supported features, please refer to each individual OPC UA stack repository.
+The following matrix shows a comparison about the features of common OPC UA server stacks. The comparison was done in December 2021 with the focus on higher-level languages. For an up to date list of supported features, please refer to each individual OPC UA stack repository.
 
 Cells with a question mark we could not determine exactly. If you have information on these, please create a pull request.
 
