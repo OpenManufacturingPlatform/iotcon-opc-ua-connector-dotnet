@@ -67,7 +67,13 @@ namespace OMP.Connector.Infrastructure.Kafka
                 throw new AggregateException("Invalid or missing configuration", argumentExceptions);
         }
 
-        public async Task SendMessageToComConUpAsync(CommandResponse commandResponse)
+        public async Task SendMessageToComConUpAsync(IEnumerable<CommandResponse> commandResponse, CommandRequest commandRequest = null)
+        {
+            foreach (var response in commandResponse)
+                await SendMessageToComConUpAsync(response, commandRequest);
+        }
+
+        public async Task SendMessageToComConUpAsync(CommandResponse commandResponse, CommandRequest commandRequest = null)
         {
             var requestId = commandResponse.MetaData?.CorrelationIds?.LastOrDefault();
             requestId ??= Guid.Empty.ToString();
