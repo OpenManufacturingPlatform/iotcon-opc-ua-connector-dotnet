@@ -1,4 +1,7 @@
-﻿using OMP.Connector.Infrastructure.Kafka.Common.Consumers.Handlers;
+﻿// SPDX-License-Identifier: MIT. 
+// Copyright Contributors to the Open Manufacturing Platform.
+
+using OMP.Connector.Infrastructure.Kafka.Common.Consumers.Handlers;
 using OMP.Connector.Infrastructure.Kafka.Common.Producers.Handlers;
 
 namespace OMP.Connector.Infrastructure.Kafka.Common.Events

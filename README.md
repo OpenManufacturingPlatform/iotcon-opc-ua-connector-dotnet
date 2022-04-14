@@ -1,5 +1,6 @@
 # OMP OPC UA Edge Connector 
-### **Software under construction**
+
+![APM license](https://img.shields.io/badge/License-MIT-brightgreen)
 
 - [OMP OPC UA Edge Connector](#omp-opc-ua-edge-connector)
     - [**Software under construction**](#software-under-construction)
@@ -56,3 +57,7 @@ In the configuration phase of the OPC UA Edge Connector a configuration needs to
 
 - If you want to create your own OPC UA server for testing. We suggest having a look at 
   the [OPC UA Server Stack Feature Matrix](/readme-files/OPCUAServerStackFeatureMatrix.md)
+
+## Third party software
+
+- Please see all 3rd Party software used with the licenses [3rd Party Software](/readme-files/NOTICE.md)

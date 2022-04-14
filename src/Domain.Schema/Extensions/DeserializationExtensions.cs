@@ -1,4 +1,7 @@
-﻿using Newtonsoft.Json;
+﻿// SPDX-License-Identifier: MIT. 
+// Copyright Contributors to the Open Manufacturing Platform.
+
+using Newtonsoft.Json;
 
 namespace OMP.Connector.Domain.Schema.Extenions
 {

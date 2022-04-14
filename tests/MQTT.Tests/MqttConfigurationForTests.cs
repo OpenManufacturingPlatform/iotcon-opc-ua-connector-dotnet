@@ -1,4 +1,7 @@
-﻿using OMP.Connector.Domain.Configuration;
+﻿// SPDX-License-Identifier: MIT. 
+// Copyright Contributors to the Open Manufacturing Platform.
+
+using OMP.Connector.Domain.Configuration;
 using OMP.Connector.Infrastructure.MQTT.Common;
 using System;
 

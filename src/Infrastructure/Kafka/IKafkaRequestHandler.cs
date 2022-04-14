@@ -1,4 +1,7 @@
-﻿using System.Threading.Tasks;
+﻿// SPDX-License-Identifier: MIT. 
+// Copyright Contributors to the Open Manufacturing Platform.
+
+using System.Threading.Tasks;
 using Confluent.Kafka;
 using OMP.Connector.Domain.Schema.Messages;
 

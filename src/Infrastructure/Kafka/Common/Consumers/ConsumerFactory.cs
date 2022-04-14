@@ -1,4 +1,7 @@
-﻿using Confluent.Kafka;
+﻿// SPDX-License-Identifier: MIT. 
+// Copyright Contributors to the Open Manufacturing Platform.
+
+using Confluent.Kafka;
 using Microsoft.Extensions.Options;
 using OMP.Connector.Domain.Configuration;
 using OMP.Connector.Infrastructure.Kafka.CommandEndpoint;

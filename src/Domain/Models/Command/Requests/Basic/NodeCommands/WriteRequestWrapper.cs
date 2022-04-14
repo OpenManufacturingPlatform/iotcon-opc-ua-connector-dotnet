@@ -1,4 +1,7 @@
-﻿namespace OMP.Connector.Domain.Models.Command.Requests.Basic.NodeCommands
+﻿// SPDX-License-Identifier: MIT. 
+// Copyright Contributors to the Open Manufacturing Platform.
+
+namespace OMP.Connector.Domain.Models.Command.Requests.Basic.NodeCommands
 {
     public class WriteRequestWrapper
     {

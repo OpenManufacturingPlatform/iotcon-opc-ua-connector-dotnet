@@ -1,4 +1,7 @@
-﻿using System;
+﻿// SPDX-License-Identifier: MIT. 
+// Copyright Contributors to the Open Manufacturing Platform.
+
+using System;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;

@@ -1,4 +1,7 @@
-﻿using System;
+﻿// SPDX-License-Identifier: MIT. 
+// Copyright Contributors to the Open Manufacturing Platform.
+
+using System;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using OMP.Connector.Infrastructure.MQTT.Common.Events;
