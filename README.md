@@ -57,3 +57,7 @@ In the configuration phase of the OPC UA Edge Connector a configuration needs to
 
 - If you want to create your own OPC UA server for testing. We suggest having a look at 
   the [OPC UA Server Stack Feature Matrix](/readme-files/OPCUAServerStackFeatureMatrix.md)
+
+## Third party software
+
+- Please see all 3rd Party software used with the licenses [3rd Party Software](/readme-files/NOTICE.md)

@@ -43,7 +43,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 		Dockerfile.KafkaSample = Dockerfile.KafkaSample
 		Dockerfile.MqttSample = Dockerfile.MqttSample
-		Notice.md = Notice.md
+		readme-files\NOTICE.md = readme-files\NOTICE.md
 		NuGet.config = NuGet.config
 		README.md = README.md
 	EndProjectSection
