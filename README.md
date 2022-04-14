@@ -1,5 +1,6 @@
 # OMP OPC UA Edge Connector 
-### **Software under construction**
+
+![APM license](https://img.shields.io/badge/License-MIT-brightgreen)
 
 - [OMP OPC UA Edge Connector](#omp-opc-ua-edge-connector)
     - [**Software under construction**](#software-under-construction)

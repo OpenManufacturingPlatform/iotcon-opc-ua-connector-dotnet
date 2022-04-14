@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿// SPDX-License-Identifier: MIT. 
+// Copyright Contributors to the Open Manufacturing Platform.
+
+using System.Collections.Generic;
 using System.ComponentModel;
 using Newtonsoft.Json;
 using OMP.Connector.Domain.Schema.Responses.Control.Base;

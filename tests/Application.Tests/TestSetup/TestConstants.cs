@@ -1,4 +1,7 @@
-﻿namespace OMP.Connector.Application.Tests.TestSetup
+﻿// SPDX-License-Identifier: MIT. 
+// Copyright Contributors to the Open Manufacturing Platform.
+
+namespace OMP.Connector.Application.Tests.TestSetup
 {
     public static class TestConstants
     {

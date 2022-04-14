@@ -1,4 +1,7 @@
-﻿namespace OMP.Connector.Infrastructure.MQTT.Serialization
+﻿// SPDX-License-Identifier: MIT. 
+// Copyright Contributors to the Open Manufacturing Platform.
+
+namespace OMP.Connector.Infrastructure.MQTT.Serialization
 {
     public interface ISerializer
     {

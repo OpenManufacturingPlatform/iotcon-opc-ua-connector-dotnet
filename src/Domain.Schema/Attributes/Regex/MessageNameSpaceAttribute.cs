@@ -1,4 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿// SPDX-License-Identifier: MIT. 
+// Copyright Contributors to the Open Manufacturing Platform.
+
+using System.ComponentModel.DataAnnotations;
 using OMP.Connector.Domain.Schema.Constants;
 
 namespace OMP.Connector.Domain.Schema.Attributes.Regex

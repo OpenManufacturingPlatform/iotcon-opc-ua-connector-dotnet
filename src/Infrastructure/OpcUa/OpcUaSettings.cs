@@ -1,4 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿// SPDX-License-Identifier: MIT. 
+// Copyright Contributors to the Open Manufacturing Platform.
+
+using System.ComponentModel.DataAnnotations;
 using Opc.Ua;
 
 namespace OMP.Connector.Infrastructure.OpcUa

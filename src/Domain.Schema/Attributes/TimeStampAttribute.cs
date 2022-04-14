@@ -1,4 +1,7 @@
-﻿using NJsonSchema.Annotations;
+﻿// SPDX-License-Identifier: MIT. 
+// Copyright Contributors to the Open Manufacturing Platform.
+
+using NJsonSchema.Annotations;
 using OMP.Connector.Domain.Schema.Constants;
 
 namespace OMP.Connector.Domain.Schema.Attributes

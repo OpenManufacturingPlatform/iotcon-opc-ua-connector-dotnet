@@ -1,4 +1,7 @@
-﻿using System.Linq;
+﻿// SPDX-License-Identifier: MIT. 
+// Copyright Contributors to the Open Manufacturing Platform.
+
+using System.Linq;
 using FluentValidation;
 using Microsoft.Extensions.Options;
 using OMP.Connector.Domain.Configuration;
