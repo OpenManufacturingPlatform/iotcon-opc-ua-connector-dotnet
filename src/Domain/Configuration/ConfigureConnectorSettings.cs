@@ -1,4 +1,7 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿// SPDX-License-Identifier: MIT. 
+// Copyright Contributors to the Open Manufacturing Platform.
+
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 
 namespace OMP.Connector.Domain.Configuration

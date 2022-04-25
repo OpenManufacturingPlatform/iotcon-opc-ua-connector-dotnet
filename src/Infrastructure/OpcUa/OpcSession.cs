@@ -1,4 +1,7 @@
-﻿using System;
+﻿// SPDX-License-Identifier: MIT. 
+// Copyright Contributors to the Open Manufacturing Platform.
+
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -19,6 +22,7 @@ using OMP.Connector.Domain.Schema;
 using OMP.Connector.Domain.Schema.Enums;
 using OMP.Connector.Domain.Schema.Interfaces;
 using OMP.Connector.Domain.Schema.Request.Control.WriteValues;
+using OMP.Connector.Infrastructure.OpcUa.Extensions;
 using OMP.Connector.Infrastructure.OpcUa.Reconnect;
 using OMP.Connector.Infrastructure.OpcUa.States;
 using Opc.Ua;
@@ -108,8 +112,9 @@ namespace OMP.Connector.Infrastructure.OpcUa
                     identity,
                     default);
 
+                _session.KeepAliveInterval = _opcUaSettings.KeepAliveIntervalInSeconds.ToMilliseconds();
                 _session.KeepAlive += SessionOnKeepAlive;
-                _session.OperationTimeout = (int)TimeSpan.FromSeconds(_opcUaSettings.OperationTimeoutInSeconds).TotalMilliseconds;
+                _session.OperationTimeout = _opcUaSettings.OperationTimeoutInSeconds.ToMilliseconds();
 
                 await LoadComplexTypeSystemAsync();
 

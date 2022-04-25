@@ -1,4 +1,7 @@
-﻿using System.Security.Cryptography.X509Certificates;
+﻿// SPDX-License-Identifier: MIT. 
+// Copyright Contributors to the Open Manufacturing Platform.
+
+using System.Security.Cryptography.X509Certificates;
 using NSubstitute;
 using Opc.Ua;
 using Opc.Ua.Client;

@@ -1,4 +1,7 @@
-﻿namespace OMP.Connector.Infrastructure.MQTT.Common
+﻿// SPDX-License-Identifier: MIT. 
+// Copyright Contributors to the Open Manufacturing Platform.
+
+namespace OMP.Connector.Infrastructure.MQTT.Common
 {
     public struct PublishArguments
     {

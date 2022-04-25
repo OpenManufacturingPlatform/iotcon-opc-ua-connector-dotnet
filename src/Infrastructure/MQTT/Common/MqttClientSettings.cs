@@ -1,4 +1,7 @@
-﻿using System;
+﻿// SPDX-License-Identifier: MIT. 
+// Copyright Contributors to the Open Manufacturing Platform.
+
+using System;
 using uPLibrary.Networking.M2Mqtt;
 
 namespace OMP.Connector.Infrastructure.MQTT.Common

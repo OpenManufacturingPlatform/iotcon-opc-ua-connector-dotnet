@@ -40,9 +40,12 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B007E7AE-E85D-4728-A82B-0686A9107DAE}"
 	ProjectSection(SolutionItems) = preProject
 		.dockerignore = .dockerignore
+		.editorconfig = .editorconfig
 		Dockerfile.KafkaSample = Dockerfile.KafkaSample
 		Dockerfile.MqttSample = Dockerfile.MqttSample
+		readme-files\NOTICE.md = readme-files\NOTICE.md
 		NuGet.config = NuGet.config
+		README.md = README.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{88003BD2-8019-42B6-9791-1D5E288F3D02}"
@@ -65,7 +68,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "nugets", "nugets", "{085C45
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AutoMapper", "src\Infrastructure\AutoMapper\AutoMapper.csproj", "{1E695754-6DEB-4B34-A58A-595EB443F830}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MQTT.Tests", "tests\MQTT.Tests\MQTT.Tests.csproj", "{BCE9E328-CA59-4158-B87C-CC078FF65790}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MQTT.Tests", "tests\MQTT.Tests\MQTT.Tests.csproj", "{BCE9E328-CA59-4158-B87C-CC078FF65790}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{48E9DBEF-FFD3-4AAF-A69A-544245DA1F5A}"
 EndProject

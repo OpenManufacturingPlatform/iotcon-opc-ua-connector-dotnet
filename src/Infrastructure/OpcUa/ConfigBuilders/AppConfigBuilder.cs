@@ -1,10 +1,14 @@
-﻿using System;
+﻿// SPDX-License-Identifier: MIT. 
+// Copyright Contributors to the Open Manufacturing Platform.
+
+using System;
 using System.IO;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OMP.Connector.Domain.Configuration;
 using OMP.Connector.Domain.Extensions;
+using OMP.Connector.Infrastructure.OpcUa.Extensions;
 using Opc.Ua;
 
 namespace OMP.Connector.Infrastructure.OpcUa.ConfigBuilders
@@ -61,7 +65,7 @@ namespace OMP.Connector.Infrastructure.OpcUa.ConfigBuilders
             {
                 MaxStringLength = this._opcUaSettings.MaxStringLength,
                 MaxMessageSize = this._opcUaSettings.MaxMessageSize,
-                OperationTimeout = this._opcUaSettings.OperationTimeoutMs
+                OperationTimeout = this._opcUaConfiguration.OperationTimeoutInSeconds.ToMilliseconds()
             };
         }
 

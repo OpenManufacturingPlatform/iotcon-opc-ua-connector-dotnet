@@ -1,4 +1,7 @@
-﻿using System;
+﻿// SPDX-License-Identifier: MIT. 
+// Copyright Contributors to the Open Manufacturing Platform.
+
+using System;
 using System.Linq;
 using Confluent.Kafka;
 
@@ -28,18 +31,12 @@ namespace OMP.Connector.Infrastructure.Kafka.Serialization
         };
 
         public IDeserializer<T> GetDeserializer<T>()
-            => new KafkaJsonSerializer<T>();
+            => IsBuiltInType<T>() 
+                ? default
+                : new KafkaJsonSerializer<T>();
 
         public ISerializer<T> GetSeserializer<T>()
             => new KafkaJsonSerializer<T>();
-
-        private IDeserializer<T> GetSerializer<T>()
-        {
-            if (IsBuiltInType<T>())
-                return null;
-
-            return new KafkaJsonSerializer<T>();
-        }
 
         private static bool IsBuiltInType<T>()
             => BuiltInType.Contains(typeof(T));

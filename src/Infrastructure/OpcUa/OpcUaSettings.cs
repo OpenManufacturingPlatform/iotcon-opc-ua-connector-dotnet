@@ -1,9 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿// SPDX-License-Identifier: MIT. 
+// Copyright Contributors to the Open Manufacturing Platform.
+
+using System.ComponentModel.DataAnnotations;
 using Opc.Ua;
 
 namespace OMP.Connector.Infrastructure.OpcUa
 {
-    public record OpcUaSettings //: IOpcUaSettings
+    public record OpcUaSettings
     {
         private const string ModuleName = "OpcUaConnector";
 
@@ -23,25 +26,6 @@ namespace OMP.Connector.Infrastructure.OpcUa
 
         public int MaxMessageSize { get; set; } = 4 * 1024 * 1024;
 
-        public int OperationTimeoutMs { get; set; } = 120000;
-
-        public bool EnableRegisteredNodes { get; set; } = false;
-
-        [Required]
-        public int DefaultServerBrowseDepth { get; set; }
-
-        [Required]
-        public int NodeBrowseDepth { get; set; }
-
-        [Required]
-        public int SubscriptionBatchSize { get; set; } = 1000;
-
-        [Required]
-        public int ReadBatchSize { get; set; } = 1000;
-
-        [Required]
-        public int RegisterNodeBatchSize { get; set; } = 1000;
-
         [Required]
         public string CertificateStoreTypeName { get; set; } = CertificateStoreType.Directory;
 
@@ -57,17 +41,7 @@ namespace OMP.Connector.Infrastructure.OpcUa
         [Required]
         public string OwnCertStorePath { get; set; } = "CurrentUser\\UA_MachineDefault";
 
-        public uint OpcNodeMask => (uint)NodeClass.Object |
-                                   (uint)NodeClass.Variable |
-                                   (uint)NodeClass.Method |
-                                   (uint)NodeClass.VariableType |
-                                   (uint)NodeClass.ReferenceType |
-                                   (uint)NodeClass.Unspecified;
-
         public int OpcStackTraceMask { get; set; } = Utils.TraceMasks.Error | Utils.TraceMasks.Security | Utils.TraceMasks.StackTrace | Utils.TraceMasks.StartStop;
-
-        public int AwaitSessionLockTimeoutSecs { get; set; }
-        public int ReconnectIntervalSecs { get; set; }
 
         #endregion
     }
