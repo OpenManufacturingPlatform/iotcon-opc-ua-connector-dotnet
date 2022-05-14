@@ -366,7 +366,7 @@ namespace OMP.Connector.Infrastructure.OpcUa
                 DisposeUnHealthyReconnectHandler();
 
                 _reconnectHandler = _opcSessionReconnectHandlerFactory.Create();
-                _reconnectHandler.BeginReconnect(this, _session, _opcUaSettings.ReconnectIntervalInSeconds, _registeredNodeStateManager, ServerReconnectComplete);
+                _reconnectHandler.BeginReconnect(this, _session, _opcUaSettings.ReconnectIntervalInSeconds.ToMilliseconds(), _registeredNodeStateManager, ServerReconnectComplete);
             }
             catch (Exception ex)
             {
