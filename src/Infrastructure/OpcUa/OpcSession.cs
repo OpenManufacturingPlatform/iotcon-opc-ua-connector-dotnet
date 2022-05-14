@@ -23,7 +23,6 @@ using OMP.Connector.Domain.Schema.Enums;
 using OMP.Connector.Domain.Schema.Interfaces;
 using OMP.Connector.Domain.Schema.Request.Control.WriteValues;
 using OMP.Connector.Infrastructure.OpcUa.Extensions;
-using OMP.Connector.Infrastructure.OpcUa.Reconnect;
 using OMP.Connector.Infrastructure.OpcUa.States;
 using Opc.Ua;
 using Opc.Ua.Client;
@@ -35,14 +34,13 @@ namespace OMP.Connector.Infrastructure.OpcUa
     public class OpcSession : IOpcSession
     {
         private readonly OpcUaConfiguration _opcUaSettings;
-        private readonly IOpcSessionReconnectHandlerFactory _opcSessionReconnectHandlerFactory;
         private readonly ILoggerFactory _loggerFactory;
         private readonly ILogger _logger;
         private readonly ApplicationConfiguration _applicationConfiguration;
         private bool _disposed;
         private SemaphoreSlim _opcSessionSemaphore;
         private CancellationTokenSource _sessionCancellationTokenSource;
-        private IOpcSessionReconnectHandler _reconnectHandler;
+        private SessionReconnectHandler _sessionReconnectHandler;
         private Session _session;
         private IRegisteredNodeStateManager _registeredNodeStateManager;
         private IComplexTypeSystem _complexTypeSystem;
@@ -54,7 +52,6 @@ namespace OMP.Connector.Infrastructure.OpcUa
 
         public OpcSession(
             IOptions<ConnectorConfiguration> connectorConfiguration,
-            IOpcSessionReconnectHandlerFactory opcSessionReconnectHandlerFactory,
             ILoggerFactory loggerFactory,
             ApplicationConfiguration applicationConfiguration,
             IMapper mapper,
@@ -62,7 +59,6 @@ namespace OMP.Connector.Infrastructure.OpcUa
             )
         {
             _opcUaSettings = connectorConfiguration.Value.OpcUa;
-            _opcSessionReconnectHandlerFactory = opcSessionReconnectHandlerFactory;
             _loggerFactory = loggerFactory;
             _logger = _loggerFactory.CreateLogger<OpcSession>();
             _applicationConfiguration = applicationConfiguration;
@@ -113,7 +109,8 @@ namespace OMP.Connector.Infrastructure.OpcUa
                     default);
 
                 _session.KeepAliveInterval = _opcUaSettings.KeepAliveIntervalInSeconds.ToMilliseconds();
-                _session.KeepAlive += SessionOnKeepAlive;
+
+                _session.KeepAlive += Session_KeepAlive;
                 _session.OperationTimeout = _opcUaSettings.OperationTimeoutInSeconds.ToMilliseconds();
 
                 await LoadComplexTypeSystemAsync();
@@ -126,6 +123,41 @@ namespace OMP.Connector.Infrastructure.OpcUa
             {
                 ReleaseSession();
             }
+        }
+
+        private void Session_KeepAlive(Session sender, KeepAliveEventArgs e)
+        {
+            if (e.Status != null && ServiceResult.IsNotGood(e.Status))
+            {
+                _logger.Warning($"Communication error: [{e?.Status}] on Endpoint: [{sender.Endpoint?.EndpointUrl}]");
+
+                if (_opcUaSettings.ReconnectIntervalInSeconds <= 0)
+                    return;
+
+                if (_sessionReconnectHandler == null)
+                {
+                    Console.WriteLine("--- RECONNECTING ---");
+                    _sessionReconnectHandler = new SessionReconnectHandler();
+                    _sessionReconnectHandler.BeginReconnect(sender, _opcUaSettings.ReconnectIntervalInSeconds * 1000, Client_ReconnectComplete);
+                }
+            }
+        }
+
+        private void Client_ReconnectComplete(object sender, EventArgs e)
+        {
+            // ignore callbacks from discarded objects.
+            if (!Object.ReferenceEquals(sender, _sessionReconnectHandler))
+            {
+                return;
+            }
+
+            _session = _sessionReconnectHandler.Session;
+            _sessionReconnectHandler.Dispose();
+            _sessionReconnectHandler = null;
+
+            _registeredNodeStateManager?.RestoreRegisteredNodeIds(_session);
+
+            _logger.Information($"Server successfully reconnected: {_session?.Endpoint?.EndpointUrl}");
         }
 
         public async Task ConnectAsync(string opcUaServerUrl)
@@ -293,8 +325,6 @@ namespace OMP.Connector.Infrastructure.OpcUa
             _sessionCancellationTokenSource?.Cancel();
             _sessionCancellationTokenSource?.Dispose();
 
-            _reconnectHandler?.Dispose();
-
             _opcSessionSemaphore?.Dispose();
             _opcSessionSemaphore = null;
 
@@ -305,7 +335,7 @@ namespace OMP.Connector.Infrastructure.OpcUa
 
             if (_session == null) return;
 
-            _session.KeepAlive -= SessionOnKeepAlive;
+            _session.KeepAlive -= Session_KeepAlive;
             _session.RemoveSubscriptions(_session.Subscriptions.ToList());
             _session.Close();
             _session.Dispose();
@@ -336,76 +366,6 @@ namespace OMP.Connector.Infrastructure.OpcUa
 
             _logger.Debug($"Discovered [{endpoints.Count}] endpoints for Server: [{endpointAddress}]");
             return endpoints;
-        }
-
-        private void SessionOnKeepAlive(Session session, KeepAliveEventArgs e)
-        {
-            try
-            {
-                if (session.SessionName != _session.SessionName)
-                    return;
-
-                if (!ReferenceEquals(session, _session))
-                    _session = session;
-
-                // start reconnect sequence on communication error.
-                if (e != null && !ServiceResult.IsBad(e.Status))
-                    return;
-
-                _logger.Warning($"Communication error: [{e?.Status}] on Endpoint: [{session.Endpoint?.EndpointUrl}]");
-
-                if (_opcUaSettings.ReconnectIntervalInSeconds <= 0)
-                    return;
-
-                if (IsReconnectHandlerHealthy())
-                    return;
-
-                var locked = LockSessionAsync().GetAwaiter().GetResult();
-                if (!locked) { return; }
-
-                DisposeUnHealthyReconnectHandler();
-
-                _reconnectHandler = _opcSessionReconnectHandlerFactory.Create();
-                _reconnectHandler.BeginReconnect(this, _session, _opcUaSettings.ReconnectIntervalInSeconds, _registeredNodeStateManager, ServerReconnectComplete);
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex);
-            }
-        }
-
-        private bool IsReconnectHandlerHealthy()
-            => _reconnectHandler is { IsHealthy: true };
-
-        private void DisposeUnHealthyReconnectHandler()
-        {
-            if (_reconnectHandler is null)
-                return;
-
-            if (!_reconnectHandler.IsHealthy)
-                _reconnectHandler.Dispose();
-        }
-
-        private void ServerReconnectComplete(object sender, EventArgs e)
-        {
-            try
-            {
-                _logger.Information($"Server successfully reconnected: {_session?.Endpoint?.EndpointUrl}");
-
-                if (!ReferenceEquals(sender, _reconnectHandler))
-                    return;
-
-                _reconnectHandler?.Dispose();
-                _reconnectHandler = null;
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex);
-            }
-            finally
-            {
-                ReleaseSession();
-            }
         }
 
         private async Task<bool> LockSessionAsync()

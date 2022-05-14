@@ -20,7 +20,6 @@ using OMP.Connector.EdgeModule.Jobs;
 using OMP.Connector.Infrastructure.AutoMapper;
 using OMP.Connector.Infrastructure.OpcUa;
 using OMP.Connector.Infrastructure.OpcUa.ConfigBuilders;
-using OMP.Connector.Infrastructure.OpcUa.Reconnect;
 using OMP.Connector.Infrastructure.OpcUa.States;
 using Quartz;
 
@@ -64,7 +63,6 @@ namespace OMP.Connector.EdgeModule
             serviceCollection.AddTransient<ISubscriptionRestoreService, SubscriptionRestoreService>();
             serviceCollection.AddSingleton<ICommandProviderFactory, CommandProviderFactory>();
             serviceCollection.AddTransient<IDiscoveryProvider, DiscoveryProvider>();
-            serviceCollection.AddTransient<IOpcSessionReconnectHandlerFactory, OpcSessionReconnectHandlerFactory>();
             serviceCollection.AddTransient<IOpcMonitoredItemService, OpcMonitoredItemService>();
 
             serviceCollection.AddSingleton<MonitoredItemServiceInitializerFactory>();

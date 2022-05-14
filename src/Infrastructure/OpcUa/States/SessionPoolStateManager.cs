@@ -11,7 +11,6 @@ using Microsoft.Extensions.Options;
 using OMP.Connector.Application.Extensions;
 using OMP.Connector.Domain.Configuration;
 using OMP.Connector.Domain.OpcUa;
-using OMP.Connector.Infrastructure.OpcUa.Reconnect;
 using Opc.Ua;
 
 namespace OMP.Connector.Infrastructure.OpcUa.States
@@ -21,7 +20,6 @@ namespace OMP.Connector.Infrastructure.OpcUa.States
         private readonly ConcurrentDictionary<string, IOpcSession> _sessionPool;
         private readonly SemaphoreSlim _semaphoreSlim;
         private readonly IOptions<ConnectorConfiguration> _opcUaSettingOptions;
-        private readonly IOpcSessionReconnectHandlerFactory _opcSessionReconnectHandlerFactory;
         private readonly ILoggerFactory _loggerFactory;
         private readonly ApplicationConfiguration _applicationConfiguration;
         private readonly IMapper _mapper;
@@ -30,7 +28,6 @@ namespace OMP.Connector.Infrastructure.OpcUa.States
 
         public SessionPoolStateManager(
             IOptions<ConnectorConfiguration> connectorConfiguration,
-            IOpcSessionReconnectHandlerFactory opcSessionReconnectHandlerFactory,
             ILoggerFactory loggerFactory,
             ApplicationConfiguration applicationConfiguration,
             IMapper mapper,
@@ -39,7 +36,6 @@ namespace OMP.Connector.Infrastructure.OpcUa.States
             _sessionPool = new ConcurrentDictionary<string, IOpcSession>();
             _semaphoreSlim = new SemaphoreSlim(1);
             _opcUaSettingOptions = connectorConfiguration;
-            _opcSessionReconnectHandlerFactory = opcSessionReconnectHandlerFactory;
             _loggerFactory = loggerFactory;
             _applicationConfiguration = applicationConfiguration;
             _mapper = mapper;
@@ -93,7 +89,6 @@ namespace OMP.Connector.Infrastructure.OpcUa.States
         {
             var session = new OpcSession(
                 _opcUaSettingOptions,
-                _opcSessionReconnectHandlerFactory,
                 _loggerFactory,
                 _applicationConfiguration,
                 _mapper,
