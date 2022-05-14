@@ -10,7 +10,7 @@
 
   <ItemGroup>
     <PackageReference Include="NSubstitute" Version="4.3.0" />
-    <PackageReference Include="OPCFoundation.NetStandard.Opc.Ua" Version="1.4.368.53" />
+    <PackageReference Include="OPCFoundation.NetStandard.Opc.Ua" Version="1.4.368.58" />
     <PackageReference Include="NUnit" Version="3.13.2" />
   </ItemGroup>
 
