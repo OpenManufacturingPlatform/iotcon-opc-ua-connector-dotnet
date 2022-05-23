@@ -206,6 +206,17 @@ namespace OMP.Connector.Application.Providers.Subscription
         {
             result.OpcUaCommandType = OpcUaCommandType.CreateSubscription;
             result.Message = message;
+            result.MonitoredItems = new CreateSubscriptionItemResponse[this.Command.MonitoredItems.Length];
+
+            for (var itemIndex = 0; itemIndex < this.Command.MonitoredItems.Length; itemIndex++)
+            {
+                result.MonitoredItems[itemIndex].NodeId = this.Command.MonitoredItems[itemIndex].NodeId;
+
+                var results = this._monitoredItemValidator.ValidateAsync(this.Command.MonitoredItems[itemIndex]).GetAwaiter().GetResult();
+                result.MonitoredItems[itemIndex].Message = results.IsValid
+                    ? "Good"
+                    : $"Bad: {results.Errors.Select(error => $"{error.ErrorCode} - {error.ErrorMessage} - {error.Severity};")}";
+            }
         }
 
         private Opc.Ua.Client.Subscription CreateNewSubscription(SubscriptionMonitoredItem monitoredItem)
