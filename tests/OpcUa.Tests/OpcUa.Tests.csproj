@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\Infrastructure\OpcUa\OpcUa.csproj" />
+    <ProjectReference Include="..\..\src\Infrastructure\OpcUa\OpcUa.csproj" />
   </ItemGroup>
 
 </Project>

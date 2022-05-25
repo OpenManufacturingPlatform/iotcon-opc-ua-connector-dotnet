@@ -72,7 +72,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MQTT.Tests", "tests\MQTT.Te
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{48E9DBEF-FFD3-4AAF-A69A-544245DA1F5A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpcUa.Tests", "OpcUa.Tests\OpcUa.Tests.csproj", "{CD2B97C7-D0BA-4483-9D01-FB7527272B46}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpcUa.Tests", "tests\OpcUa.Tests\OpcUa.Tests.csproj", "{CD2B97C7-D0BA-4483-9D01-FB7527272B46}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
