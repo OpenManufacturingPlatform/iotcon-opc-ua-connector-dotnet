@@ -1,6 +1,7 @@
 ﻿// SPDX-License-Identifier: MIT. 
 // Copyright Contributors to the Open Manufacturing Platform.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Options;
@@ -28,25 +29,17 @@ namespace OMP.Connector.Infrastructure.OpcUa
 
             var setting = _authenticationSettings?.Find(s =>
             {
-                var endpointCollection = GetEndpoints(s.Endpoint);
-                var endpointDescriptions = endpointCollection.OrderByDescending(e => e.SecurityLevel);
-
-                var endpoint = endpointDescriptions?.FirstOrDefault(x =>
-                        x.EndpointUrl.Equals(endpointDescription.EndpointUrl) &&
-                        x.SecurityMode.Equals(endpointDescription.SecurityMode));
-
-                return endpoint != null;
+                return endpointDescription.Server.DiscoveryUrls.Any(url => url == GetDiscoveryUrl(s.Endpoint));
             });
 
             return setting is null ? new UserIdentity() : new UserIdentity(setting.Username, setting.Password);
         }
 
-        private EndpointDescriptionCollection GetEndpoints(string endpoint)
+        private string GetDiscoveryUrl(string endpoint)
         {
-            var uri = new System.Uri(endpoint);
-            var client = DiscoveryClient.Create(uri);
-            var endpointCollection = client.GetEndpoints(default);
-            return endpointCollection;
+            var uri = new Uri(endpoint);
+            var discoveryUrl = $"{uri.Scheme}://{uri.Authority}/";
+            return discoveryUrl;
         }
     }
 }
