@@ -90,6 +90,7 @@ namespace OMP.Connector.Infrastructure.AutoMapper
             CreateMap<Uuid, Guid>().ConvertUsing(c => new Guid(c.GuidString));
 
             CreateMap<Variant, OpcVariant>();
+			CreateMap<Variant, OpcVariantLight>(); //custom serialization for AlarmEvent with TypeInfo property
             CreateMap<TypeInfo, OpcTypeInfo>();
 
             this.CreateMap<VariableNode, BrowsedOpcNode>(MemberList.None)
@@ -157,6 +158,20 @@ namespace OMP.Connector.Infrastructure.AutoMapper
             CreateMap<CommandRequest, CommandRequest>();
             CreateMap<RequestPayload, RequestPayload>()
                 .ForMember(dest => dest.Requests, opt => opt.Ignore());
+            #endregion
+
+            #region Alarms
+            CreateMap<EventFieldList, OpcEventFieldList>()
+                .ForMember(dest => dest.EventFields, opt => opt.MapFrom(f => f.EventFields))
+                .AfterMap((src, dest, rc) =>
+                {
+                    var list = new List<OpcVariantLight>();
+                    foreach (var srcEventField in src.EventFields)
+                    {
+                        list.Add(rc.Mapper.Map<OpcVariantLight>(srcEventField));
+                    }
+                    dest.EventFields = list.ToArray();
+                });
             #endregion
         }
 
