@@ -1,4 +1,7 @@
-﻿using System;
+﻿// SPDX-License-Identifier: MIT. 
+// Copyright Contributors to the Open Manufacturing Platform.
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -32,7 +35,6 @@ namespace OMP.Connector.Application.Providers.Subscription
     public class CreateSubscriptionProvider : SubscriptionProvider<CreateSubscriptionsRequest, CreateSubscriptionsResponse>
     {
         private readonly ISubscriptionRepository _subscriptionRepository;
-        private readonly IEndpointDescriptionRepository _endpointDescriptionRepository;
         private readonly TelemetryMessageMetadata _messageMetadata;
         private readonly MonitoredItemValidator _monitoredItemValidator;
         private readonly int _batchSize;
@@ -46,14 +48,12 @@ namespace OMP.Connector.Application.Providers.Subscription
             MonitoredItemServiceInitializerFactoryDelegate opcMonitoredItemServiceInitializerFactory,
             CreateSubscriptionsRequest command,
             TelemetryMessageMetadata messageMetadata,
-            MonitoredItemValidator monitoredItemValidator,
-            IEndpointDescriptionRepository endpointDescriptionRepository) : base(command, connectorConfiguration, logger)
+            MonitoredItemValidator monitoredItemValidator) : base(command, connectorConfiguration, logger)
         {
             this._subscriptionRepository = subscriptionRepository;
             this._opcMonitoredItemServiceInitializerFactory = opcMonitoredItemServiceInitializerFactory;
             this._messageMetadata = messageMetadata;
             this._monitoredItemValidator = monitoredItemValidator;
-            this._endpointDescriptionRepository = endpointDescriptionRepository;
             this._batchSize = this.Settings.OpcUa.SubscriptionBatchSize;
 
             this._groupedItemsNotCreated = new Dictionary<string, List<string>>();
@@ -96,22 +96,7 @@ namespace OMP.Connector.Application.Providers.Subscription
             if (!base.Settings.DisableSubscriptionRestoreService && !errorMessages.Any())
             {
                 var baseEndpointUrl = this.Session.GetBaseEndpointUrl();
-                var endpoint = this._endpointDescriptionRepository.GetByEndpointUrl(baseEndpointUrl);
 
-                if (endpoint == null)
-                {
-                    var emptyEndpoint = new EndpointDescriptionDto
-                    {
-                        EndpointUrl = baseEndpointUrl,
-                        ServerDetails = new ServerDetails
-                        {
-                            Name = string.Empty,
-                            Route = string.Empty
-                        }
-                    };
-                    if (!this._endpointDescriptionRepository.Add(emptyEndpoint))
-                        errorMessages.Add($"Bad: Could not create/update entry configuration for endpoint.");
-                }
                 if (!errorMessages.Any())
                 {
                     var monitoredItemsDict = this.Command.MonitoredItems.ToDictionary(monitoredItem => monitoredItem.NodeId);

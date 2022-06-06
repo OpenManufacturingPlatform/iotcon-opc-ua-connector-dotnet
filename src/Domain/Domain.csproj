@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <LangVersion>latest</LangVersion>
     <VersionPrefix>0.0.0.4</VersionPrefix>
     <AssemblyName>OMP.Connector.$(MSBuildProjectName)</AssemblyName>
@@ -9,6 +9,7 @@
     <RepositoryUrl>https://github.com/OpenManufacturingPlatform/iotcon-opc-ua-connector-dotnet</RepositoryUrl>
     <Authors>OMP</Authors>
     <PackageProjectUrl>https://github.com/OpenManufacturingPlatform/iotcon-opc-ua-connector-dotnet</PackageProjectUrl>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -21,8 +22,8 @@
   
    <ItemGroup>
     <PackageReference Include="Ben.Demystifier" Version="0.4.1" />
-    <PackageReference Include="OneOf" Version="3.0.190" />
-    <PackageReference Include="OPCFoundation.NetStandard.Opc.Ua" Version="1.4.366.38" />
+    <PackageReference Include="OneOf" Version="3.0.211" />
+    <PackageReference Include="OPCFoundation.NetStandard.Opc.Ua" Version="1.5.368.3-rc0" />
    </ItemGroup>
   
    <ItemGroup>

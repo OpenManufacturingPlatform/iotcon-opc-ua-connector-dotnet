@@ -1,4 +1,7 @@
-﻿using System;
+﻿// SPDX-License-Identifier: MIT. 
+// Copyright Contributors to the Open Manufacturing Platform.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using OMP.Connector.Application.Extensions;
@@ -72,7 +75,7 @@ namespace OMP.Connector.Application.OpcUa
 
             var metaData = new MessageMetaData()
             {
-                CorrelationIds = new List<string>() { requestMessage.Id },
+                CorrelationIds = new List<string>(requestMessage.MetaData?.CorrelationIds ?? Array.Empty<string>()),
                 DestinationIdentifiers = new List<Participant>() { requestMessage.MetaData?.SenderIdentifier },
                 SenderIdentifier = requestMessage.MetaData?.DestinationIdentifiers?.First(),
                 TimeStamp = DateTime.UtcNow

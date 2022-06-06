@@ -1,4 +1,7 @@
-﻿using System;
+﻿// SPDX-License-Identifier: MIT. 
+// Copyright Contributors to the Open Manufacturing Platform.
+
+using System;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -24,11 +27,11 @@ namespace OMP.Connector.Infrastructure.MQTT.CommandEndpoint
             IMqttRequestHandler requestHandler,
             ISerializer serializer,
             ILogger<MqttCommandListner> logger)
-            : base(mqttClientFactory.CreateClient(connectorConfiguration.Value.Communication.CommandEndpoint, connectorConfiguration.Value.Communication.Shared),
-                 connectorConfiguration.Value.Communication.CommandEndpoint.GetConfig<MqttClientSettings>(),
+            : base(mqttClientFactory.CreateClient(connectorConfiguration.Value.Communication.RequestEndpoint, connectorConfiguration.Value.Communication.Shared),
+                 connectorConfiguration.Value.Communication.RequestEndpoint.GetConfig<MqttClientSettings>(),
                  serializer,
                  logger,
-                 connectorConfiguration.Value.Communication.CommandEndpoint.GetConfig<MqttClientSettings>().AutoReconnectTimeInSeconds)
+                 connectorConfiguration.Value.Communication.RequestEndpoint.GetConfig<MqttClientSettings>().AutoReconnectTimeInSeconds)
         {
             this.Client.OnMessageReceived += Client_OnMessageReceived;
             this._requestHandler = requestHandler;

@@ -1,4 +1,8 @@
-﻿using System;
+﻿// SPDX-License-Identifier: MIT. 
+// Copyright Contributors to the Open Manufacturing Platform.
+
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using OMP.Connector.Domain;
@@ -27,7 +31,13 @@ namespace OMP.Connector.Infrastructure.MQTT
             this._logger = logger;
         }
 
-        public async Task SendMessageToComConUpAsync(CommandResponse commandResponse)
+        public async Task SendMessageToComConUpAsync(IEnumerable<CommandResponse> commandResponse, CommandRequest commandRequest = null)
+        {
+            foreach (var response in commandResponse)
+                await SendMessageToComConUpAsync(response, commandRequest);
+        }
+
+        public async Task SendMessageToComConUpAsync(CommandResponse commandResponse, CommandRequest commandRequest = null)
         {
             await _responsePublisher.PublishAsync(commandResponse);
             _logger.LogTrace($"{nameof(MqttMessageSender)} send message to ComConUp topic. ResponseMessage.{nameof(commandResponse.Id)}: {commandResponse.Id}");

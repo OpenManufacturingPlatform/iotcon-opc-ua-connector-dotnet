@@ -1,4 +1,7 @@
-﻿using FluentValidation;
+﻿// SPDX-License-Identifier: MIT. 
+// Copyright Contributors to the Open Manufacturing Platform.
+
+using FluentValidation;
 using OMP.Connector.Domain.Configuration;
 
 namespace OMP.Connector.Application.Validators

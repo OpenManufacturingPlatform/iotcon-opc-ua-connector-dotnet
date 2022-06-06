@@ -1,4 +1,6 @@
-﻿
+﻿// SPDX-License-Identifier: MIT. 
+// Copyright Contributors to the Open Manufacturing Platform.
+
 using OMP.Connector.Domain.Schema.Enums;
 
 namespace OMP.Connector.Domain.Schema.Abstraction.Relations

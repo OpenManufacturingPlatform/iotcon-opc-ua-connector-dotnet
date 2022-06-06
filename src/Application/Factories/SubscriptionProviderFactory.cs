@@ -1,4 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
+﻿// SPDX-License-Identifier: MIT. 
+// Copyright Contributors to the Open Manufacturing Platform.
+
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OMP.Connector.Application.Providers.Subscription;
 using OMP.Connector.Application.Validators;
@@ -14,7 +17,6 @@ namespace OMP.Connector.Application.Factories
     public class SubscriptionProviderFactory : ISubscriptionProviderFactory
     {
         private readonly ISubscriptionRepository _subscriptionRepository;
-        private readonly IEndpointDescriptionRepository _endpointDescriptionRepository;
         private readonly ILoggerFactory _loggerFactory;
         private readonly IOptions<ConnectorConfiguration> _connectorConfiguration;
         private readonly MonitoredItemServiceInitializerFactoryDelegate _monitoredItemServiceInitializerFactory;
@@ -25,15 +27,13 @@ namespace OMP.Connector.Application.Factories
             ILoggerFactory loggerFactory,
             IOptions<ConnectorConfiguration> connectorConfiguration,
             MonitoredItemServiceInitializerFactoryDelegate monitoredItemServiceInitializerFactory,
-            MonitoredItemValidator monitoredItemValidator,
-            IEndpointDescriptionRepository endpointDescriptionRepository)
+            MonitoredItemValidator monitoredItemValidator)
         {
             this._subscriptionRepository = dataManagementService;
             this._loggerFactory = loggerFactory;
             this._connectorConfiguration = connectorConfiguration;
             this._monitoredItemServiceInitializerFactory = monitoredItemServiceInitializerFactory;
             this._monitoredItemValidator = monitoredItemValidator;
-            this._endpointDescriptionRepository = endpointDescriptionRepository;
         }
 
         public ISubscriptionProvider GetProvider(ICommandRequest command, TelemetryMessageMetadata telemetryMessageMetadata)
@@ -53,8 +53,7 @@ namespace OMP.Connector.Application.Factories
                                 this._monitoredItemServiceInitializerFactory,
                                 createCommand,
                                 telemetryMessageMetadata,
-                                this._monitoredItemValidator,
-                                this._endpointDescriptionRepository);
+                                this._monitoredItemValidator);
 
         private ISubscriptionProvider CreateRemoveAllSubscriptionProvider(RemoveAllSubscriptionsRequest command)
             => new RemoveAllSubscriptionProvider(

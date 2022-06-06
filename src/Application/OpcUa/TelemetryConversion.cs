@@ -1,4 +1,7 @@
-﻿using System;
+﻿// SPDX-License-Identifier: MIT. 
+// Copyright Contributors to the Open Manufacturing Platform.
+
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -57,6 +60,14 @@ namespace OMP.Connector.Application.OpcUa
                 }
 
                 var itemType = item.GetType();
+
+                //array of structs is returned as an array of ExtensionObjects with the 
+                //strongly typed struct contained in the body
+                if(item is ExtensionObject eo)
+                {
+                    item = eo.Body;
+                    itemType = item.GetType();
+                }
                 measurement.DataType = typeof(IBaseComplexType).IsAssignableFrom(itemType)
                     ? FormatStructTypeName(itemType.Name, false)
                     : itemType.Name;
@@ -127,8 +138,8 @@ namespace OMP.Connector.Application.OpcUa
             }
 
             var typeMap = mapper.ConfigurationProvider
-                    .GetAllTypeMaps().
-                    FirstOrDefault(x => x.SourceType == propertyValue.GetType());
+                    .GetAllTypeMaps()
+                    .FirstOrDefault(x => x.SourceType == propertyValue.GetType());
 
             return typeMap != null ? mapper.Map(propertyValue, typeMap.SourceType, typeMap.DestinationType) : propertyValue;
         }

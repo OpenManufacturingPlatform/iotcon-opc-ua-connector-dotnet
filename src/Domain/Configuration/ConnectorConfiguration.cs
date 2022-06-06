@@ -1,4 +1,7 @@
-﻿using System;
+﻿// SPDX-License-Identifier: MIT. 
+// Copyright Contributors to the Open Manufacturing Platform.
+
+using System;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
@@ -83,8 +86,9 @@ namespace OMP.Connector.Domain.Configuration
         public int ReadBatchSize { get; set; }
         public int RegisterNodeBatchSize { get; set; }
         public int AwaitSessionLockTimeoutSeconds { get; set; } = 3;
-        public int OperationTimeoutInSeconds { get; set; } = 10;
-        public int ReconnectIntervalInSeconds { get; set; }
+        public int OperationTimeoutInSeconds { get; set; } = 120;
+        public int ReconnectIntervalInSeconds { get; set; } = 10;
+        public int KeepAliveIntervalInSeconds { get; set; } = 5;
 
         public uint NodeMask => (uint)NodeClass.Object |
                                           (uint)NodeClass.Variable |
@@ -109,7 +113,7 @@ namespace OMP.Connector.Domain.Configuration
         public SharedConfiguration Shared { get; set; }
         public CommunicationChannelConfiguration TelemetryEndpoint { get; set; }
         public CommunicationChannelConfiguration AlarmEndpoint { get; set; }
-        public CommunicationChannelConfiguration CommandEndpoint { get; set; }
+        public CommunicationChannelConfiguration RequestEndpoint { get; set; }
         public CommunicationChannelConfiguration ResponseEndpoint { get; set; }
     }
 

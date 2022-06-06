@@ -1,12 +1,17 @@
 # OMP OPC UA Edge Connector 
-### **Software under construction**
 
-- [Motivation](#motivation)
-- [Infrastructural View](#infrastructural-view)
-- [Application View](#application-view)
-- [Operational View](#operational-view)
-- [Getting Started and Contribution](#getting-started-and-contribution)
-- [Build and Installation](#build-and-installation)
+![APM license](https://img.shields.io/badge/License-MIT-brightgreen)
+
+- [OMP OPC UA Edge Connector](#omp-opc-ua-edge-connector)
+    - [**Software under construction**](#software-under-construction)
+  - [Introduction](#introduction)
+  - [Infrastructural View](#infrastructural-view)
+  - [Application View](#application-view)
+  - [Operational View](#operational-view)
+  - [Getting Started and Contribution](#getting-started-and-contribution)
+  - [Build and Installation](#build-and-installation)
+  - [Create your own OPC UA Server](#create-your-own-opc-ua-server)
+  - [Third party software](#third-party-software)
 
 
 ## Introduction
@@ -40,12 +45,20 @@ In the configuration phase of the OPC UA Edge Connector a configuration needs to
 
 ## Getting Started and Contribution
 
-- Please check our documentation: (under construction)
+- Please check our documentation: [README](https://github.com/OpenManufacturingPlatform/iotcon-opc-ua-connector-dotnet/tree/main/readme-files)
 - Share your thoughts with us in our [Discussion Board](https://github.com/OpenManufacturingPlatform/iotcon-opc-ua-connector-dotnet/discussions)
 - You found a issue? Please create a [GitHub Issue](https://github.com/OpenManufacturingPlatform/iotcon-opc-ua-connector-dotnet/issues)
 
-Please respect our contribution guidlines. (LINK)
-
 ## Build and Installation
 
-Please got the [MQTT Example](/readme-files/MQTTExample.md) to see how to build and run it.
+- Please go to the [MQTT Example](/readme-files/MQTTExample.md) to see how to build and run it.
+- Please go to the [Kafka Example](/readme-files/KafkaExample.md) to see how to build and run it.
+
+## Create your own OPC UA Server
+
+- If you want to create your own OPC UA server for testing. We suggest having a look at 
+  the [OPC UA Server Stack Feature Matrix](/readme-files/OPCUAServerStackFeatureMatrix.md)
+
+## Third party software
+
+- Please see all 3rd Party software used with the licenses [3rd Party Software](/readme-files/NOTICE.md)

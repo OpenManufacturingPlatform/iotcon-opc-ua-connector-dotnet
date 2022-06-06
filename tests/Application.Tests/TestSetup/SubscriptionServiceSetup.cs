@@ -1,4 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
+﻿// SPDX-License-Identifier: MIT. 
+// Copyright Contributors to the Open Manufacturing Platform.
+
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NSubstitute;
 using OMP.Connector.Application.Factories;
@@ -39,22 +42,6 @@ namespace OMP.Connector.Application.Tests.TestSetup
             });
 
             var logger = Substitute.For<ILogger<SubscriptionService>>();
-            var dataManagementServiceMock = Substitute.For<IEndpointDescriptionRepository>();
-            if (setupServerDetailsInEndpointRepo)
-            {
-                var endpointUrl = "";
-                dataManagementServiceMock
-                    .GetByEndpointUrl(Arg.Do<string>(x => endpointUrl = x))
-                    .Returns(new EndpointDescriptionDto
-                    {
-                        EndpointUrl = endpointUrl,
-                        ServerDetails = new ServerDetails
-                        {
-                            Name = expectedServerName,
-                            Route = expectedServerRoute
-                        }
-                    });
-            }
 
             var sessionPoolStateManager = sessionPoolStateManagerMock ?? Substitute.For<ISessionPoolStateManager>();
             var subscriptionProviderFactoryMock = Substitute.For<ISubscriptionProviderFactory>();

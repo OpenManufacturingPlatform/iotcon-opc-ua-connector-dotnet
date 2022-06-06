@@ -1,4 +1,7 @@
-﻿using System;
+﻿// SPDX-License-Identifier: MIT. 
+// Copyright Contributors to the Open Manufacturing Platform.
+
+using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using OMP.Connector.Domain;
@@ -30,7 +33,7 @@ namespace OMP.Connector.EdgeModule
         {
 
             serviceCollection.TryAddScoped<IKafkaRequestHandler, KafkaRequestHandler>();
-            serviceCollection.TryAddTransient<ISerializerFactory, JsonSerializerFactory>();
+            serviceCollection.TryAddTransient<ISerializerFactory, SerializerFactory>();
             serviceCollection.TryAddSingleton<IKafkaEventHandlerFactory, DefaultKafkaEventHandlerFactory>();
             serviceCollection.TryAddSingleton<IConsumerFactory, ConsumerFactory>();
             serviceCollection.TryAddScoped<IProducerFactory, ProducerFactory>();
@@ -50,7 +53,6 @@ namespace OMP.Connector.EdgeModule
         {
             serviceCollection.TryAddSingleton<KafkaRepository>();
             serviceCollection.TryAddSingleton<IKafkaApplicationConfigurationRepository>(sc => sc.GetRequiredService<KafkaRepository>());
-            serviceCollection.TryAddSingleton<IEndpointDescriptionRepository>(sc => sc.GetRequiredService<KafkaRepository>());
             serviceCollection.TryAddSingleton<ISubscriptionRepository>(sc => sc.GetRequiredService<KafkaRepository>());
             serviceCollection.TryAddScoped(sc => (IConfigurationPersister)sc.GetRequiredService<IProducerFactory>().CreateConfigurationProducer());
 

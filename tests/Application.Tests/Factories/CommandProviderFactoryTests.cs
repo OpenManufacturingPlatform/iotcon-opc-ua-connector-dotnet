@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT. 
+// Copyright Contributors to the Open Manufacturing Platform.
+
 using AutoMapper;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;

@@ -1,4 +1,8 @@
-﻿using System;
+﻿// SPDX-License-Identifier: MIT. 
+// Copyright Contributors to the Open Manufacturing Platform.
+
+using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Confluent.Kafka;
@@ -25,8 +29,8 @@ namespace OMP.Connector.Infrastructure.Kafka.Common.Producers
             KafkaConfig kafkaConfig,
             ProducerConfig configuration,
             ILogger logger,
-            ISerializerFactory serializerFactory,
-            IKafkaEventHandlerFactory kafkaEventHandlerFactory)
+            ISerializerFactory serializerFactory = null,
+            IKafkaEventHandlerFactory kafkaEventHandlerFactory = null)
         {
             if (kafkaConfig == null)
                 throw new ArgumentNullException(nameof(kafkaConfig));
@@ -34,18 +38,22 @@ namespace OMP.Connector.Infrastructure.Kafka.Common.Producers
             var keySeserializer = serializerFactory.GetSeserializer<TKey>();
             var valueSeserializer = serializerFactory.GetSeserializer<TValue>();
 
-            var errorHandler = kafkaEventHandlerFactory.GetProducerErrorHandler<TKey, TValue>();
-            var statisticsHandler = kafkaEventHandlerFactory.GetProducerStatisticsHandler<TKey, TValue>();
-            var producerLogHandler = kafkaEventHandlerFactory.GetProducerLogHandler<TKey, TValue>();
+            var errorHandler = kafkaEventHandlerFactory?.GetProducerErrorHandler<TKey, TValue>();
+            var statisticsHandler = kafkaEventHandlerFactory?.GetProducerStatisticsHandler<TKey, TValue>();
+            var producerLogHandler = kafkaEventHandlerFactory?.GetProducerLogHandler<TKey, TValue>();
 
             Config = kafkaConfig;
             this.Logger = logger;
             _builder = new ProducerBuilder<TKey, TValue>(configuration)
                 .SetErrorHandler((consumer, e) => errorHandler?.Handle(consumer, e))
                     .SetStatisticsHandler((consumer, json) => statisticsHandler?.Handle(consumer, json))
-                    .SetKeySerializer(keySeserializer)
-                    .SetValueSerializer(valueSeserializer)
                     .SetLogHandler((p, logMessage) => producerLogHandler?.Handle(p, logMessage));
+
+            if (keySeserializer is not null)
+                _builder.SetKeySerializer(keySeserializer);
+
+            if (valueSeserializer is not null)
+                _builder.SetValueSerializer(valueSeserializer);
 
             Producer = _builder.Build();
         }
@@ -148,6 +156,6 @@ namespace OMP.Connector.Infrastructure.Kafka.Common.Producers
             => Logger.LogTrace($"Failed to publish message on attempt: {attemptCounter}", e);
 
         protected bool MessageSizeIsTooLarge(Exception ex)
-            => ex is KafkaException kex && kex.Error.Code == ErrorCode.MsgSizeTooLarge;
+            => ex is KafkaException kex && kex.Error.Code == ErrorCode.MsgSizeTooLarge;       
     }
 }

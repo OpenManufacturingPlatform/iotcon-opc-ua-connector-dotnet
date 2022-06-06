@@ -1,4 +1,7 @@
-﻿using System;
+﻿// SPDX-License-Identifier: MIT. 
+// Copyright Contributors to the Open Manufacturing Platform.
+
+using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using OMP.Connector.Application.Repositories;
@@ -28,8 +31,6 @@ namespace OMP.Connector.EdgeModule
 
         public static IServiceCollection AddMqttIntegration(this IServiceCollection serviceCollection)
         {
-
-            serviceCollection.AddSingleton<IEndpointDescriptionRepository, LocalEndpointDescriptionRepository>();
             serviceCollection.AddSingleton<ISubscriptionRepository, LocalSubscriptionRepository>();
 
             serviceCollection.TryAddScoped<IMqttCommndListner, MqttCommandListner>();

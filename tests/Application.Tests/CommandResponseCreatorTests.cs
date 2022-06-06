@@ -1,4 +1,7 @@
-﻿using System;
+﻿// SPDX-License-Identifier: MIT. 
+// Copyright Contributors to the Open Manufacturing Platform.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
@@ -118,7 +121,7 @@ namespace OMP.Connector.Application.Tests
         private static bool IsValidErrorResponse(CommandRequest commandRequest, CommandResponse actualErrorResponse)
         {
             Assert.AreNotEqual(commandRequest.Id, actualErrorResponse.Id);
-            Assert.AreEqual(commandRequest.Id, actualErrorResponse.MetaData.CorrelationIds.First());
+            Assert.AreEqual(commandRequest.MetaData.CorrelationIds, actualErrorResponse.MetaData.CorrelationIds);
             Assert.AreEqual(OpcUaResponseStatus.Bad, actualErrorResponse.Payload.ResponseStatus);
             Assert.AreEqual(commandRequest.MetaData.DestinationIdentifiers.First(), actualErrorResponse.MetaData.SenderIdentifier);
             Assert.AreEqual(commandRequest.MetaData.SenderIdentifier, actualErrorResponse.MetaData.DestinationIdentifiers.First());
@@ -158,7 +161,7 @@ namespace OMP.Connector.Application.Tests
             commandRequest.Id = TestConstants.ExpectedResponseId;
             commandRequest.MetaData = new MessageMetaData()
             {
-                CorrelationIds = new List<string>(),
+                CorrelationIds = new List<string>() { Guid.NewGuid().ToString() },
                 DestinationIdentifiers = new List<Participant>()
                 {
                     new Participant()

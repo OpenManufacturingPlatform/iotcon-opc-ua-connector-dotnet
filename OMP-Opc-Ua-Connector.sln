@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.0.31521.260
+VisualStudioVersion = 17.0.31815.197
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{9E2FDA85-FF37-4E8C-B6E1-056CE77C0EE2}"
 EndProject
@@ -24,6 +24,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{E0040D9F-3461-4507-9443-31AC1E01A81A}"
 	ProjectSection(SolutionItems) = preProject
 		.github\workflows\dotnet.yml = .github\workflows\dotnet.yml
+		.github\workflows\release.yml = .github\workflows\release.yml
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests.Support", "tests\Tests.Support\Tests.Support.csproj", "{BF9B5E1E-C679-4A80-9C65-C5AE1A34479C}"
@@ -39,8 +40,12 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B007E7AE-E85D-4728-A82B-0686A9107DAE}"
 	ProjectSection(SolutionItems) = preProject
 		.dockerignore = .dockerignore
+		.editorconfig = .editorconfig
+		Dockerfile.KafkaSample = Dockerfile.KafkaSample
 		Dockerfile.MqttSample = Dockerfile.MqttSample
+		readme-files\NOTICE.md = readme-files\NOTICE.md
 		NuGet.config = NuGet.config
+		README.md = README.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{88003BD2-8019-42B6-9791-1D5E288F3D02}"
@@ -48,6 +53,26 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KafkaSample", "samples\KafkaSample\KafkaSample.csproj", "{730B7491-42F5-42D5-A968-82475D24AB46}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MqttSample", "samples\MqttSample\MqttSample.csproj", "{01550D8D-162A-4AAE-9809-7334799B6084}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "nugets", "nugets", "{085C45A8-D5EE-49DF-8C8F-71007F3090C8}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\Application.yml = .github\workflows\Application.yml
+		.github\workflows\autoMapper.yml = .github\workflows\autoMapper.yml
+		.github\workflows\BaseNugetRelease.yml = .github\workflows\BaseNugetRelease.yml
+		.github\workflows\Domain.Release.yml = .github\workflows\Domain.Release.yml
+		.github\workflows\Domain.Shcema.Release.yml = .github\workflows\Domain.Shcema.Release.yml
+		.github\workflows\Kafka.yml = .github\workflows\Kafka.yml
+		.github\workflows\MQTT.yml = .github\workflows\MQTT.yml
+		.github\workflows\OpcUA.yml = .github\workflows\OpcUA.yml
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AutoMapper", "src\Infrastructure\AutoMapper\AutoMapper.csproj", "{1E695754-6DEB-4B34-A58A-595EB443F830}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MQTT.Tests", "tests\MQTT.Tests\MQTT.Tests.csproj", "{BCE9E328-CA59-4158-B87C-CC078FF65790}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{48E9DBEF-FFD3-4AAF-A69A-544245DA1F5A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpcUa.Tests", "tests\OpcUa.Tests\OpcUa.Tests.csproj", "{CD2B97C7-D0BA-4483-9D01-FB7527272B46}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -99,6 +124,18 @@ Global
 		{01550D8D-162A-4AAE-9809-7334799B6084}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{01550D8D-162A-4AAE-9809-7334799B6084}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{01550D8D-162A-4AAE-9809-7334799B6084}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1E695754-6DEB-4B34-A58A-595EB443F830}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1E695754-6DEB-4B34-A58A-595EB443F830}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1E695754-6DEB-4B34-A58A-595EB443F830}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1E695754-6DEB-4B34-A58A-595EB443F830}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BCE9E328-CA59-4158-B87C-CC078FF65790}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BCE9E328-CA59-4158-B87C-CC078FF65790}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BCE9E328-CA59-4158-B87C-CC078FF65790}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BCE9E328-CA59-4158-B87C-CC078FF65790}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CD2B97C7-D0BA-4483-9D01-FB7527272B46}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CD2B97C7-D0BA-4483-9D01-FB7527272B46}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CD2B97C7-D0BA-4483-9D01-FB7527272B46}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CD2B97C7-D0BA-4483-9D01-FB7527272B46}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -118,6 +155,11 @@ Global
 		{2772284B-030F-45F3-A908-6256E1BA0A2A} = {45155A97-3609-4B83-8EE0-F4378B7AAD29}
 		{730B7491-42F5-42D5-A968-82475D24AB46} = {88003BD2-8019-42B6-9791-1D5E288F3D02}
 		{01550D8D-162A-4AAE-9809-7334799B6084} = {88003BD2-8019-42B6-9791-1D5E288F3D02}
+		{085C45A8-D5EE-49DF-8C8F-71007F3090C8} = {E0040D9F-3461-4507-9443-31AC1E01A81A}
+		{1E695754-6DEB-4B34-A58A-595EB443F830} = {45155A97-3609-4B83-8EE0-F4378B7AAD29}
+		{BCE9E328-CA59-4158-B87C-CC078FF65790} = {48E9DBEF-FFD3-4AAF-A69A-544245DA1F5A}
+		{48E9DBEF-FFD3-4AAF-A69A-544245DA1F5A} = {13F26BFD-6110-48EC-B78D-E299903A91EE}
+		{CD2B97C7-D0BA-4483-9D01-FB7527272B46} = {48E9DBEF-FFD3-4AAF-A69A-544245DA1F5A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A0CE2A75-8CEA-40E8-B1DF-E77D1204B110}

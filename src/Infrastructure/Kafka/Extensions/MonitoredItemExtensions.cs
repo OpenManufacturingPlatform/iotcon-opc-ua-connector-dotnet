@@ -1,4 +1,7 @@
-﻿using OMP.Connector.Domain.Schema;
+﻿// SPDX-License-Identifier: MIT. 
+// Copyright Contributors to the Open Manufacturing Platform.
+
+using OMP.Connector.Domain.Schema;
 
 namespace OMP.Connector.Infrastructure.Kafka.Extensions
 {

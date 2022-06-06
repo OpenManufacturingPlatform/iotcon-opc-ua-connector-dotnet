@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿// SPDX-License-Identifier: MIT. 
+// Copyright Contributors to the Open Manufacturing Platform.
+
+using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace OMP.Connector.Domain.Models
@@ -7,12 +10,8 @@ namespace OMP.Connector.Domain.Models
     {
         public AppConfigDto()
         {
-            EndpointDescriptions = new List<EndpointDescriptionDto>();
             Subscriptions = new List<SubscriptionDto>();
         }
-
-        [JsonProperty("endpointDescriptions")]
-        public IEnumerable<EndpointDescriptionDto> EndpointDescriptions { get; set; }
 
         [JsonProperty("subscription")]
         public IEnumerable<SubscriptionDto> Subscriptions { get; set; }

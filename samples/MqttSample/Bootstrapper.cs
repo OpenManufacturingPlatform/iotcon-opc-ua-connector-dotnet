@@ -1,4 +1,7 @@
-﻿using System;
+﻿// SPDX-License-Identifier: MIT. 
+// Copyright Contributors to the Open Manufacturing Platform.
+
+using System;
 using AutoMapper;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -14,7 +17,7 @@ using OMP.Connector.Domain.OpcUa;
 using OMP.Connector.Domain.OpcUa.Services;
 using OMP.Connector.Domain.Providers;
 using OMP.Connector.EdgeModule.Jobs;
-using OMP.Connector.EdgeModule.MapperProfiles;
+using OMP.Connector.Infrastructure.AutoMapper;
 using OMP.Connector.Infrastructure.OpcUa;
 using OMP.Connector.Infrastructure.OpcUa.ConfigBuilders;
 using OMP.Connector.Infrastructure.OpcUa.Reconnect;

@@ -1,4 +1,7 @@
-﻿using System.Collections.Concurrent;
+﻿// SPDX-License-Identifier: MIT. 
+// Copyright Contributors to the Open Manufacturing Platform.
+
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Security;
@@ -10,7 +13,7 @@ using uPLibrary.Networking.M2Mqtt;
 
 namespace OMP.Connector.Infrastructure.MQTT.Common.M2Mqtt
 {
-    public class M2MqttClientFactory: IMqttClientFactory
+    public class M2MqttClientFactory : IMqttClientFactory
     {
         private static ILogger<M2MqttClient> _logger;
         private readonly IDictionary<string, M2MqttClient> _mqttClientDictionary;
@@ -21,19 +24,27 @@ namespace OMP.Connector.Infrastructure.MQTT.Common.M2Mqtt
             this._mqttClientDictionary = new ConcurrentDictionary<string, M2MqttClient>();
         }
 
-        public IMqttClient CreateClient(CommunicationChannelConfiguration channelConfiguration, SharedConfiguration? sharedConfiguration)
+        public IMqttClient CreateClient(CommunicationChannelConfiguration channelConfiguration, SharedConfiguration _)
         {
             var mqttClientSettings = channelConfiguration.GetConfig<MqttClientSettings>();
+            var connectionKey = GetConnectionKey(mqttClientSettings);
 
-            if (this._mqttClientDictionary.ContainsKey(mqttClientSettings.ClientId))
-                return this._mqttClientDictionary[mqttClientSettings.ClientId];
+            if (this._mqttClientDictionary.ContainsKey(connectionKey))
+            {
+                var client = this._mqttClientDictionary[connectionKey];
+
+                if (client is not null)
+                    return client;
+
+                this._mqttClientDictionary.Remove(connectionKey);
+            }
 
             if (mqttClientSettings.SslProtocols == MqttSslProtocols.None && mqttClientSettings.Secure)
                 mqttClientSettings.SslProtocols = MqttSslProtocols.TLSv1_2;
 
             var sslCertificate = mqttClientSettings.Secure ? new X509Certificate(mqttClientSettings.CaCertData.ToByteArray()) : null;
             var clientSslCertificate = !string.IsNullOrWhiteSpace(mqttClientSettings.ClientCaCertData) ? new X509Certificate(mqttClientSettings.ClientCaCertData.ToByteArray()) : null;
-            
+
             var mqttClient = new M2MqttClient(
                 mqttClientSettings.BrokerAddress,
                 mqttClientSettings.BrokerPort,
@@ -46,9 +57,13 @@ namespace OMP.Connector.Infrastructure.MQTT.Common.M2Mqtt
                 ProtocolVersion = mqttClientSettings.ProtocolVersion,
             };
 
+            this._mqttClientDictionary.Add(connectionKey, mqttClient);
+
             return mqttClient;
         }
 
+        private static string GetConnectionKey(MqttClientSettings mqttClientSettings)
+            => $"{mqttClientSettings.ClientId}-{mqttClientSettings.BrokerAddress}:{mqttClientSettings.BrokerPort}";
 
         private static bool UserCertificateValidationCallback(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
         {

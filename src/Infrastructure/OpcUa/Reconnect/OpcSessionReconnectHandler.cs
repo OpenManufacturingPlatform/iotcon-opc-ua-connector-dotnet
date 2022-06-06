@@ -1,4 +1,7 @@
-﻿using System;
+﻿// SPDX-License-Identifier: MIT. 
+// Copyright Contributors to the Open Manufacturing Platform.
+
+using System;
 using OMP.Connector.Domain.OpcUa;
 using OMP.Connector.Domain.OpcUa.Services;
 using Opc.Ua.Client;

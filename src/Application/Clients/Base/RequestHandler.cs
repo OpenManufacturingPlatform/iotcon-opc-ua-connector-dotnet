@@ -1,4 +1,7 @@
-﻿using System;
+﻿// SPDX-License-Identifier: MIT. 
+// Copyright Contributors to the Open Manufacturing Platform.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -63,23 +66,24 @@ namespace OMP.Connector.Application.Clients.Base
             try
             {
                 this.Logger.LogEvent(EventTypes.ReceivedRequestFromBroker, commandMessage.Id);
-                await this.ProcessCommand(commandMessage);
+                var responses = await this.ProcessCommand(commandMessage);
+                await this.MessageSender.SendMessageToComConUpAsync(responses, commandMessage);
             }
             catch (Exception e)
             {
                 this.Logger.Error(e, $"{nameof(RequestHandler)} could not process request message. Id: {commandMessage.Id}");
                 var requestNotProcessedResponse = CommandResponseCreator.GetCommandResponseMessage(this.SchemaUrl, commandMessage, null);
-                await this.MessageSender.SendMessageToComConUpAsync(requestNotProcessedResponse);
+                await this.MessageSender.SendMessageToComConUpAsync(requestNotProcessedResponse, commandMessage);
             }
         }
 
-        private async Task ProcessCommand(CommandRequest commandMessage)
+        protected virtual async Task<IEnumerable<CommandResponse>> ProcessCommand(CommandRequest commandMessage)
         {
             if (this._connectorConfiguration.EnableMessageFilter)
             {
                 this.Logger.Trace($"{nameof(RequestHandler)} started filtering of request. RequestMessage.{nameof(commandMessage.Id)}: {commandMessage.Id}");
                 if (this.IsInvalidRequest(commandMessage))
-                    return;
+                    return Array.Empty<CommandResponse>();
             }
 
             this.Logger.Debug($"{nameof(RequestHandler)} started processing of request. RequestMessage.{nameof(commandMessage.Id)}: {commandMessage.Id}");
@@ -88,8 +92,7 @@ namespace OMP.Connector.Application.Clients.Base
             if (!commandRequests.Any())
             {
                 var emptyRequestResponse = CommandResponseCreator.GetCommandResponseMessage(this.SchemaUrl, commandMessage, null);
-                await this.MessageSender.SendMessageToComConUpAsync(emptyRequestResponse);
-                return;
+                return new CommandResponse[] { emptyRequestResponse };
             }
 
             var opcUaCommands = new List<ICommandRequest>();
@@ -119,12 +122,29 @@ namespace OMP.Connector.Application.Clients.Base
             }
 
             //TODO: Consider a Task.WaitAll for better parallelism
-            await this.ProcessCommandRequestsAsync(opcUaCommands, commandMessage);
-            await this.ProcessSubscriptionRequestsAsync(subscriptionCommands, commandMessage);
-            await this.ProcessAlarmSubscriptionRequestsAsync(alarmSubscriptionCommands, commandMessage);
-            await this.ProcessDiscoveryRequestsAsync(discoveryCommands, commandMessage);
+
+            var commandRequestResponse = await this.ProcessCommandRequestsAsync(opcUaCommands, commandMessage);
+            var subscriptionCommandResponse = await this.ProcessSubscriptionRequestsAsync(subscriptionCommands, commandMessage);
+            var alarmSubscriptionCommandResponse = await this.ProcessAlarmSubscriptionRequestsAsync(alarmSubscriptionCommands, commandMessage);
+            var discoveryCommandResponse = await this.ProcessDiscoveryRequestsAsync(discoveryCommands, commandMessage);
+
+            var responses = new List<CommandResponse>();
+
+            if (commandRequestResponse is not null)
+                responses.Add(commandRequestResponse);
+
+            if (subscriptionCommandResponse is not null)
+                responses.Add(subscriptionCommandResponse);
+
+            if (alarmSubscriptionCommandResponse is not null)
+                responses.Add(alarmSubscriptionCommandResponse);
+
+            if (discoveryCommandResponse is not null)
+                responses.Add(discoveryCommandResponse);
 
             this.Logger.Debug($"{nameof(RequestHandler)} finished processing of request. RequestMessage.{nameof(commandMessage.Id)}: {commandMessage.Id}");
+
+            return responses;
         }
 
         private bool IsInvalidRequest(CommandRequest commandMessage)
@@ -140,20 +160,10 @@ namespace OMP.Connector.Application.Clients.Base
             return true;
         }
 
-        //private void ValidateRoutingSettings(IRoutingSettings routingSettings, RoutingSettingsValidator routingSettingsValidator)
-        //{
-        //    var validationResult = routingSettingsValidator.Validate(routingSettings);
-        //    if (validationResult?.IsValid == false)
-        //    {
-        //        var reason = validationResult?.ToString(";");
-        //        this.Logger.LogWarning($"{nameof(RequestHandler)} routing settings validation failed: {reason}");
-        //    }
-        //}
-
-        private async Task ProcessCommandRequestsAsync(IReadOnlyCollection<ICommandRequest> filteredRequests, CommandRequest originalRequest)
+        protected virtual async Task<CommandResponse?> ProcessCommandRequestsAsync(IReadOnlyCollection<ICommandRequest> filteredRequests, CommandRequest originalRequest)
         {
             if (!filteredRequests.Any())
-                return;
+                return null;
 
             CommandResponse response;
             try
@@ -166,63 +176,74 @@ namespace OMP.Connector.Application.Clients.Base
                 response = CommandResponseCreator.GetErrorResponseMessage(this.SchemaUrl, originalRequest);
                 this.Logger.Error(exception);
             }
-            await this.MessageSender.SendMessageToComConUpAsync(response);
+
+            return response;
         }
 
-        private async Task ProcessSubscriptionRequestsAsync(IReadOnlyCollection<ICommandRequest> filteredRequests, CommandRequest originalRequest)
+        protected virtual async Task<CommandResponse?> ProcessSubscriptionRequestsAsync(IReadOnlyCollection<ICommandRequest> filteredRequests, CommandRequest originalRequest)
         {
             if (!filteredRequests.Any())
-                return;
+                return null;
 
-            CommandResponse response;
             try
             {
-                var subscriptionRequest = this.CloneRequest(filteredRequests, originalRequest);
-                var opcUaServerUrl = originalRequest.Payload.RequestTarget.EndpointUrl;
-                var subscriptionService = this.SubscriptionServiceStateManager.GetSubscriptionServiceInstanceAsync(opcUaServerUrl, CancellationToken.None).GetAwaiter().GetResult();
+                CommandResponse response;
+                try
+                {
+                    var subscriptionRequest = this.CloneRequest(filteredRequests, originalRequest);
+                    var opcUaServerUrl = originalRequest.Payload.RequestTarget.EndpointUrl;
+                    var subscriptionService = this.SubscriptionServiceStateManager.GetSubscriptionServiceInstanceAsync(opcUaServerUrl, CancellationToken.None).GetAwaiter().GetResult();
 
-                response = await subscriptionService.ExecuteAsync(subscriptionRequest);
+                    response = await subscriptionService.ExecuteAsync(subscriptionRequest);
+                }
+                catch (Exception exception)
+                {
+                    response = CommandResponseCreator.GetErrorResponseMessage(this.SchemaUrl, originalRequest);
+                    this.Logger.Error(exception);
+                }
+
+                return response;
             }
-            catch (Exception exception)
+            finally
             {
-                response = CommandResponseCreator.GetErrorResponseMessage(this.SchemaUrl, originalRequest);
-                this.Logger.Error(exception);
+                await this.CleanupStaleServices();
             }
-
-            await this.MessageSender.SendMessageToComConUpAsync(response);
-
-            await this.CleanupStaleServices();
         }
 
-        private async Task ProcessAlarmSubscriptionRequestsAsync(IReadOnlyCollection<ICommandRequest> filteredRequests, CommandRequest originalRequest)
+        protected virtual async Task<CommandResponse?> ProcessAlarmSubscriptionRequestsAsync(IReadOnlyCollection<ICommandRequest> filteredRequests, CommandRequest originalRequest)
         {
             if (!filteredRequests.Any())
-                return;
+                return null;
 
-            CommandResponse response;
             try
             {
-                var subscriptionRequest = this.CloneRequest(filteredRequests, originalRequest);
-                var opcUaServerUrl = originalRequest.Payload.RequestTarget.EndpointUrl;
-                var alarmSubscriptionService = this.AlarmSubscriptionServiceStateManager.GetAlarmSubscriptionServiceInstanceAsync(opcUaServerUrl, CancellationToken.None).GetAwaiter().GetResult();
+                CommandResponse response;
+                try
+                {
+                    var subscriptionRequest = this.CloneRequest(filteredRequests, originalRequest);
+                    var opcUaServerUrl = originalRequest.Payload.RequestTarget.EndpointUrl;
+                    var alarmSubscriptionService = this.AlarmSubscriptionServiceStateManager.GetAlarmSubscriptionServiceInstanceAsync(opcUaServerUrl, CancellationToken.None).GetAwaiter().GetResult();
 
-                response = await alarmSubscriptionService.ExecuteAsync(subscriptionRequest);
+                    response = await alarmSubscriptionService.ExecuteAsync(subscriptionRequest);
+                }
+                catch (Exception exception)
+                {
+                    response = CommandResponseCreator.GetErrorResponseMessage(this.SchemaUrl, originalRequest);
+                    this.Logger.Error(exception);
+                }
+
+                return response;
             }
-            catch (Exception exception)
+            finally
             {
-                response = CommandResponseCreator.GetErrorResponseMessage(this.SchemaUrl, originalRequest);
-                this.Logger.Error(exception);
+                await this.CleanupStaleServices();
             }
-
-            await this.MessageSender.SendMessageToComConUpAsync(response);
-
-            await this.CleanupStaleServices();
         }
 
-        private async Task ProcessDiscoveryRequestsAsync(IReadOnlyCollection<ICommandRequest> filteredRequests, CommandRequest originalRequest)
+        protected virtual async Task<CommandResponse?> ProcessDiscoveryRequestsAsync(IReadOnlyCollection<ICommandRequest> filteredRequests, CommandRequest originalRequest)
         {
             if (!filteredRequests.Any())
-                return;
+                return null;
 
             CommandResponse response;
             try
@@ -236,10 +257,10 @@ namespace OMP.Connector.Application.Clients.Base
                 this.Logger.Error(exception);
             }
 
-            await this.MessageSender.SendMessageToComConUpAsync(response);
+            return response;
         }
 
-        private async Task CleanupStaleServices()
+        protected virtual async Task CleanupStaleServices()
         {
             try
             {
@@ -251,7 +272,7 @@ namespace OMP.Connector.Application.Clients.Base
             }
         }
 
-        private CommandRequest CloneRequest(IEnumerable<ICommandRequest> filteredRequests, CommandRequest originalRequest)
+        protected virtual CommandRequest CloneRequest(IEnumerable<ICommandRequest> filteredRequests, CommandRequest originalRequest)
         {
             var clonedRequestMessage = this.Mapper.Map<CommandRequest>(originalRequest);
             var commandRequests = filteredRequests as ICommandRequest[] ?? filteredRequests.ToArray();

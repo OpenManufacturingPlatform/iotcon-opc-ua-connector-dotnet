@@ -1,4 +1,7 @@
-﻿using OMP.Connector.Domain.Schema.Request.AlarmSubscription.Base;
+﻿// SPDX-License-Identifier: MIT. 
+// Copyright Contributors to the Open Manufacturing Platform.
+
+using OMP.Connector.Domain.Schema.Request.AlarmSubscription.Base;
 
 namespace OMP.Connector.Domain.Schema.Request.AlarmSubscription
 {

@@ -1,4 +1,7 @@
-﻿using System;
+﻿// SPDX-License-Identifier: MIT. 
+// Copyright Contributors to the Open Manufacturing Platform.
+
+using System;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.Extensions.Logging;
@@ -25,7 +28,6 @@ namespace OMP.Connector.Application.Services
         private readonly ILogger _logger;
         private readonly IMapper _mapper;
         private readonly IMessageSender _messageSender;
-        private readonly IEndpointDescriptionRepository _endpointDescriptionRepository;
         private readonly ConnectorConfiguration _connectorConfiguration;
         private IComplexTypeSystem _complexTypeSystem;
         private OpcUaMonitoredItem _monitoredItemCommand;
@@ -36,15 +38,13 @@ namespace OMP.Connector.Application.Services
             IOptions<ConnectorConfiguration> connectorConfiguration,
             IMessageSender messageSender,
             IMapper mapper,
-            ILogger<OpcMonitoredItemService> logger,
-            IEndpointDescriptionRepository endpointDescriptionRepository
+            ILogger<OpcMonitoredItemService> logger
             )
         {
             this._logger = logger;
             this._mapper = mapper;
             this._connectorConfiguration = connectorConfiguration.Value;
             this._messageSender = messageSender;
-            this._endpointDescriptionRepository = endpointDescriptionRepository;
 
             this.Notification += this.OnNotification;
         }
@@ -133,13 +133,12 @@ namespace OMP.Connector.Application.Services
         private SensorTelemetrySource GetSensorTelemetrySource(Session session)
         {
             var endpointUrl = session.GetBaseEndpointUrl();
-            var endpointDescription = this._endpointDescriptionRepository.GetByEndpointUrl(endpointUrl);
 
             return new SensorTelemetrySource
             {
                 Id = string.Empty,
-                Name = endpointDescription?.ServerDetails?.Name ?? string.Empty,
-                Route = endpointDescription?.ServerDetails?.Route ?? string.Empty,
+                Name = session.Endpoint?.Server?.ApplicationName?.Text ?? string.Empty,
+                Route = session.Endpoint?.EndpointUrl ?? string.Empty,
                 EndpointUrl = endpointUrl
             };
         }

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT. 
+// Copyright Contributors to the Open Manufacturing Platform.
+
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;

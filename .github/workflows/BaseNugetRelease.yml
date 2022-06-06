@@ -1,0 +1,48 @@
+name: Reusable Manually Release Nuget
+
+on:  
+  workflow_call:
+    inputs:
+      majorVersion:
+        description: 'Major Verions for Semantic versioning'     
+        required: true
+        default: '0'
+        type: string
+      minorVersion:
+        description: 'Minor Verions'     
+        required: true
+        default: '0'
+        type: string
+      patchVersion:
+        description: 'Patch Verions'     
+        required: true
+        default: '1'
+        type: string
+      projectName:
+        description: 'Name of the project to build and publish'
+        required: true
+        type: string
+      workingDirectory:
+        description: 'Directory of the Project to publish'     
+        required: true
+        type: string
+    secrets:
+      PACKAGE_PUSH_KEY:
+        required: true
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '6.0.x'
+    - name: Build
+      run: dotnet build ${{ inputs.projectName }}.csproj -c Release -v n /p:Version=${{ inputs.majorVersion }}.${{ inputs.minorVersion }}.${{ inputs.patchVersion }}-pre-release
+      working-directory: ${{ inputs.workingDirectory }}   
+    - name: Publish Package to GitHub
+      run: dotnet nuget push **/*.nupkg --api-key ${{ secrets.PACKAGE_PUSH_KEY }} --source "https://nuget.pkg.github.com/OpenManufacturingPlatform/index.json" --no-symbols true

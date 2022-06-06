@@ -1,4 +1,7 @@
-﻿using Confluent.Kafka;
+﻿// SPDX-License-Identifier: MIT. 
+// Copyright Contributors to the Open Manufacturing Platform.
+
+using Confluent.Kafka;
 using Microsoft.Extensions.Options;
 using OMP.Connector.Domain.Configuration;
 using OMP.Connector.Infrastructure.Kafka.CommandEndpoint;
@@ -18,7 +21,7 @@ namespace OMP.Connector.Infrastructure.Kafka.Common.Consumers
         public ConsumerFactory(
             IOptions<ConnectorConfiguration> connectorConfiguration,
             ISerializerFactory serializerFactory,
-            IKafkaEventHandlerFactory kafkaEventHandlerFactory)
+            IKafkaEventHandlerFactory kafkaEventHandlerFactory = null)
         {
             _connectorConfiguration = connectorConfiguration.Value;
             _serializerFactory = serializerFactory;
@@ -27,10 +30,10 @@ namespace OMP.Connector.Infrastructure.Kafka.Common.Consumers
 
         public ICommandConsumer CreateCommandConsumer()
         {
-            if (_connectorConfiguration.Communication.CommandEndpoint.Type != CommunicationType.Kafka)
+            if (_connectorConfiguration.Communication.RequestEndpoint.Type != CommunicationType.Kafka)
                 return null;
 
-            var (kafkaConfiguration, consumerConfig) = GetEndpointConfiguration(_connectorConfiguration.Communication.CommandEndpoint);
+            var (kafkaConfiguration, consumerConfig) = GetEndpointConfiguration(_connectorConfiguration.Communication.RequestEndpoint);
             return new CommandConsumer(
                 kafkaConfiguration,
                 consumerConfig,

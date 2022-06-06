@@ -1,4 +1,7 @@
-﻿using System;
+﻿// SPDX-License-Identifier: MIT. 
+// Copyright Contributors to the Open Manufacturing Platform.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Logging;
@@ -12,7 +15,6 @@ namespace OMP.Connector.Infrastructure.Kafka.Repositories
     public partial class KafkaRepository : IKafkaApplicationConfigurationRepository
     {
         private readonly IDictionary<(string EndpointUrl, string PublishingInterval), SubscriptionDto> _managedSubscriptions;
-        private readonly IDictionary<string, EndpointDescriptionDto> _endpointDescriptions;
         private readonly ILogger<KafkaRepository> _logger;
         private readonly IConfigurationPersister _configurationPersister;
         private bool _repositoryInitialized;
@@ -22,14 +24,13 @@ namespace OMP.Connector.Infrastructure.Kafka.Repositories
             _logger = logger;
             _configurationPersister = configurationPersister;
             _managedSubscriptions = new Dictionary<(string EndpointUrl, string PublishingInterval), SubscriptionDto>();
-            _endpointDescriptions = new Dictionary<string, EndpointDescriptionDto>();
             _repositoryInitialized = false;
         }
 
         public void Initialize(AppConfigDto applicationConfig)
         {
             _repositoryInitialized = true;
-            if (!applicationConfig.Subscriptions.Any() && !applicationConfig.EndpointDescriptions.Any())
+            if (!applicationConfig.Subscriptions.Any())
                 return;
             
             if (applicationConfig.Subscriptions is not null)
@@ -37,21 +38,13 @@ namespace OMP.Connector.Infrastructure.Kafka.Repositories
                 {
                     UpdateSubscriptionCache(subscriptionDto, false);
                 }
-
-            if (applicationConfig.EndpointDescriptions is not null)
-                foreach (var descriptionDto in applicationConfig.EndpointDescriptions)
-                {
-                    if (!_endpointDescriptions.TryGetValue(descriptionDto.EndpointUrl, out _))
-                        _endpointDescriptions.Add(descriptionDto.EndpointUrl, descriptionDto);
-                }
         }
 
         private bool PersistCachedConfig()
         {
             var newConfig = new AppConfigDto
             {
-                Subscriptions = _managedSubscriptions.Values.ToList(),
-                EndpointDescriptions = _endpointDescriptions.Values.ToList()
+                Subscriptions = _managedSubscriptions.Values.ToList()
             };
 
             var result = _configurationPersister.SaveConfigurationAsync(newConfig, default).GetAwaiter().GetResult();

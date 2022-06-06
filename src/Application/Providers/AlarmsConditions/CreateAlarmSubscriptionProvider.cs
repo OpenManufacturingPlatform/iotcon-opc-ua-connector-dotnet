@@ -1,6 +1,8 @@
-﻿using System;
+﻿// SPDX-License-Identifier: MIT. 
+// Copyright Contributors to the Open Manufacturing Platform.
+
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -29,7 +31,6 @@ namespace OMP.Connector.Application.Providers.AlarmSubscription
     public class CreateAlarmSubscriptionProvider : AlarmSubscriptionProvider<CreateAlarmSubscriptionsRequest, CreateAlarmSubscriptionsResponse>
     {
         private readonly IAlarmSubscriptionRepository _subscriptionRepository;
-        private readonly IEndpointDescriptionRepository _endpointDescriptionRepository;
         private readonly TelemetryMessageMetadata _messageMetadata;
         private readonly int _batchSize;
         private readonly AlarmMonitoredItemServiceInitializerFactoryDelegate _opcMonitoredItemServiceInitializerFactory;
@@ -43,13 +44,11 @@ namespace OMP.Connector.Application.Providers.AlarmSubscription
             AlarmMonitoredItemServiceInitializerFactoryDelegate opcMonitoredItemServiceInitializerFactory,
             CreateAlarmSubscriptionsRequest command,
             TelemetryMessageMetadata messageMetadata,
-            MonitoredItemValidator monitoredItemValidator,
-            IEndpointDescriptionRepository endpointDescriptionRepository) : base(command, connectorConfiguration, logger)
+            MonitoredItemValidator monitoredItemValidator) : base(command, connectorConfiguration, logger)
         {
             this._subscriptionRepository = subscriptionRepository;
             this._opcMonitoredItemServiceInitializerFactory = opcMonitoredItemServiceInitializerFactory;
             this._messageMetadata = messageMetadata;
-            this._endpointDescriptionRepository = endpointDescriptionRepository;
             this._batchSize = this.Settings.OpcUa.SubscriptionBatchSize;
 
             this._groupedItemsNotCreated = new Dictionary<string, List<string>>();
@@ -81,11 +80,6 @@ namespace OMP.Connector.Application.Providers.AlarmSubscription
             this.Logger.Debug($"Created/Updated alarm subscriptions on Endpoint: [{this.EndpointUrl}]");
 
             return this.GetStatusMessage(new List<string>());
-        }
-
-        private void M_monitoredItem_Notification(MonitoredItem monitoredItem, MonitoredItemNotificationEventArgs e)
-        {
-            Logger.LogTrace("monitoredItem triggered");
         }
 
         protected override void GenerateResult(CreateAlarmSubscriptionsResponse result, string message)

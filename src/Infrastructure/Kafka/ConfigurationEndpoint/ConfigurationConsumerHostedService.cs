@@ -1,4 +1,8 @@
-﻿using System;
+﻿// SPDX-License-Identifier: MIT. 
+// Copyright Contributors to the Open Manufacturing Platform.
+
+using System;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Confluent.Kafka;
@@ -12,6 +16,7 @@ namespace OMP.Connector.Infrastructure.Kafka.ConfigurationEndpoint
     public class ConfigurationConsumerHostedService : BaseConsumerHostedService
     {
         private const int OffsetRetrievalTimeoutSec = 10;
+        private const int ConsumeTimeoutSec = 5;
         private readonly IKafkaApplicationConfigurationRepository _applicationConfigurationRepository;
         private IConfigurationConsumer _configurationConsumer;
 
@@ -31,14 +36,21 @@ namespace OMP.Connector.Infrastructure.Kafka.ConfigurationEndpoint
             {
                 if (StoppingCancellationTokenSource.IsCancellationRequested)
                     return;
-                
+
                 _configurationConsumer ??= ConsumerFactory.CreateConfigurationConsumer();
-                
-                var consumeResult = GetConsumeResult(StoppingCancellationTokenSource.Token);
+
+                var consumeResult = GetConsumeResult(ConsumeTimeoutSec);
                 if (consumeResult is null)
                 {
                     _applicationConfigurationRepository.Initialize(appConfigDto);
-                    _configurationConsumer.Consumer.Close();
+                    try
+                    {
+                        _configurationConsumer.Consumer.Close();
+                    }
+                    catch(Exception ex) {
+                        Logger.LogTrace(ex.Demystify(), "Error occurred when trying to close the configuration consumer. Can be safely ignored.");
+                    }
+
                     SignalOuterLoopToStopConsumption();
                     return;
                 }
@@ -54,13 +66,13 @@ namespace OMP.Connector.Infrastructure.Kafka.ConfigurationEndpoint
                     return;
                 }
 
-                Logger.LogDebug("**--CONSUME RESULT--**:\t{Key}:\t{Value}", consumeResult.Message.Key,consumeResult.Message.Value);
+                Logger.LogDebug("**--CONSUME RESULT--**:\t{Key}:\t{Value}", consumeResult.Message.Key, consumeResult.Message.Value);
 
                 Logger.LogTrace($"{nameof(ConfigurationConsumerHostedService)} notification for config sent, sequence number: {currentPosition}");
                 _applicationConfigurationRepository.Initialize(consumeResult.Message?.Value);
 
                 Logger.LogInformation("**\tConfiguration set in Repository\t**");
-                
+
                 _configurationConsumer.Consumer.Close();
                 SignalOuterLoopToStopConsumption();
             }
@@ -72,9 +84,8 @@ namespace OMP.Connector.Infrastructure.Kafka.ConfigurationEndpoint
         }
 
         protected override void StopConsumer()
-        {
-            _configurationConsumer?.Consumer?.Close();
-        }
+            => _configurationConsumer?.Consumer?.Dispose();
+
 
         private void SignalOuterLoopToStopConsumption()
             => StoppingCancellationTokenSource.Cancel(true);
@@ -96,13 +107,17 @@ namespace OMP.Connector.Infrastructure.Kafka.ConfigurationEndpoint
             return currentMaximumOffset;
         }
 
-        private ConsumeResult<string, AppConfigDto> GetConsumeResult(CancellationToken stoppingCancellationToken, int timeout = OffsetRetrievalTimeoutSec)
+        private ConsumeResult<string, AppConfigDto> GetConsumeResult(int timeoutSeconds)
         {
-            var timeoutCts = new CancellationTokenSource();
-            timeoutCts.CancelAfter(timeout);
-
-            var s_cts = CancellationTokenSource.CreateLinkedTokenSource(stoppingCancellationToken, timeoutCts.Token);
-            return GetConsumeResult(s_cts.Token);
+            try
+            {
+                return _configurationConsumer.Consume(TimeSpan.FromSeconds(timeoutSeconds));
+            }
+            catch (OperationCanceledException)
+            {
+                Logger.LogTrace($"{nameof(ConfigurationConsumerHostedService)}.{nameof(GetConsumeResult)} timed out");
+                return default;
+            }
         }
 
         private ConsumeResult<string, AppConfigDto> GetConsumeResult(CancellationToken cancellationToken)
@@ -113,7 +128,7 @@ namespace OMP.Connector.Infrastructure.Kafka.ConfigurationEndpoint
             }
             catch (OperationCanceledException)
             {
-                Logger.LogTrace($"{nameof(ConfigurationConsumerHostedService)}.{nameof(GetConsumeResult)} timed out");
+                Logger.LogTrace($"{nameof(ConfigurationConsumerHostedService)}.{nameof(GetConsumeResult)} was cancelled.");
                 return default;
             }
         }

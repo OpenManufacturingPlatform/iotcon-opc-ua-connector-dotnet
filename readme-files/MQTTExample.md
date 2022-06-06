@@ -272,7 +272,7 @@ Internally the connector uses a 3rd party package that handles the specifics of 
   ```
 
 ## How to Test
-Below is a list of commands that you can send over mqqt to the *Command* Topic of your choosing (same *Command* Topic that you configured in the connector prior to building).
+Below is a list of commands that you can send over mqtt to the *Command* Topic of your choosing (same *Command* Topic that you configured in the connector prior to building).
 - [Call Command](/samples/MessageModels/Commands/CallCommand.json)
 - [Read Command](/samples/MessageModels/Commands/ReadCommand.json)
 - [Write Command](/samples/MessageModels/Commands/WriteCommand.json)

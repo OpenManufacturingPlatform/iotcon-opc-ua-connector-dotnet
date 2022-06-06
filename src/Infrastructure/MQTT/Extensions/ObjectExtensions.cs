@@ -1,4 +1,7 @@
-﻿using System.IO;
+﻿// SPDX-License-Identifier: MIT. 
+// Copyright Contributors to the Open Manufacturing Platform.
+
+using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 
 namespace OMP.Connector.Infrastructure.MQTT.Extensions

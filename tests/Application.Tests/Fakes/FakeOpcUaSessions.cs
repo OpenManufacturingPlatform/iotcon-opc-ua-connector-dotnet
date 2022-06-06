@@ -1,4 +1,7 @@
-﻿using System.Linq;
+﻿// SPDX-License-Identifier: MIT. 
+// Copyright Contributors to the Open Manufacturing Platform.
+
+using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using OMP.Connector.Application.Tests.TestSetup;
 using OMP.Connector.Domain.Schema.SensorTelemetry;

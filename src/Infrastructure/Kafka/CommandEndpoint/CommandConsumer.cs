@@ -1,4 +1,7 @@
-﻿using Confluent.Kafka;
+﻿// SPDX-License-Identifier: MIT. 
+// Copyright Contributors to the Open Manufacturing Platform.
+
+using Confluent.Kafka;
 using OMP.Connector.Domain.Schema.Messages;
 using OMP.Connector.Infrastructure.Kafka.Common.Configuration;
 using OMP.Connector.Infrastructure.Kafka.Common.Consumers;
@@ -13,7 +16,7 @@ namespace OMP.Connector.Infrastructure.Kafka.CommandEndpoint
             KafkaConfig kafkaConfig,
             ConsumerConfig configuration,
             ISerializerFactory serializerFactory,
-            IKafkaEventHandlerFactory kafkaEventHandlerFactory)
+            IKafkaEventHandlerFactory kafkaEventHandlerFactory = null)
             : base(kafkaConfig, configuration, serializerFactory, kafkaEventHandlerFactory)
         { }
     }

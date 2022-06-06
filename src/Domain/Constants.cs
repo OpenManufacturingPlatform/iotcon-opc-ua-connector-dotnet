@@ -1,4 +1,7 @@
-﻿namespace OMP.Connector.Domain
+﻿// SPDX-License-Identifier: MIT. 
+// Copyright Contributors to the Open Manufacturing Platform.
+
+namespace OMP.Connector.Domain
 {
     public class Constants
     {
