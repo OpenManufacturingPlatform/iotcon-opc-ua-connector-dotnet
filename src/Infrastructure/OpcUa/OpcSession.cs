@@ -50,7 +50,7 @@ namespace OMP.Connector.Infrastructure.OpcUa
         private readonly IMapper _mapper;
         private readonly IUserIdentityProvider _identityProvider;
         private const string JsonTypeKey = "$type";
-
+        private bool _reconnectIsDisabled = false;
 
         public OpcSession(
             IOptions<ConnectorConfiguration> connectorConfiguration,
@@ -342,6 +342,8 @@ namespace OMP.Connector.Infrastructure.OpcUa
         {
             try
             {
+                if (_reconnectIsDisabled) return;
+
                 if (session.SessionName != _session.SessionName)
                     return;
 
@@ -352,16 +354,23 @@ namespace OMP.Connector.Infrastructure.OpcUa
                 if (e != null && !ServiceResult.IsBad(e.Status))
                     return;
 
-                _logger.Warning($"Communication error: [{e?.Status}] on Endpoint: [{session.Endpoint?.EndpointUrl}]");
+                var communicationError = $"Communication error: [{e?.Status}] on Endpoint: [{session.Endpoint?.EndpointUrl}]";
 
                 if (_opcUaSettings.ReconnectIntervalInSeconds <= 0)
+                {
+                    _logger.Warning(communicationError);
+                    _logger.Warning("Reconnect is disabled. To enable reconnect, set the ReconnectIntervalInSeconds value to greater than 0");
+                    _reconnectIsDisabled = true;
                     return;
+                }
 
                 if (IsReconnectHandlerHealthy())
                     return;
 
-                var locked = LockSessionAsync().GetAwaiter().GetResult();
-                if (!locked) { return; }
+                var lockObtained = LockSessionAsync().GetAwaiter().GetResult();
+                if (!lockObtained) { return; }
+
+                _logger.Warning(communicationError);
 
                 DisposeUnHealthyReconnectHandler();
 
