@@ -256,14 +256,14 @@ License Type:&ensp; MIT<br />
 
 ## OPCFoundation.NetStandard.Opc.Ua
 Version:&ensp;1.4.368.33 <br />
-Project URL:&ensp;https://github.com/OPCFoundation/UA-.NETStandard <br />
+Project URL:&ensp;https://www.nuget.org/packages/OPCFoundation.NetStandard.Opc.Ua/1.4.368.33 <br />
 Description:&ensp;This package contains the OPC UA reference implementation and is targeting the .NET Standard Library. <br />
 License URL:&ensp;&ensp;https://www.nuget.org/packages/OPCFoundation.NetStandard.Opc.Ua/1.4.368.33/License <br />
 License Type:&ensp;licenses/LICENSE.txt <br />
 
 ## OPCFoundation.NetStandard.Opc.Ua.Client.ComplexTypes
 Version:&ensp;1.4.368.33 <br />
-Project URL:&ensp;https://github.com/OPCFoundation/UA-.NETStandard <br />
+Project URL:&ensp;https://www.nuget.org/packages/OPCFoundation.NetStandard.Opc.Ua.Client.ComplexTypes/1.4.368.33 <br />
 Description:&ensp;OPC UA Complex Types Client Class Library <br />
 License URL:&ensp;&ensp;https://www.nuget.org/packages/OPCFoundation.NetStandard.Opc.Ua.Client.ComplexTypes/1.4.368.33/License <br />
 License Type:&ensp;licenses/LICENSE.txt <br />
