@@ -50,7 +50,9 @@ namespace OMP.Connector.Infrastructure.OpcUa.Reconnect
             this._session = this._reconnectHandler?.Session;
             this._reconnectHandler?.Dispose();
             this._reconnectHandler = null;
-            this._subscriptionRestoreService.RestoreSubscriptionsAsync(this._opcSession).GetAwaiter().GetResult();
+            
+            //OPCFoundation stack handles the transfer of subscriptions to a new session on reconnect
+            
             this._registeredNodeStateManager?.RestoreRegisteredNodeIds(this._session);
 
             this._callback?.Invoke(sender, e);
