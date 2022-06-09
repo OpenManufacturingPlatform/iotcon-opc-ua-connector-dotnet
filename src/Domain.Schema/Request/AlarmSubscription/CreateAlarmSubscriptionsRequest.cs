@@ -9,8 +9,8 @@ namespace OMP.Connector.Domain.Schema.Request.AlarmSubscription
 {
     public class CreateAlarmSubscriptionsRequest : AlarmSubscriptionRequest
     {
-        [JsonProperty("monitoredItems", Required = Required.Always)]
-        [Description("Monitored items in subscription")]
-        public AlarmSubscriptionMonitoredItem[] MonitoredItems { get; set; }
+        [JsonProperty("alarmMonitoredItems", Required = Required.Always)]
+        [Description("Alarm monitored items in subscription")]
+        public AlarmSubscriptionMonitoredItem[] AlarmMonitoredItems { get; set; }
     }
 }

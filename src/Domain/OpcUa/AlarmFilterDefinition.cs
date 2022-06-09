@@ -1,31 +1,5 @@
-/* ========================================================================
- * Copyright (c) 2005-2019 The OPC Foundation, Inc. All rights reserved.
- *
- * OPC Foundation MIT License 1.00
- * 
- * Permission is hereby granted, free of charge, to any person
- * obtaining a copy of this software and associated documentation
- * files (the "Software"), to deal in the Software without
- * restriction, including without limitation the rights to use,
- * copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the
- * Software is furnished to do so, subject to the following
- * conditions:
- * 
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
- * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
- * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
- * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
- * OTHER DEALINGS IN THE SOFTWARE.
- *
- * The complete license agreement can be found here:
- * http://opcfoundation.org/License/MIT/1.00/
- * ======================================================================*/
+﻿// SPDX-License-Identifier: MIT. 
+// Copyright Contributors to the Open Manufacturing Platform.
 
 using System;
 using System.Collections.Generic;
@@ -34,77 +8,35 @@ using Opc.Ua.Client;
 
 namespace OMP.Connector.Domain.OpcUa
 {
-    /// <summary>
-    /// Defines a event filter for a subscription.
-    /// </summary>
-    public class FilterDefinition
+    public class AlarmFilterDefinition
     {
-        #region Public Interface
-        /// <summary>
-        /// The NodeId for the Area that is subscribed to (the entire Server if not specified).
-        /// </summary>
-        public NodeId AreaId;
+        public NodeId AreaId { get; set; }
+        public EventSeverity Severity { get; set; }
+        public IList<NodeId> EventTypes { get; set; }
+        public bool IgnoreSuppressedOrShelved { get; set; }
+        public SimpleAttributeOperandCollection SelectClauses { get; set; }
 
-        /// <summary>
-        /// The minimum severity for the events of interest.
-        /// </summary>
-        public EventSeverity Severity;
-        
-        /// <summary>
-        /// The types for the events of interest.
-        /// </summary>
-        public IList<NodeId> EventTypes;
-
-        /// <summary>
-        /// Whether suppressed or shelved condition events are of interest.
-        /// </summary>
-        public bool IgnoreSuppressedOrShelved;
-        
-        /// <summary>
-        /// The select clauses to use with the filter.
-        /// </summary>
-        public SimpleAttributeOperandCollection SelectClauses;
-        
-        /// <summary>
-        /// Creates the monitored item based on the current definition.
-        /// </summary>
-        /// <param name="session">The session.</param>
-        /// <returns>The monitored item.</returns>
+        #region [Public]
         public MonitoredItem CreateMonitoredItem(Session session)
         {
-            // choose the server object by default.
-            if (AreaId == null)
-            {
-                AreaId = ObjectIds.Server;
-            }
-
             // create the item with the filter.
             MonitoredItem monitoredItem = new MonitoredItem();
 
-            monitoredItem.DisplayName = null;
-            monitoredItem.StartNodeId = AreaId;
-            monitoredItem.RelativePath = null;
-            monitoredItem.NodeClass = NodeClass.Object;
-            monitoredItem.AttributeId = Attributes.EventNotifier;
-            monitoredItem.IndexRange = null;
-            monitoredItem.Encoding = null;
-            monitoredItem.MonitoringMode = MonitoringMode.Reporting;
-            monitoredItem.SamplingInterval = 0;
-            monitoredItem.QueueSize = UInt32.MaxValue;
-            monitoredItem.DiscardOldest = true;
-            monitoredItem.Filter = ConstructFilter(session);
-
-            // save the definition as the handle.
-            monitoredItem.Handle = this;
+            SetMonitoredItemProperties(monitoredItem, session);
 
             return monitoredItem;
         }
 
         public void UpdateMonitoredItem(MonitoredItem existingMonitoredItem, Session session)
         {
-            // choose the server object by default.
+            SetMonitoredItemProperties(existingMonitoredItem, session);
+        }
+
+        private void SetMonitoredItemProperties(MonitoredItem existingMonitoredItem, Session session)
+        {
             if (AreaId == null)
             {
+                // default area if none specified
                 AreaId = ObjectIds.Server;
             }
 
@@ -121,7 +53,6 @@ namespace OMP.Connector.Domain.OpcUa
             existingMonitoredItem.DiscardOldest = true;
             existingMonitoredItem.Filter = ConstructFilter(session);
 
-            // save the definition as the handle.
             existingMonitoredItem.Handle = this;
         }
 
@@ -195,7 +126,7 @@ namespace OMP.Connector.Domain.OpcUa
 
             // add the severity.
             ContentFilterElement element1 = null;
-            ContentFilterElement element2 = null;
+            ContentFilterElement element2;
 
             if (Severity > EventSeverity.Min)
             {
@@ -278,7 +209,7 @@ namespace OMP.Connector.Domain.OpcUa
         }
         #endregion
         
-        #region Private Methods
+        #region [Private]
         /// <summary>
         /// Collects the fields for the event type.
         /// </summary>

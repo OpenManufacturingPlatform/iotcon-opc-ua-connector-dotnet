@@ -2,6 +2,8 @@
 // Copyright Contributors to the Open Manufacturing Platform.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using AutoMapper;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -49,31 +51,39 @@ namespace OMP.Connector.Application.Services
         public void Initialize(AlarmSubscriptionMonitoredItem monitoredItemCommand, IComplexTypeSystem complexTypeSystem, TelemetryMessageMetadata messageMetadata, Session session)
         {
             this.MessageMetadata = messageMetadata;
-            this.StartNodeId = monitoredItemCommand.NodeId;
-            this.AttributeId = Attributes.Value;
-            this.MonitoringMode = MonitoringMode.Reporting;
-            this.SamplingInterval = int.Parse(monitoredItemCommand.SamplingInterval);
-            this.QueueSize = 1;
-            this.DiscardOldest = false;
-
             this._complexTypeSystem = complexTypeSystem;
             this._monitoredItemCommand = monitoredItemCommand;
 
-            var filter = new FilterDefinition();
-            filter.AreaId = monitoredItemCommand.NodeId;
-            filter.Severity = EventSeverity.Min;
-            filter.IgnoreSuppressedOrShelved = true;
-            filter.EventTypes = new NodeId[] { ObjectTypeIds.ConditionType };
+            var alarmTypeNodeIds = GetAlarmTypeNodeIds(monitoredItemCommand);
 
-            // must specify the fields that the form is interested in.
-            filter.SelectClauses = filter.ConstructSelectClauses(
-                session,
-                ObjectTypeIds.DialogConditionType,
-                ObjectTypeIds.ExclusiveLimitAlarmType,
-                ObjectTypeIds.NonExclusiveLimitAlarmType);
+            var filter = new AlarmFilterDefinition
+            {
+                AreaId = monitoredItemCommand.NodeId,
+                Severity = EventSeverity.Min,
+                IgnoreSuppressedOrShelved = true,
+                EventTypes = alarmTypeNodeIds
+            };
 
-            // create a monitored item based on the current filter settings.
+            // generate select clauses for all fields of all alarm types
+            filter.SelectClauses = filter.ConstructSelectClauses(session, alarmTypeNodeIds);
+
+            // filter clauses based on the list of fields that should be included (if available in request)
+            if (monitoredItemCommand.AlarmFields != null && monitoredItemCommand.AlarmFields.Any())
+            {
+                var filteredClauses = filter.SelectClauses.Where(clause => monitoredItemCommand.AlarmFields.Any(field => field.Equals(clause.ToString())));
+                filter.SelectClauses = new SimpleAttributeOperandCollection(filteredClauses);
+            }
+
+            // update monitored item based on the current filter settings
             filter.UpdateMonitoredItem(this, session);
+        }
+
+        private NodeId[] GetAlarmTypeNodeIds(AlarmSubscriptionMonitoredItem monitoredItemCommand)
+        {
+            if(monitoredItemCommand.AlarmTypeNodeIds == null || !monitoredItemCommand.AlarmTypeNodeIds.Any())
+                return new NodeId[] {ObjectTypeIds.AlarmConditionType};
+
+            return monitoredItemCommand.AlarmTypeNodeIds.Select(alarmTypeNodeId => NodeId.Parse(alarmTypeNodeId)).ToArray();
         }
 
         private void OnNotification(MonitoredItem monitoredItem, MonitoredItemNotificationEventArgs e)

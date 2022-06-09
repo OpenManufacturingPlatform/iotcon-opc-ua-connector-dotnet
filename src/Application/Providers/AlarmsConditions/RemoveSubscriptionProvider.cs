@@ -32,7 +32,7 @@ namespace OMP.Connector.Application.Providers.AlarmSubscription
             : base(command, connectorConfiguration, logger)
         {
             this._subscriptionRepository = subscriptionRepository;
-            this._batchSize = this.Settings.OpcUa.SubscriptionBatchSize;
+            this._batchSize = this.Settings.OpcUa.AlarmSubscriptionBatchSize;
         }
 
         protected override async Task<string> ExecuteCommandAsync()

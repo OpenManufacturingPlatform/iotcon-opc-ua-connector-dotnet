@@ -83,6 +83,7 @@ namespace OMP.Connector.Domain.Configuration
     {
         public bool EnableRegisteredNodes { get; set; }
         public int SubscriptionBatchSize { get; set; }
+        public int AlarmSubscriptionBatchSize { get; set; }
         public int ReadBatchSize { get; set; }
         public int RegisterNodeBatchSize { get; set; }
         public int AwaitSessionLockTimeoutSeconds { get; set; } = 3;

@@ -33,13 +33,14 @@ namespace OMP.Connector.Application.Providers.AlarmSubscription
 
     public class CreateAlarmSubscriptionProvider : AlarmSubscriptionProvider<CreateAlarmSubscriptionsRequest, CreateAlarmSubscriptionsResponse>
     {
+        //TODO: add support for alarm subscription restores
         private readonly IAlarmSubscriptionRepository _subscriptionRepository;
         private readonly TelemetryMessageMetadata _messageMetadata;
         private readonly AlarmMonitoredItemValidator _alarmMonitoredItemValidator;
         private readonly int _batchSize;
         private readonly AlarmMonitoredItemServiceInitializerFactoryDelegate _opcMonitoredItemServiceInitializerFactory;
         private readonly Dictionary<string, List<string>> _groupedItemsNotCreated;
-        private FilterDefinition m_filter;
+        private AlarmFilterDefinition m_filter;
 
         public CreateAlarmSubscriptionProvider(
             IAlarmSubscriptionRepository subscriptionRepository,
@@ -53,8 +54,8 @@ namespace OMP.Connector.Application.Providers.AlarmSubscription
             this._subscriptionRepository = subscriptionRepository;
             this._opcMonitoredItemServiceInitializerFactory = opcMonitoredItemServiceInitializerFactory;
             this._messageMetadata = messageMetadata;
-            _alarmMonitoredItemValidator = alarmMonitoredItemValidator;
-            this._batchSize = this.Settings.OpcUa.SubscriptionBatchSize;
+            this._alarmMonitoredItemValidator = alarmMonitoredItemValidator;
+            this._batchSize = this.Settings.OpcUa.AlarmSubscriptionBatchSize;
 
             this._groupedItemsNotCreated = new Dictionary<string, List<string>>();
         }
@@ -64,14 +65,14 @@ namespace OMP.Connector.Application.Providers.AlarmSubscription
             var errorMessages = await this.AddValidationErrorsAsync();
             if (errorMessages.Any())
             {
-                this.Logger.Debug($"Validation of {nameof(CreateAlarmSubscriptionsRequest.MonitoredItems)} was not successful.");
+                this.Logger.Debug($"Validation of {nameof(CreateAlarmSubscriptionsRequest.AlarmMonitoredItems)} was not successful.");
                 this.Logger.Trace(string.Join(" ", errorMessages));
                 return this.GetStatusMessage(errorMessages);
             }
 
             try
             {
-                var subscriptionGroups = this.Command.MonitoredItems.GroupBy(item => item.PublishingInterval);
+                var subscriptionGroups = this.Command.AlarmMonitoredItems.GroupBy(item => item.PublishingInterval);
 
                 foreach (var group in subscriptionGroups)
                 {
@@ -93,7 +94,7 @@ namespace OMP.Connector.Application.Providers.AlarmSubscription
                 errorMessages.Add($"Bad: Could not create / update alarm subscriptions. {error.Message}");
             }
 
-            //TODO: Implement restore feature for alarm subscriptions. This one is the normal subscription code but may require different Dto
+            //TODO: Implement subscription restore for alarms. Requires different Dto
             //if (!base.Settings.DisableSubscriptionRestoreService && !errorMessages.Any())
             //{
             //    var baseEndpointUrl = this.Session.GetBaseEndpointUrl();
@@ -154,7 +155,7 @@ namespace OMP.Connector.Application.Providers.AlarmSubscription
                 }
                 catch (ServiceResultException sre)
                 {
-                    this.Logger.Error(sre, $"Failed to call ApplyChanges() for batch with {monitoredItems.Count()} items: ");
+                    this.Logger.Error(sre, $"Failed to call ApplyChanges() for batch with {monitoredItems.Length} items: ");
                     throw;
                 }
 
@@ -190,18 +191,18 @@ namespace OMP.Connector.Application.Providers.AlarmSubscription
         }
 
         private async Task<List<string>> AddValidationErrorsAsync()
-            {
-                var errorMessages = new List<string>();
+        {
+            var errorMessages = new List<string>();
 
-                for (var itemIndex = 0; itemIndex < this.Command.MonitoredItems.Length; itemIndex++)
-                {
-                    var results = await this._alarmMonitoredItemValidator.ValidateAsync(this.Command.MonitoredItems[itemIndex]);
-                    if (results.IsValid) continue;
-                    var validationMessages = results.ToString(";");
-                    errorMessages.Add($"Bad: {nameof(CreateAlarmSubscriptionsRequest.MonitoredItems)}[{itemIndex}]: {validationMessages}.");
-                }
-                return errorMessages;
+            for (var itemIndex = 0; itemIndex < this.Command.AlarmMonitoredItems.Length; itemIndex++)
+            {
+                var results = await this._alarmMonitoredItemValidator.ValidateAsync(this.Command.AlarmMonitoredItems[itemIndex]);
+                if (results.IsValid) continue;
+                var validationMessages = results.ToString(";");
+                errorMessages.Add($"Bad: {nameof(CreateAlarmSubscriptionsRequest.AlarmMonitoredItems)}[{itemIndex}]: {validationMessages}.");
             }
+            return errorMessages;
+        }
 
         protected override void GenerateResult(CreateAlarmSubscriptionsResponse result, string message)
         {
@@ -240,16 +241,12 @@ namespace OMP.Connector.Application.Providers.AlarmSubscription
                 .Where(x => monitoredItem.NodeId.Equals(x.ResolvedNodeId.ToString()))
                 .ToList();
 
-            if (SamplingIntervalsAreTheSame(monitoredItem, existingItems))
-                return opcUaSubscription;
+            //TODO: Implement logic to detect a change in subscription, e.g. filter
 
             opcUaSubscription.RemoveItems(existingItems);// Notification of intent
             opcUaSubscription.ApplyChanges(); // enforces intent is executed
             return this.CreateNewSubscription(monitoredItem); // now re-add the monitored item
         }
-
-        private static bool SamplingIntervalsAreTheSame(AlarmSubscriptionMonitoredItem monitoredItem, List<MonitoredItem> existingItems)
-            => existingItems.Any(m => m.SamplingInterval == int.Parse(monitoredItem.SamplingInterval));
 
         private MonitoredItem CreateMonitoredItem(AlarmSubscriptionMonitoredItem subscriptionMonitoredItem)
         {
