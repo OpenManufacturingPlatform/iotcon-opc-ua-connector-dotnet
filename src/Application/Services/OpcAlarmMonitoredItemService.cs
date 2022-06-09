@@ -2,7 +2,6 @@
 // Copyright Contributors to the Open Manufacturing Platform.
 
 using System;
-using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -98,20 +97,6 @@ namespace OMP.Connector.Application.Services
             catch (Exception ex)
             {
                 this._logger.Error(ex);
-            }
-        }
-
-        private async Task AddElementTypeWhenAvailableAsync(NodeId nodeId, TelemetryMessageContent msgContent, Session session)
-        {
-            var typeInfo = msgContent.DataDataType;
-            if (TelemetryConversion.IsArray(typeInfo.ValueRank) && typeInfo.BuiltInType == BuiltInType.ExtensionObject)
-            {
-                var node = session.NodeCache.Find(nodeId);
-                if (node is VariableNode variableNode)
-                {
-                    var nodeType = await this._complexTypeSystem.LoadType(variableNode.DataType);
-                    msgContent.ElementType = nodeType.Name;
-                }
             }
         }
 

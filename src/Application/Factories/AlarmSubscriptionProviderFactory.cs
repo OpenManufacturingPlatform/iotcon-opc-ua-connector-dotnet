@@ -20,20 +20,20 @@ namespace OMP.Connector.Application.Factories
         private readonly ILoggerFactory _loggerFactory;
         private readonly IOptions<ConnectorConfiguration> _connectorConfiguration;
         private readonly AlarmMonitoredItemServiceInitializerFactoryDelegate _monitoredItemServiceInitializerFactory;
-        private readonly MonitoredItemValidator _monitoredItemValidator;
+        private readonly AlarmMonitoredItemValidator _alarmMonitoredItemValidator;
 
         public AlarmSubscriptionProviderFactory(
             IAlarmSubscriptionRepository dataManagementService,
             ILoggerFactory loggerFactory,
             IOptions<ConnectorConfiguration> connectorConfiguration,
             AlarmMonitoredItemServiceInitializerFactoryDelegate monitoredItemServiceInitializerFactory,
-            MonitoredItemValidator monitoredItemValidator)
+            AlarmMonitoredItemValidator alarmMonitoredItemValidator)
         {
             this._subscriptionRepository = dataManagementService;
             this._loggerFactory = loggerFactory;
             this._connectorConfiguration = connectorConfiguration;
             this._monitoredItemServiceInitializerFactory = monitoredItemServiceInitializerFactory;
-            this._monitoredItemValidator = monitoredItemValidator;
+            this._alarmMonitoredItemValidator = alarmMonitoredItemValidator;
         }
 
         public IAlarmSubscriptionProvider GetProvider(ICommandRequest command, TelemetryMessageMetadata telemetryMessageMetadata)
@@ -54,7 +54,7 @@ namespace OMP.Connector.Application.Factories
                                 this._monitoredItemServiceInitializerFactory,
                                 createCommand,
                                 telemetryMessageMetadata,
-                                this._monitoredItemValidator);
+                                this._alarmMonitoredItemValidator);
 
         private IAlarmSubscriptionProvider RespondToAlarmEventsProvider(RespondToAlarmEventsRequest respondToAlarmEventsCommand)
             => new RespondToAlarmEventsProvider(

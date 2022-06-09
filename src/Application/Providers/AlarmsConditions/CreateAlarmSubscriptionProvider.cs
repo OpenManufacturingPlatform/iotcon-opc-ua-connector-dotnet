@@ -3,6 +3,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -32,6 +35,7 @@ namespace OMP.Connector.Application.Providers.AlarmSubscription
     {
         private readonly IAlarmSubscriptionRepository _subscriptionRepository;
         private readonly TelemetryMessageMetadata _messageMetadata;
+        private readonly AlarmMonitoredItemValidator _alarmMonitoredItemValidator;
         private readonly int _batchSize;
         private readonly AlarmMonitoredItemServiceInitializerFactoryDelegate _opcMonitoredItemServiceInitializerFactory;
         private readonly Dictionary<string, List<string>> _groupedItemsNotCreated;
@@ -44,11 +48,12 @@ namespace OMP.Connector.Application.Providers.AlarmSubscription
             AlarmMonitoredItemServiceInitializerFactoryDelegate opcMonitoredItemServiceInitializerFactory,
             CreateAlarmSubscriptionsRequest command,
             TelemetryMessageMetadata messageMetadata,
-            MonitoredItemValidator monitoredItemValidator) : base(command, connectorConfiguration, logger)
+            AlarmMonitoredItemValidator alarmMonitoredItemValidator) : base(command, connectorConfiguration, logger)
         {
             this._subscriptionRepository = subscriptionRepository;
             this._opcMonitoredItemServiceInitializerFactory = opcMonitoredItemServiceInitializerFactory;
             this._messageMetadata = messageMetadata;
+            _alarmMonitoredItemValidator = alarmMonitoredItemValidator;
             this._batchSize = this.Settings.OpcUa.SubscriptionBatchSize;
 
             this._groupedItemsNotCreated = new Dictionary<string, List<string>>();
@@ -56,37 +61,195 @@ namespace OMP.Connector.Application.Providers.AlarmSubscription
 
         protected override async Task<string> ExecuteCommandAsync()
         {
-            // create the default subscription.
-            var m_subscription = new Opc.Ua.Client.Subscription();
-
-            m_subscription.DisplayName = null;
-            m_subscription.PublishingInterval = 1000;
-            m_subscription.KeepAliveCount = 10;
-            m_subscription.LifetimeCount = 100;
-            m_subscription.MaxNotificationsPerPublish = 1000;
-            m_subscription.PublishingEnabled = true;
-            m_subscription.TimestampsToReturn = TimestampsToReturn.Both;
-
-            Session.AddSubscription(m_subscription);
-            m_subscription.Create();
-
-            foreach (var command in Command.MonitoredItems)
+            var errorMessages = await this.AddValidationErrorsAsync();
+            if (errorMessages.Any())
             {
-                m_subscription.AddItem(CreateMonitoredItem(command));
+                this.Logger.Debug($"Validation of {nameof(CreateAlarmSubscriptionsRequest.MonitoredItems)} was not successful.");
+                this.Logger.Trace(string.Join(" ", errorMessages));
+                return this.GetStatusMessage(errorMessages);
             }
 
-            m_subscription.ApplyChanges();
+            try
+            {
+                var subscriptionGroups = this.Command.MonitoredItems.GroupBy(item => item.PublishingInterval);
 
-            this.Logger.Debug($"Created/Updated alarm subscriptions on Endpoint: [{this.EndpointUrl}]");
+                foreach (var group in subscriptionGroups)
+                {
+                    var groupItems = group.ToList();
+                    var batchHandler = new BatchHandler<AlarmSubscriptionMonitoredItem>(this._batchSize, this.SubscribeBatch());
+                    batchHandler.RunBatches(groupItems);
+                    this.Logger.Trace($"Alarm subscription with publishing interval {group.Key} ms: Subscribed to {groupItems.Count} nodes.");
+                }
 
-            return this.GetStatusMessage(new List<string>());
+                foreach (var sub in this.Session.Subscriptions.Where(sub => !sub.PublishingEnabled))
+                {
+                    this.Logger.Trace($"Enabling publishing for alarm subscription {sub.Id}");
+                    sub.SetPublishingMode(true);
+                }
+            }
+            catch (Exception ex)
+            {
+                var error = ex.Demystify();
+                errorMessages.Add($"Bad: Could not create / update alarm subscriptions. {error.Message}");
+            }
+
+            //TODO: Implement restore feature for alarm subscriptions. This one is the normal subscription code but may require different Dto
+            //if (!base.Settings.DisableSubscriptionRestoreService && !errorMessages.Any())
+            //{
+            //    var baseEndpointUrl = this.Session.GetBaseEndpointUrl();
+
+            //    if (!errorMessages.Any())
+            //    {
+            //        var monitoredItemsDict = this.Command.MonitoredItems.ToDictionary(monitoredItem => monitoredItem.NodeId);
+            //        var newSubscriptionDto = new SubscriptionDto
+            //        {
+            //            EndpointUrl = baseEndpointUrl,
+            //            MonitoredItems = monitoredItemsDict
+            //        };
+
+            //        if (!this._subscriptionRepository.Add(newSubscriptionDto))
+            //            errorMessages.Add($"Bad: Could not create/update entry configuration for subscription.");
+            //    }
+            //}
+
+            this.AddMessagesForAnyInvalidNodes(errorMessages);
+
+            if (!errorMessages.Any())
+                this.Logger.Debug($"Created/Updated alarm subscriptions on Endpoint: [{this.EndpointUrl}]");
+
+            return this.GetStatusMessage(errorMessages);
         }
+
+        private void AddMessagesForAnyInvalidNodes(ICollection<string> errorMessages)
+        {
+            if (!this._groupedItemsNotCreated.Any())
+                return;
+
+            var stringBuilder = new StringBuilder("Bad: Some nodes could not be subscribed to. ");
+            foreach (var group in this._groupedItemsNotCreated)
+            {
+                stringBuilder.Append($"{@group.Key}: {string.Join(", ", @group.Value)} ");
+            }
+
+            errorMessages.Add(stringBuilder.ToString().TrimEnd());
+        }
+
+        private Action<AlarmSubscriptionMonitoredItem[]> SubscribeBatch()
+        {
+            return (monitoredItems) =>
+            {
+                Opc.Ua.Client.Subscription opcUaSubscription = default;
+                foreach (var monitoredItem in monitoredItems)
+                {
+                    opcUaSubscription = this.GetSubscription(monitoredItem);
+
+                    opcUaSubscription = opcUaSubscription == default
+                        ? this.CreateNewSubscription(monitoredItem)
+                        : this.ModifySubscription(opcUaSubscription, monitoredItem);
+                }
+
+                try
+                {
+                    opcUaSubscription?.ApplyChanges();
+                }
+                catch (ServiceResultException sre)
+                {
+                    this.Logger.Error(sre, $"Failed to call ApplyChanges() for batch with {monitoredItems.Count()} items: ");
+                    throw;
+                }
+
+                this.CollectInvalidNodes(monitoredItems, opcUaSubscription);
+            };
+        }
+
+        private void CollectInvalidNodes(AlarmSubscriptionMonitoredItem[] items, Opc.Ua.Client.Subscription opcUaSubscription)
+        {
+            var nodeIds = new List<NodeId>();
+            foreach (var monitoredItem in items)
+                nodeIds.Add(new NodeId(monitoredItem.NodeId));
+
+            var itemsNotCreatedGroups = opcUaSubscription?.MonitoredItems
+                .Join(nodeIds, item => item.ResolvedNodeId.ToString(), item => item.ToString(), (item, monitoredItem) => item)
+                .Where(item => !item.Created)
+                .GroupBy(item => item.Status.Error.StatusCode);
+
+            foreach (var itemsNotCreatedGroup in itemsNotCreatedGroups!)
+            {
+                var key = itemsNotCreatedGroup.Key.ToString();
+                var nodes = itemsNotCreatedGroup.Select(item => item.StartNodeId.ToString()).ToList();
+
+                var success = this._groupedItemsNotCreated.TryGetValue(key, out var list);
+                if (success)
+                    list.AddRange(nodes);
+                else
+                {
+                    list = nodes;
+                    this._groupedItemsNotCreated.Add(key, list);
+                }
+            }
+        }
+
+        private async Task<List<string>> AddValidationErrorsAsync()
+            {
+                var errorMessages = new List<string>();
+
+                for (var itemIndex = 0; itemIndex < this.Command.MonitoredItems.Length; itemIndex++)
+                {
+                    var results = await this._alarmMonitoredItemValidator.ValidateAsync(this.Command.MonitoredItems[itemIndex]);
+                    if (results.IsValid) continue;
+                    var validationMessages = results.ToString(";");
+                    errorMessages.Add($"Bad: {nameof(CreateAlarmSubscriptionsRequest.MonitoredItems)}[{itemIndex}]: {validationMessages}.");
+                }
+                return errorMessages;
+            }
 
         protected override void GenerateResult(CreateAlarmSubscriptionsResponse result, string message)
         {
             result.OpcUaCommandType = OpcUaCommandType.CreateAlarmSubscription;
             result.Message = message;
         }
+
+        private Opc.Ua.Client.Subscription CreateNewSubscription(AlarmSubscriptionMonitoredItem monitoredItem)
+        {
+            var keepAliveCount = Convert.ToUInt32(monitoredItem.HeartbeatInterval);
+            var subscription = this.Session.Subscriptions.FirstOrDefault(x => monitoredItem.PublishingInterval.Equals(x.PublishingInterval.ToString()));
+            if (subscription == default)
+            {
+                subscription = new Opc.Ua.Client.Subscription
+                {
+                    PublishingInterval = int.Parse(monitoredItem.PublishingInterval),
+                    LifetimeCount = 100000,
+                    KeepAliveCount = keepAliveCount > 0 ? keepAliveCount : 100000,
+                    MaxNotificationsPerPublish = 1000,
+                    Priority = 0,
+                    PublishingEnabled = false
+                };
+                this.Session.AddSubscription(subscription);
+                subscription.Create();
+            }
+            var item = this.CreateMonitoredItem(monitoredItem);
+            subscription.AddItem(item);
+            return subscription;
+        }
+
+        private Opc.Ua.Client.Subscription ModifySubscription(
+            Opc.Ua.Client.Subscription opcUaSubscription, AlarmSubscriptionMonitoredItem monitoredItem)
+        {
+            var existingItems = opcUaSubscription
+                .MonitoredItems
+                .Where(x => monitoredItem.NodeId.Equals(x.ResolvedNodeId.ToString()))
+                .ToList();
+
+            if (SamplingIntervalsAreTheSame(monitoredItem, existingItems))
+                return opcUaSubscription;
+
+            opcUaSubscription.RemoveItems(existingItems);// Notification of intent
+            opcUaSubscription.ApplyChanges(); // enforces intent is executed
+            return this.CreateNewSubscription(monitoredItem); // now re-add the monitored item
+        }
+
+        private static bool SamplingIntervalsAreTheSame(AlarmSubscriptionMonitoredItem monitoredItem, List<MonitoredItem> existingItems)
+            => existingItems.Any(m => m.SamplingInterval == int.Parse(monitoredItem.SamplingInterval));
 
         private MonitoredItem CreateMonitoredItem(AlarmSubscriptionMonitoredItem subscriptionMonitoredItem)
         {
@@ -103,7 +266,7 @@ namespace OMP.Connector.Application.Providers.AlarmSubscription
             }
             catch (Exception ex)
             {
-                this.Logger.LogWarning($"Unable to create monitored item with NodeId: [{subscriptionMonitoredItem.NodeId}]", ex);
+                this.Logger.LogWarning($"Unable to create alarm monitored item with NodeId: [{subscriptionMonitoredItem.NodeId}]", ex);
             }
 
             return monitoredItem;
