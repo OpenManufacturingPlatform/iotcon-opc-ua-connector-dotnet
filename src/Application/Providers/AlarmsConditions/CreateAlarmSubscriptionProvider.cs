@@ -86,6 +86,7 @@ namespace OMP.Connector.Application.Providers.AlarmSubscription
                 {
                     this.Logger.Trace($"Enabling publishing for alarm subscription {sub.Id}");
                     sub.SetPublishingMode(true);
+                    sub.ConditionRefresh();
                 }
             }
             catch (Exception ex)
