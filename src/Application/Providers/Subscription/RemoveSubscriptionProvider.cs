@@ -80,6 +80,8 @@ namespace OMP.Connector.Application.Providers.Subscription
                     var batchHandler = new BatchHandler<MonitoredItem>(this._batchSize, this.UnsubscribeBatches(subscription));
                     batchHandler.RunBatches(items);
                     this.Logger.Debug($"{items.Count} monitored items were removed from subscription [Id: {subscription.Id}]");
+                    if (!subscription.MonitoredItems.Any())
+                        Session.RemoveSubscription(subscription);
                 }
             }
             catch (Exception ex)

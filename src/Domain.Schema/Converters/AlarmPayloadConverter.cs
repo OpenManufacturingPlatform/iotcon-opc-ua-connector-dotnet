@@ -5,7 +5,6 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using OMP.Connector.Domain.Schema.Alarms;
 using OMP.Connector.Domain.Schema.Converters.Base;
-using OMP.Connector.Domain.Schema.Extenions;
 
 namespace OMP.Connector.Domain.Schema.Converters
 {
@@ -16,11 +15,9 @@ namespace OMP.Connector.Domain.Schema.Converters
 
         protected override AlarmPayload Create(System.Type objectType, JToken jToken)
         {
-            var propertyName = typeof(AlarmPayload).GetPropertyName(nameof(AlarmPayload.Data));
-            var dataProperty = this.GetPropertyValue<dynamic>(jToken, propertyName);
-            var sensorTelemetryPayload = new AlarmPayload { Data = new AlarmEventData() };
+            var alarmPayload = new AlarmPayload { Data = new AlarmEventData() };
 
-            return sensorTelemetryPayload;
+            return alarmPayload;
         }
     }
 }
