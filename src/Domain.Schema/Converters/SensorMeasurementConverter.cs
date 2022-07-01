@@ -20,26 +20,7 @@ namespace OMP.Connector.Domain.Schema.Converters
         protected override bool LoadAfterCreate => false;
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
-        {
-            if(value is List<SensorMeasurement> list)
-            {
-                foreach (var item in list)
-                {
-                    if(item.Key.Equals("Value"))
-                    {
-
-                    }
-                    else
-                    {
-                        serializer.Serialize(writer, value, value.GetType());
-                    }
-                }
-            }
-            else
-            {
-                serializer.Serialize(writer, value, value.GetType());
-            }
-        }
+            => serializer.Serialize(writer, value, value.GetType());
 
         protected override IMeasurementValue Create(System.Type objectType, JToken jToken)
         {
