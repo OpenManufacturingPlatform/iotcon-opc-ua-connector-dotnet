@@ -77,7 +77,7 @@ namespace OMP.Connector.Application.Providers.Subscription
                     this.Logger.Trace($"Subscription with publishing interval {group.Key} ms: Subscribed to {groupItems.Count} nodes.");
                 }
 
-                foreach (var sub in this.Session.Subscriptions.Where(sub => !sub.PublishingEnabled))
+                foreach (var sub in this.OpcSession.Session.Subscriptions.Where(sub => !sub.PublishingEnabled))
                 {
                     this.Logger.Trace($"Enabling publishing for subscription {sub.Id}");
                     sub.SetPublishingMode(true);
@@ -91,7 +91,7 @@ namespace OMP.Connector.Application.Providers.Subscription
 
             if (!base.Settings.DisableSubscriptionRestoreService && !errorMessages.Any())
             {
-                var baseEndpointUrl = this.Session.GetBaseEndpointUrl();
+                var baseEndpointUrl = this.OpcSession.Session.GetBaseEndpointUrl();
 
                 if (!errorMessages.Any())
                 {
@@ -207,7 +207,7 @@ namespace OMP.Connector.Application.Providers.Subscription
         private Opc.Ua.Client.Subscription CreateNewSubscription(SubscriptionMonitoredItem monitoredItem)
         {
             var keepAliveCount = Convert.ToUInt32(monitoredItem.HeartbeatInterval);
-            var subscription = this.Session.Subscriptions.FirstOrDefault(x => monitoredItem.PublishingInterval.Equals(x.PublishingInterval.ToString()));
+            var subscription = this.OpcSession.Session.Subscriptions.FirstOrDefault(x => monitoredItem.PublishingInterval.Equals(x.PublishingInterval.ToString()));
             if (subscription == default)
             {
                 subscription = new Opc.Ua.Client.Subscription
@@ -219,7 +219,7 @@ namespace OMP.Connector.Application.Providers.Subscription
                     Priority = 0,
                     PublishingEnabled = false
                 };
-                this.Session.AddSubscription(subscription);
+                this.OpcSession.Session.AddSubscription(subscription);
                 subscription.Create();
             }
             var item = this.CreateMonitoredItem(monitoredItem);

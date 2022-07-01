@@ -24,7 +24,7 @@ namespace OMP.Connector.Application.Providers.AlarmSubscription
             IOptions<ConnectorConfiguration> connectorConfiguration,
             RespondToAlarmEventsRequest command) : base(command, connectorConfiguration, logger){}
 
-        protected override async Task<string> ExecuteCommandAsync()
+        protected override Task<string> ExecuteCommandAsync()
         {
             var results = new List<string>();
             foreach(var eventAction in this.Command.AlarmEventActions)
@@ -42,7 +42,7 @@ namespace OMP.Connector.Application.Providers.AlarmSubscription
 
             this.Logger.Debug($"Created/Updated alarm subscriptions on Endpoint: [{this.EndpointUrl}]");
 
-            return this.GetStatusMessage(results);
+            return Task.FromResult(this.GetStatusMessage(results));
         }
 
         private string GetBadCallResult(StatusCode statusCode, string eventAction, string comment)
@@ -74,7 +74,7 @@ namespace OMP.Connector.Application.Providers.AlarmSubscription
 
             methodsToCall.Add(request);
 
-            Session.Call(
+            this.OpcSession.Session.Call(
                 null,
                 methodsToCall,
                 out CallMethodResultCollection results,

@@ -76,13 +76,13 @@ namespace OMP.Connector.Application.Providers.AlarmSubscription
             var isSuccess = true;
             try
             {
-                var activeSubscriptions = this.Session.Subscriptions.ToList();
+                var activeSubscriptions = this.OpcSession.Session.Subscriptions.ToList();
                 foreach (var subscription in activeSubscriptions)
                 {
                     subscription.SetPublishingMode(false);
                     this.Logger.Trace($"Disabled publishing for subscription [Id: {subscription.Id}]");
                 }
-                this.Session.RemoveSubscriptions(activeSubscriptions);
+                this.OpcSession.Session.RemoveSubscriptions(activeSubscriptions);
             }
             catch (Exception ex)
             {

@@ -16,6 +16,8 @@ namespace OMP.Connector.Domain.OpcUa
     {
         Session Session { get; }
 
+        IComplexTypeSystem ComplexTypeSystem { get; }
+
         Task ConnectAsync(EndpointDescription endpointDescription);
 
         Task ConnectAsync(string opcUaServerUrl);

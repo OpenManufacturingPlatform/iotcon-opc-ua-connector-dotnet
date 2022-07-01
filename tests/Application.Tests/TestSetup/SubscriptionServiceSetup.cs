@@ -6,15 +6,11 @@ using Microsoft.Extensions.Options;
 using NSubstitute;
 using OMP.Connector.Application.Factories;
 using OMP.Connector.Application.Services;
-using OMP.Connector.Domain;
 using OMP.Connector.Domain.Configuration;
-using OMP.Connector.Domain.Models;
 using OMP.Connector.Domain.Models.Telemetry;
 using OMP.Connector.Domain.OpcUa;
 using OMP.Connector.Domain.Providers;
-using OMP.Connector.Domain.Schema;
 using OMP.Connector.Domain.Schema.Interfaces;
-using Opc.Ua.Client;
 
 namespace OMP.Connector.Application.Tests.TestSetup
 {
@@ -49,8 +45,7 @@ namespace OMP.Connector.Application.Tests.TestSetup
             {
                 var subscriptionProvider = Substitute.For<ISubscriptionProvider>();
                 subscriptionProvider
-                    .ExecuteAsync(Arg.Any<Session>(),
-                        Arg.Any<IComplexTypeSystem>())
+                    .ExecuteAsync(Arg.Any<IOpcSession>())
                     .Returns(expectedResponse);
 
                 subscriptionProviderFactoryMock

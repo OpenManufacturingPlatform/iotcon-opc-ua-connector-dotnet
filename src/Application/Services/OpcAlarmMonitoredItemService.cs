@@ -48,10 +48,10 @@ namespace OMP.Connector.Application.Services
             this.Notification += this.OnNotification;
         }
 
-        public void Initialize(AlarmSubscriptionMonitoredItem monitoredItemCommand, IComplexTypeSystem complexTypeSystem, TelemetryMessageMetadata messageMetadata, Session session)
+        public void Initialize(AlarmSubscriptionMonitoredItem monitoredItemCommand, TelemetryMessageMetadata messageMetadata, IOpcSession opcSession)
         {
             this.MessageMetadata = messageMetadata;
-            this._complexTypeSystem = complexTypeSystem;
+            this._complexTypeSystem = opcSession.ComplexTypeSystem;
             this._monitoredItemCommand = monitoredItemCommand;
 
             var alarmTypeNodeIds = GetAlarmTypeNodeIds(monitoredItemCommand);
@@ -65,7 +65,7 @@ namespace OMP.Connector.Application.Services
             };
 
             // generate select clauses for all fields of all alarm types
-            filter.SelectClauses = filter.ConstructSelectClauses(session, alarmTypeNodeIds);
+            filter.SelectClauses = filter.ConstructSelectClauses(opcSession.Session, alarmTypeNodeIds);
 
             // filter clauses based on the list of fields that should be included (if available in request)
             if (monitoredItemCommand.AlarmFields != null && monitoredItemCommand.AlarmFields.Any())
@@ -75,7 +75,7 @@ namespace OMP.Connector.Application.Services
             }
 
             // update monitored item based on the current filter settings
-            filter.UpdateMonitoredItem(this, session);
+            filter.UpdateMonitoredItem(this, opcSession.Session);
         }
 
         private NodeId[] GetAlarmTypeNodeIds(AlarmSubscriptionMonitoredItem monitoredItemCommand)

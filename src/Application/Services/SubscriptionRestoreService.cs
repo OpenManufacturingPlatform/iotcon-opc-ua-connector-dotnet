@@ -47,17 +47,14 @@ namespace OMP.Connector.Application.Services
         {
             try
             {
-                await opcSession.UseAsync((session, complexTypeSystem) =>
+                foreach (var request in requestMessage.Payload.Requests)
                 {
-                    foreach (var request in requestMessage.Payload.Requests)
-                    {
-                        var provider = this._subscriptionProviderFactory.GetProvider(request, TelemetryMessageMetadata.MapFrom(requestMessage));
-                        if (provider == default)
-                            throw new ApplicationException("Subscription restore command is not supported");
+                    var provider = this._subscriptionProviderFactory.GetProvider(request, TelemetryMessageMetadata.MapFrom(requestMessage));
+                    if (provider == default)
+                        throw new ApplicationException("Subscription restore command is not supported");
 
-                        provider.ExecuteAsync(session, complexTypeSystem).GetAwaiter().GetResult();
-                    }
-                });
+                    await provider.ExecuteAsync(opcSession);
+                }
             }
             catch (Exception exception)
             {

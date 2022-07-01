@@ -35,7 +35,6 @@ namespace OMP.Connector.Application.Providers.AlarmSubscription
         private readonly int _batchSize;
         private readonly IOpcAlarmMonitoredItemService _opcAlarmMonitoredItemService;
         private readonly Dictionary<string, List<string>> _groupedItemsNotCreated;
-        private AlarmFilterDefinition m_filter;
 
         public CreateAlarmSubscriptionProvider(
             IAlarmSubscriptionRepository subscriptionRepository,
@@ -51,7 +50,6 @@ namespace OMP.Connector.Application.Providers.AlarmSubscription
             this._messageMetadata = messageMetadata;
             this._alarmMonitoredItemValidator = alarmMonitoredItemValidator;
             this._batchSize = this.Settings.OpcUa.AlarmSubscriptionBatchSize;
-
             this._groupedItemsNotCreated = new Dictionary<string, List<string>>();
         }
 
@@ -77,7 +75,7 @@ namespace OMP.Connector.Application.Providers.AlarmSubscription
                     this.Logger.Trace($"Alarm subscription with publishing interval {group.Key} ms: Subscribed to {groupItems.Count} nodes.");
                 }
 
-                foreach (var sub in this.Session.Subscriptions.Where(sub => !sub.PublishingEnabled))
+                foreach (var sub in this.OpcSession.Session.Subscriptions.Where(sub => !sub.PublishingEnabled))
                 {
                     this.Logger.Trace($"Enabling publishing for alarm subscription {sub.Id}");
                     sub.SetPublishingMode(true);
@@ -209,7 +207,7 @@ namespace OMP.Connector.Application.Providers.AlarmSubscription
         private Opc.Ua.Client.Subscription CreateNewSubscription(AlarmSubscriptionMonitoredItem monitoredItem)
         {
             var keepAliveCount = Convert.ToUInt32(monitoredItem.HeartbeatInterval);
-            var subscription = this.Session.Subscriptions.FirstOrDefault(x => monitoredItem.PublishingInterval.Equals(x.PublishingInterval.ToString()));
+            var subscription = this.OpcSession.Session.Subscriptions.FirstOrDefault(x => monitoredItem.PublishingInterval.Equals(x.PublishingInterval.ToString()));
             if (subscription == default)
             {
                 subscription = new Opc.Ua.Client.Subscription
@@ -221,7 +219,7 @@ namespace OMP.Connector.Application.Providers.AlarmSubscription
                     Priority = 0,
                     PublishingEnabled = false
                 };
-                this.Session.AddSubscription(subscription);
+                this.OpcSession.Session.AddSubscription(subscription);
                 subscription.Create();
             }
             var item = this.CreateMonitoredItem(monitoredItem);
@@ -249,7 +247,7 @@ namespace OMP.Connector.Application.Providers.AlarmSubscription
             MonitoredItem monitoredItem = null;
             try
             {
-                monitoredItem = InitializeAlarmMonitoredItem(alarmSubscriptionMonitoredItem, this.ComplexTypeSystem, this._messageMetadata, this.Session);
+                monitoredItem = InitializeAlarmMonitoredItem(alarmSubscriptionMonitoredItem, this._messageMetadata);
 
                 this.Logger.Trace($"Alarm monitored item with NodeId: [{alarmSubscriptionMonitoredItem.NodeId}] " +
                                         $", Sampling Interval: [{monitoredItem.SamplingInterval}] and " +
@@ -264,9 +262,9 @@ namespace OMP.Connector.Application.Providers.AlarmSubscription
             return monitoredItem;
         }
 
-        private MonitoredItem InitializeAlarmMonitoredItem(AlarmSubscriptionMonitoredItem monitoredItem, IComplexTypeSystem complexTypeSystem, TelemetryMessageMetadata telemetryMessageMetadata, Session session)
+        private MonitoredItem InitializeAlarmMonitoredItem(AlarmSubscriptionMonitoredItem monitoredItem, TelemetryMessageMetadata telemetryMessageMetadata)
         {
-            this._opcAlarmMonitoredItemService.Initialize(monitoredItem, complexTypeSystem, telemetryMessageMetadata, session);
+            this._opcAlarmMonitoredItemService.Initialize(monitoredItem, telemetryMessageMetadata, this.OpcSession);
             return this._opcAlarmMonitoredItemService as MonitoredItem;
         }
     }

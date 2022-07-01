@@ -79,6 +79,12 @@ namespace OMP.Connector.Infrastructure.OpcUa
             set => _session = value;
         }
 
+        public IComplexTypeSystem ComplexTypeSystem
+        {
+            get => _complexTypeSystem;
+            set => _complexTypeSystem = value;
+        }
+
         #region [Public Members]
 
         public async Task ConnectAsync(EndpointDescription endpointDescription)

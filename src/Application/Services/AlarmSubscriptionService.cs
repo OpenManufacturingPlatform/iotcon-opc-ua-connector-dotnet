@@ -71,27 +71,25 @@ namespace OMP.Connector.Application.Services
         {
             var opcSession = await this._sessionPoolManager.GetSessionAsync(requestMessage.Payload.RequestTarget.EndpointUrl, new CancellationToken());
             var commandResults = new List<ICommandResponse>();
-            await opcSession.UseAsync(async (session, complexTypeSystem) =>
+
+            var requestCounter = 0;
+            foreach (var request in requestMessage.Payload.Requests)
             {
-                var requestCounter = 0;
-                foreach (var request in requestMessage.Payload.Requests)
-                {
-                    var provider = this._subscriptionProviderFactory.GetProvider(request, TelemetryMessageMetadata.MapFrom(requestMessage));
-                    if (provider == default)
-                        throw new ApplicationException("Subscription command is not supported");
+                var provider = this._subscriptionProviderFactory.GetProvider(request, TelemetryMessageMetadata.MapFrom(requestMessage));
+                if (provider == default)
+                    throw new ApplicationException("Subscription command is not supported");
 
-                    this._logger.LogEvent(EventTypes.SentRequestToOpcUa, requestMessage.Id);
+                this._logger.LogEvent(EventTypes.SentRequestToOpcUa, requestMessage.Id);
 
-                    var response = await provider.ExecuteAsync(session, complexTypeSystem);
+                var response = await provider.ExecuteAsync(opcSession);
+                
+                this._logger.LogEvent(EventTypes.ReceivedResponseFromOpcUa, requestMessage.Id);
 
-                    this._logger.LogEvent(EventTypes.ReceivedResponseFromOpcUa, requestMessage.Id);
+                this._logger.Trace($"{nameof(AlarmSubscriptionService)} subscription request was processed. RequestMessage.{nameof(requestMessage.Id)}: {requestMessage.Id} >> Request[{requestCounter++}]");
 
-                    this._logger.Trace($"{nameof(AlarmSubscriptionService)} subscription request was processed. RequestMessage.{nameof(requestMessage.Id)}: {requestMessage.Id} >> Request[{requestCounter++}]");
-
-                    if (response != default)
-                        commandResults.Add(response);
-                }
-            });
+                if (response != default)
+                    commandResults.Add(response);
+            }
 
             return commandResults;
         }
