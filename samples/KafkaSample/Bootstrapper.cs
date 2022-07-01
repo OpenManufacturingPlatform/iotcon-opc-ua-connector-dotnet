@@ -67,10 +67,6 @@ namespace OMP.Connector.EdgeModule
             serviceCollection.AddTransient<IOpcSessionReconnectHandlerFactory, OpcSessionReconnectHandlerFactory>();
             serviceCollection.AddTransient<IOpcMonitoredItemService, OpcMonitoredItemService>();
 
-            serviceCollection.AddSingleton<MonitoredItemServiceInitializerFactory>();
-            serviceCollection.RegisterDelegateFromService<MonitoredItemServiceInitializerFactory, MonitoredItemServiceInitializerFactoryDelegate>
-                (factory => factory.Initialize);
-
             serviceCollection.AddTransient<ConfigRestoreService>();
             serviceCollection.AddTransient<ConfigurationRestoreJob>();
 
