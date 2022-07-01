@@ -18,6 +18,7 @@ using OMP.Connector.Domain.Extensions;
 using OMP.Connector.Domain.Models;
 using OMP.Connector.Domain.Models.Telemetry;
 using OMP.Connector.Domain.OpcUa;
+using OMP.Connector.Domain.OpcUa.Services;
 using OMP.Connector.Domain.Schema;
 using OMP.Connector.Domain.Schema.Enums;
 using OMP.Connector.Domain.Schema.Request.Subscription;
@@ -27,31 +28,26 @@ using Opc.Ua.Client;
 
 namespace OMP.Connector.Application.Providers.Subscription
 {
-    public delegate MonitoredItem MonitoredItemServiceInitializerFactoryDelegate(
-        SubscriptionMonitoredItem monitoredItem,
-        IComplexTypeSystem complexTypeSystem,
-        TelemetryMessageMetadata telemetryMessageMetaData);
-
     public class CreateSubscriptionProvider : SubscriptionProvider<CreateSubscriptionsRequest, CreateSubscriptionsResponse>
     {
         private readonly ISubscriptionRepository _subscriptionRepository;
         private readonly TelemetryMessageMetadata _messageMetadata;
         private readonly MonitoredItemValidator _monitoredItemValidator;
         private readonly int _batchSize;
-        private readonly MonitoredItemServiceInitializerFactoryDelegate _opcMonitoredItemServiceInitializerFactory;
+        private readonly IOpcMonitoredItemService _opcMonitoredItemService;
         private readonly Dictionary<string, List<string>> _groupedItemsNotCreated;
 
         public CreateSubscriptionProvider(
             ISubscriptionRepository subscriptionRepository,
             ILogger<CreateSubscriptionProvider> logger,
             IOptions<ConnectorConfiguration> connectorConfiguration,
-            MonitoredItemServiceInitializerFactoryDelegate opcMonitoredItemServiceInitializerFactory,
+            IOpcMonitoredItemService opcMonitoredItemService,
             CreateSubscriptionsRequest command,
             TelemetryMessageMetadata messageMetadata,
             MonitoredItemValidator monitoredItemValidator) : base(command, connectorConfiguration, logger)
         {
             this._subscriptionRepository = subscriptionRepository;
-            this._opcMonitoredItemServiceInitializerFactory = opcMonitoredItemServiceInitializerFactory;
+            this._opcMonitoredItemService = opcMonitoredItemService;
             this._messageMetadata = messageMetadata;
             this._monitoredItemValidator = monitoredItemValidator;
             this._batchSize = this.Settings.OpcUa.SubscriptionBatchSize;
@@ -255,8 +251,7 @@ namespace OMP.Connector.Application.Providers.Subscription
             MonitoredItem monitoredItem = null;
             try
             {
-                monitoredItem = this._opcMonitoredItemServiceInitializerFactory.Invoke(subscriptionMonitoredItem,
-                    this.ComplexTypeSystem, this._messageMetadata);
+                monitoredItem = InitializeMonitoredItem(subscriptionMonitoredItem, this.ComplexTypeSystem, this._messageMetadata);
 
                 this.Logger.Trace($"Monitored item with NodeId: [{subscriptionMonitoredItem.NodeId}] " +
                                         $", Sampling Interval: [{monitoredItem.SamplingInterval}] and " +
@@ -269,6 +264,12 @@ namespace OMP.Connector.Application.Providers.Subscription
             }
 
             return monitoredItem;
+        }
+
+        private MonitoredItem InitializeMonitoredItem(SubscriptionMonitoredItem monitoredItem, IComplexTypeSystem complexTypeSystem, TelemetryMessageMetadata telemetryMessageMetadata)
+        {
+            this._opcMonitoredItemService.Initialize(monitoredItem, complexTypeSystem, telemetryMessageMetadata);
+            return this._opcMonitoredItemService as MonitoredItem;
         }
     }
 }

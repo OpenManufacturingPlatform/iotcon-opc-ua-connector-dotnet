@@ -16,6 +16,7 @@ using OMP.Connector.Domain.Configuration;
 using OMP.Connector.Domain.Extensions;
 using OMP.Connector.Domain.Models.Telemetry;
 using OMP.Connector.Domain.OpcUa;
+using OMP.Connector.Domain.OpcUa.Services;
 using OMP.Connector.Domain.Schema;
 using OMP.Connector.Domain.Schema.Enums;
 using OMP.Connector.Domain.Schema.Request.AlarmSubscription;
@@ -25,12 +26,6 @@ using Opc.Ua.Client;
 
 namespace OMP.Connector.Application.Providers.AlarmSubscription
 {
-    public delegate MonitoredItem AlarmMonitoredItemServiceInitializerFactoryDelegate(
-        AlarmSubscriptionMonitoredItem monitoredItem,
-        IComplexTypeSystem complexTypeSystem,
-        TelemetryMessageMetadata telemetryMessageMetaData,
-        Session session);
-
     public class CreateAlarmSubscriptionProvider : AlarmSubscriptionProvider<CreateAlarmSubscriptionsRequest, CreateAlarmSubscriptionsResponse>
     {
         //TODO: add support for alarm subscription restores
@@ -38,7 +33,7 @@ namespace OMP.Connector.Application.Providers.AlarmSubscription
         private readonly TelemetryMessageMetadata _messageMetadata;
         private readonly AlarmMonitoredItemValidator _alarmMonitoredItemValidator;
         private readonly int _batchSize;
-        private readonly AlarmMonitoredItemServiceInitializerFactoryDelegate _opcMonitoredItemServiceInitializerFactory;
+        private readonly IOpcAlarmMonitoredItemService _opcAlarmMonitoredItemService;
         private readonly Dictionary<string, List<string>> _groupedItemsNotCreated;
         private AlarmFilterDefinition m_filter;
 
@@ -46,13 +41,13 @@ namespace OMP.Connector.Application.Providers.AlarmSubscription
             IAlarmSubscriptionRepository subscriptionRepository,
             ILogger<CreateAlarmSubscriptionProvider> logger,
             IOptions<ConnectorConfiguration> connectorConfiguration,
-            AlarmMonitoredItemServiceInitializerFactoryDelegate opcMonitoredItemServiceInitializerFactory,
+            IOpcAlarmMonitoredItemService opcAlarmMonitoredItemService,
             CreateAlarmSubscriptionsRequest command,
             TelemetryMessageMetadata messageMetadata,
             AlarmMonitoredItemValidator alarmMonitoredItemValidator) : base(command, connectorConfiguration, logger)
         {
             this._subscriptionRepository = subscriptionRepository;
-            this._opcMonitoredItemServiceInitializerFactory = opcMonitoredItemServiceInitializerFactory;
+            this._opcAlarmMonitoredItemService = opcAlarmMonitoredItemService;
             this._messageMetadata = messageMetadata;
             this._alarmMonitoredItemValidator = alarmMonitoredItemValidator;
             this._batchSize = this.Settings.OpcUa.AlarmSubscriptionBatchSize;
@@ -249,25 +244,30 @@ namespace OMP.Connector.Application.Providers.AlarmSubscription
             return this.CreateNewSubscription(monitoredItem); // now re-add the monitored item
         }
 
-        private MonitoredItem CreateMonitoredItem(AlarmSubscriptionMonitoredItem subscriptionMonitoredItem)
+        private MonitoredItem CreateMonitoredItem(AlarmSubscriptionMonitoredItem alarmSubscriptionMonitoredItem)
         {
             MonitoredItem monitoredItem = null;
             try
             {
-                monitoredItem = this._opcMonitoredItemServiceInitializerFactory.Invoke(subscriptionMonitoredItem,
-                    this.ComplexTypeSystem, this._messageMetadata, this.Session);
+                monitoredItem = InitializeAlarmMonitoredItem(alarmSubscriptionMonitoredItem, this.ComplexTypeSystem, this._messageMetadata, this.Session);
 
-                this.Logger.Trace($"Alarm monitored item with NodeId: [{subscriptionMonitoredItem.NodeId}] " +
+                this.Logger.Trace($"Alarm monitored item with NodeId: [{alarmSubscriptionMonitoredItem.NodeId}] " +
                                         $", Sampling Interval: [{monitoredItem.SamplingInterval}] and " +
-                                        $"Publishing Interval: [{subscriptionMonitoredItem.PublishingInterval}] " +
+                                        $"Publishing Interval: [{alarmSubscriptionMonitoredItem.PublishingInterval}] " +
                                         "has been created successfully");
             }
             catch (Exception ex)
             {
-                this.Logger.LogWarning($"Unable to create alarm monitored item with NodeId: [{subscriptionMonitoredItem.NodeId}]", ex);
+                this.Logger.LogWarning($"Unable to create alarm monitored item with NodeId: [{alarmSubscriptionMonitoredItem.NodeId}]", ex);
             }
 
             return monitoredItem;
+        }
+
+        private MonitoredItem InitializeAlarmMonitoredItem(AlarmSubscriptionMonitoredItem monitoredItem, IComplexTypeSystem complexTypeSystem, TelemetryMessageMetadata telemetryMessageMetadata, Session session)
+        {
+            this._opcAlarmMonitoredItemService.Initialize(monitoredItem, complexTypeSystem, telemetryMessageMetadata, session);
+            return this._opcAlarmMonitoredItemService as MonitoredItem;
         }
     }
 }
