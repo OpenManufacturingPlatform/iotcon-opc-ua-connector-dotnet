@@ -20,7 +20,8 @@ namespace OMP.Connector.Application.Tests.TestSetup
 {
     internal static class CommandHelper
     {
-        internal static CommandResponse CreateReadCommandResponse(string schemaUrl,
+        internal static CommandResponse CreateCommandResponse(
+            string schemaUrl,
             CommandRequest command,
             string expectedServerName = null,
             string expectedServerRoute = null,
@@ -45,7 +46,7 @@ namespace OMP.Connector.Application.Tests.TestSetup
             return message;
         }
 
-        internal static CommandRequest CreateReadCommandRequest(string nodeId, string schemaUrl)
+        internal static CommandRequest CreateCommandRequest(OpcUaCommandType commandType, string nodeId, string schemaUrl)
         {
             var message = ModelFactory.CreateInstance<CommandRequest>(schemaUrl);
             message.Id = Guid.NewGuid().ToString();
@@ -61,7 +62,7 @@ namespace OMP.Connector.Application.Tests.TestSetup
                     new ReadRequest
                     {
                         NodeId = nodeId,
-                        OpcUaCommandType = OpcUaCommandType.Read
+                        OpcUaCommandType = commandType
                     }
                 }
             };
