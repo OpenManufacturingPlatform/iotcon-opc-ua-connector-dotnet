@@ -10,27 +10,26 @@ using OMP.Connector.Domain.Schema;
 namespace OMP.Connector.Application.Tests.Validators
 {
     [TestFixture]
-    public class MonitoredItemValidatorTests
+    public class AlarmMonitoredItemValidatorTests
     {
         private const string IntervalNotANumber = " ";
         private const string IntervalLow = "10";
         private const string IntervalMedium = "20";
         private const string IntervalHigh = "30";
 
-        private SubscriptionMonitoredItem _testItem;
-        private AbstractValidator<SubscriptionMonitoredItem> _classUnderTest;
+        private AlarmSubscriptionMonitoredItem _testItem;
+        private AbstractValidator<AlarmSubscriptionMonitoredItem> _classUnderTest;
 
         [SetUp]
         public void SetUp()
         {
-            this._testItem = new SubscriptionMonitoredItem
+            this._testItem = new AlarmSubscriptionMonitoredItem
             {
-                SamplingInterval = IntervalLow,
                 PublishingInterval = IntervalMedium,
                 HeartbeatInterval = IntervalHigh,
             };
 
-            this._classUnderTest = new MonitoredItemValidator();
+            this._classUnderTest = new AlarmMonitoredItemValidator();
         }
 
         [Test]
@@ -44,57 +43,12 @@ namespace OMP.Connector.Application.Tests.Validators
         [Test]
         public void When_Equal_Intervals_Correct_Result_Valid()
         {
-            this._testItem.SamplingInterval = IntervalLow;
             this._testItem.PublishingInterval = IntervalLow;
             this._testItem.HeartbeatInterval = IntervalLow;
 
             var result = this._classUnderTest.Validate(this._testItem);
 
             Assert.True(result.IsValid);
-        }
-
-        [Test]
-        public void When_SamplingInterval_Missing_Result_Invalid()
-        {
-            this._testItem.SamplingInterval = string.Empty;
-
-            var result = this._classUnderTest.Validate(this._testItem);
-
-            Assert.False(result.IsValid);
-        }
-
-        [Test]
-        public void When_SamplingInterval_No_Number_Result_Invalid()
-        {
-            this._testItem.SamplingInterval = IntervalNotANumber;
-
-            var result = this._classUnderTest.Validate(this._testItem);
-
-            Assert.False(result.IsValid);
-        }
-
-        [Test]
-        public void When_SamplingInterval_No_Number_Result_Has_ErrorMessage()
-        {
-            this._testItem.SamplingInterval = IntervalNotANumber;
-
-            var result = this._classUnderTest.Validate(this._testItem);
-
-            var errorMessages = result.Errors;
-            Assert.IsNotEmpty(errorMessages);
-            Assert.Contains("PublishingInterval must be greater than SamplingInterval", errorMessages.Select(v => v.ToString()).ToArray());
-        }
-
-        [Test]
-        public void When_SamplingInterval_Missing_Result_Has_ErrorMessage()
-        {
-            this._testItem.SamplingInterval = string.Empty;
-
-            var result = this._classUnderTest.Validate(this._testItem);
-
-            var errorMessages = result.Errors;
-            Assert.IsNotEmpty(errorMessages);
-            Assert.Contains("PublishingInterval must be greater than SamplingInterval", errorMessages.Select(v => v.ToString()).ToArray());
         }
 
         [Test]
@@ -183,30 +137,6 @@ namespace OMP.Connector.Application.Tests.Validators
             var errorMessages = result.Errors;
             Assert.IsNotEmpty(errorMessages);
             Assert.Contains("HeartbeatInterval must be greater than PublishingInterval", errorMessages.Select(v => v.ToString()).ToArray());
-        }
-
-        [Test]
-        public void When_SamplingI_Greater_PublishingI_Result_Invalid()
-        {
-            this._testItem.SamplingInterval = IntervalMedium;
-            this._testItem.PublishingInterval = IntervalLow;
-
-            var result = this._classUnderTest.Validate(this._testItem);
-
-            Assert.False(result.IsValid);
-        }
-
-        [Test]
-        public void When_SamplingI_Greater_PublishingI_Result_Has_ErrorMessage()
-        {
-            this._testItem.SamplingInterval = IntervalMedium;
-            this._testItem.PublishingInterval = IntervalLow;
-
-            var result = this._classUnderTest.Validate(this._testItem);
-
-            var errorMessages = result.Errors;
-            Assert.IsNotEmpty(errorMessages);
-            Assert.Contains("PublishingInterval must be greater than SamplingInterval", errorMessages.Select(v => v.ToString()).ToArray());
         }
 
         [Test]

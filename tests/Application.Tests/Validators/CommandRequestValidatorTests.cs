@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using FluentValidation;
 using Microsoft.Extensions.Options;
 using NSubstitute;
 using NUnit.Framework;
@@ -23,7 +24,7 @@ namespace OMP.Connector.Application.Tests.Validators
         private const string IdFieldName = nameof(Participant.Id);
 
         private IOptions<ConnectorConfiguration> _settingsMock;
-        private CommandRequestValidator _classUnderTest;
+        private AbstractValidator<CommandRequest> _classUnderTest;
 
         [SetUp]
         public void Setup()

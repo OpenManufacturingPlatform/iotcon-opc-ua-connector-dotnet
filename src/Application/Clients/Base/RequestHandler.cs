@@ -7,11 +7,11 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
+using FluentValidation;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OMP.Connector.Application.OpcUa;
 using OMP.Connector.Application.Services;
-using OMP.Connector.Application.Validators;
 using OMP.Connector.Domain;
 using OMP.Connector.Domain.Configuration;
 using OMP.Connector.Domain.Enums;
@@ -36,7 +36,7 @@ namespace OMP.Connector.Application.Clients.Base
         protected readonly IAlarmSubscriptionServiceStateManager AlarmSubscriptionServiceStateManager;
         protected readonly IDiscoveryService DiscoveryService;
         private readonly ConnectorConfiguration _connectorConfiguration;
-        protected readonly CommandRequestValidator RequestValidator;
+        protected readonly AbstractValidator<CommandRequest> RequestValidator;
         protected string SchemaUrl => this._connectorConfiguration.Communication.SchemaUrl;
 
         protected RequestHandler(
@@ -48,7 +48,7 @@ namespace OMP.Connector.Application.Clients.Base
             IAlarmSubscriptionServiceStateManager alarmSubscriptionServiceStateManager,
             IDiscoveryService discoveryService,
             IOptions<ConnectorConfiguration> connectorConfiguration,
-            CommandRequestValidator commandRequestValidator)
+            AbstractValidator<CommandRequest> commandRequestValidator)
         {
             this.Logger = logger;
             this.MessageSender = messageSender;

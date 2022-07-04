@@ -3,19 +3,21 @@
 
 using System;
 using AutoMapper;
+using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OMP.Connector.Application.Factories;
 using OMP.Connector.Application.Providers;
-using OMP.Connector.Application.Providers.Subscription;
 using OMP.Connector.Application.Services;
 using OMP.Connector.Application.Validators;
 using OMP.Connector.Domain.Configuration;
 using OMP.Connector.Domain.OpcUa;
 using OMP.Connector.Domain.OpcUa.Services;
 using OMP.Connector.Domain.Providers;
+using OMP.Connector.Domain.Schema;
+using OMP.Connector.Domain.Schema.Messages;
 using OMP.Connector.EdgeModule.Jobs;
 using OMP.Connector.Infrastructure.AutoMapper;
 using OMP.Connector.Infrastructure.OpcUa;
@@ -47,9 +49,10 @@ namespace OMP.Connector.EdgeModule
             serviceCollection.AddSingleton<ISessionPoolStateManager, SessionPoolStateManager>();
             serviceCollection.AddSingleton<IUserIdentityProvider, UserIdentityProvider>();
 
-            serviceCollection.AddTransient<CommandRequestValidator>();
-            serviceCollection.AddTransient<MonitoredItemValidator>();
-            serviceCollection.AddTransient<RoutingSettingsValidator>();
+            serviceCollection.AddTransient<AbstractValidator<CommandRequest>, CommandRequestValidator>();
+            serviceCollection.AddTransient<AbstractValidator<SubscriptionMonitoredItem>, MonitoredItemValidator>();
+            serviceCollection.AddTransient<AbstractValidator<AlarmSubscriptionMonitoredItem>, AlarmMonitoredItemValidator>();
+            serviceCollection.AddTransient<AbstractValidator<ConnectorConfiguration>, RoutingSettingsValidator>();
 
             //Add MQTT Integration
             serviceCollection.AddMqttIntegration();

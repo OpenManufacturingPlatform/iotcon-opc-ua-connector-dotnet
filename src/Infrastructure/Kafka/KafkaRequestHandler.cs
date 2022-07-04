@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT. 
+﻿// SPDX-License-Identifier: MIT. 
 // Copyright Contributors to the Open Manufacturing Platform.
 
 using System;
@@ -6,11 +6,11 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using AutoMapper;
 using Confluent.Kafka;
+using FluentValidation;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OMP.Connector.Application.Clients.Base;
 using OMP.Connector.Application.Services;
-using OMP.Connector.Application.Validators;
 using OMP.Connector.Domain;
 using OMP.Connector.Domain.Configuration;
 using OMP.Connector.Domain.OpcUa;
@@ -29,7 +29,7 @@ namespace OMP.Connector.Infrastructure.Kafka
             IAlarmSubscriptionServiceStateManager alarmSubscriptionServiceStateManager,
             IDiscoveryService discoveryService,
             IOptions<ConnectorConfiguration> connectorConfiguration,
-            CommandRequestValidator commandRequestValidator)
+            AbstractValidator<CommandRequest> commandRequestValidator)
             : base(
                   logger,
                   messageSender,

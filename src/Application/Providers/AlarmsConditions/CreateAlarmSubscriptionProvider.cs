@@ -7,11 +7,10 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using FluentValidation;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OMP.Connector.Application.Providers.AlarmSubscription.Base;
-using OMP.Connector.Application.Validators;
-using OMP.Connector.Domain;
 using OMP.Connector.Domain.Configuration;
 using OMP.Connector.Domain.Extensions;
 using OMP.Connector.Domain.Models.Telemetry;
@@ -31,7 +30,7 @@ namespace OMP.Connector.Application.Providers.AlarmSubscription
         //TODO: add support for alarm subscription restores
         private readonly IAlarmSubscriptionRepository _subscriptionRepository;
         private readonly TelemetryMessageMetadata _messageMetadata;
-        private readonly AlarmMonitoredItemValidator _alarmMonitoredItemValidator;
+        private readonly AbstractValidator<AlarmSubscriptionMonitoredItem> _alarmMonitoredItemValidator;
         private readonly int _batchSize;
         private readonly IOpcAlarmMonitoredItemService _opcAlarmMonitoredItemService;
         private readonly Dictionary<string, List<string>> _groupedItemsNotCreated;
@@ -43,7 +42,7 @@ namespace OMP.Connector.Application.Providers.AlarmSubscription
             IOpcAlarmMonitoredItemService opcAlarmMonitoredItemService,
             CreateAlarmSubscriptionsRequest command,
             TelemetryMessageMetadata messageMetadata,
-            AlarmMonitoredItemValidator alarmMonitoredItemValidator) : base(command, connectorConfiguration, logger)
+            AbstractValidator<AlarmSubscriptionMonitoredItem> alarmMonitoredItemValidator) : base(command, connectorConfiguration, logger)
         {
             this._subscriptionRepository = subscriptionRepository;
             this._opcAlarmMonitoredItemService = opcAlarmMonitoredItemService;
