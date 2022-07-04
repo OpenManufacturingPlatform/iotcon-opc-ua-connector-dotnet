@@ -108,7 +108,7 @@ namespace OMP.Connector.Infrastructure.Kafka
             LogProduceResultMessage(result, EventTypes.SentTelemetryToBroker, telemetry.Id);
         }
 
-        public async Task SendMessageToAlarmsAsync (AlarmMessage alarmMessage)
+        public async Task SendMessageToAlarmAsync (AlarmMessage alarmMessage)
         {
             var result = await _alarmProducer.ProduceAsync(alarmMessage.Id, alarmMessage);
             LogProduceResultMessage(result, EventTypes.SentAlarmToBroker, alarmMessage.Id);

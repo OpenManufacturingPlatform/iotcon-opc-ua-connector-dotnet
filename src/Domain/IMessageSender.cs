@@ -15,7 +15,7 @@ namespace OMP.Connector.Domain
         Task SendMessageToComConUpAsync(CommandResponse commandResponse, CommandRequest commandRequest = null);
         Task SendMessageToComConUpAsync(IEnumerable<CommandResponse> commandResponse, CommandRequest commandRequest = null);
         Task SendMessageToTelemetryAsync(SensorTelemetryMessage telemetry);
+        Task SendMessageToAlarmAsync(AlarmMessage alarm);
         bool SendMessageToConfig(AppConfigDto configuration);
-        Task SendMessageToAlarmsAsync(AlarmMessage alarmMessage);
     }
 }

@@ -100,7 +100,7 @@ namespace OMP.Connector.Application.Services
 
                 var alarmMessage = AlarmUtilities.CreateMessage(msgContent, alarmSource, monitoredItem.Filter, this._mapper);
 
-                this._messageSender.SendMessageToAlarmsAsync(alarmMessage).GetAwaiter().GetResult();
+                this._messageSender.SendMessageToAlarmAsync(alarmMessage).GetAwaiter().GetResult();
 
                 this._logger.Debug($"Alarm Monitored Item: [{monitoredItem?.StartNodeId}] notification triggered with EventFields: [{msgContent.EventFields.EventFields.Count}]");
             }

@@ -39,6 +39,7 @@ namespace OMP.Connector.EdgeModule
             serviceCollection.TryAddScoped<ISerializer, JsonSerializer>();
 
             serviceCollection.TryAddScoped<IMqttTelemetryPublisher, MqttTelemetryPublisher>();
+            serviceCollection.TryAddScoped<IMqttAlarmPublisher, MqttAlarmPublisher>();
             serviceCollection.TryAddScoped<IMqttResponsePublisher, MqttResponsePublisher>();
 
             serviceCollection.TryAddScoped<IMqttRequestHandler, MqttRequestHandler>();

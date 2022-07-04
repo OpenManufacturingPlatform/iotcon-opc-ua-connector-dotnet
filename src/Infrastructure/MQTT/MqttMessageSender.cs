@@ -18,16 +18,19 @@ namespace OMP.Connector.Infrastructure.MQTT
     {
         private readonly IMqttResponsePublisher _responsePublisher;
         private readonly IMqttTelemetryPublisher _telemetryPublisher;
+        private readonly IMqttAlarmPublisher _alarmPublisher;
         private readonly ILogger<MqttMessageSender> _logger;
 
         public MqttMessageSender(
             IMqttResponsePublisher responsePublisher,
             IMqttTelemetryPublisher telemetryPublisher,
+            IMqttAlarmPublisher alarmPublisher,
             ILogger<MqttMessageSender> logger
             )
         {
             this._responsePublisher = responsePublisher;
             this._telemetryPublisher = telemetryPublisher;
+            this._alarmPublisher = alarmPublisher;
             this._logger = logger;
         }
 
@@ -53,9 +56,10 @@ namespace OMP.Connector.Infrastructure.MQTT
             throw new NotSupportedException();
         }
 
-        public Task SendMessageToAlarmsAsync(AlarmMessage alarmMessage)
+        public async Task SendMessageToAlarmAsync(AlarmMessage alarmMessage)
         {
-            throw new NotImplementedException();
+            await _alarmPublisher.PublishAsync(alarmMessage);
+            _logger.LogTrace($"{nameof(MqttMessageSender)} send message to alarm topic.");
         }
     }
 }
