@@ -87,6 +87,19 @@
           }
         ]
       }
+    },
+    "AlarmEndpoint": {
+      "Type": "mqtt",
+      "NativeSettings": {
+        "topics": [
+          {
+            "topicName": "alarms",
+            "qosLevel": 1,
+            "retain": false,
+            "clientId": "AlarmsClientId"
+          }
+        ]
+      }
     }
   },
   "Persistance": {

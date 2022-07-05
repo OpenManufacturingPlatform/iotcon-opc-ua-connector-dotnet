@@ -3,7 +3,5 @@
 
 namespace OMP.Connector.Domain.Schema.Interfaces
 {
-    public interface IMeasurementValue
-    {
-    }
+    public interface IMeasurementValue { }
 }

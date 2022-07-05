@@ -16,6 +16,8 @@ namespace OMP.Connector.Domain.OpcUa
     {
         Session Session { get; }
 
+        IComplexTypeSystem ComplexTypeSystem { get; }
+
         Task ConnectAsync(EndpointDescription endpointDescription);
 
         Task ConnectAsync(string opcUaServerUrl);
@@ -35,6 +37,8 @@ namespace OMP.Connector.Domain.OpcUa
             Func<BrowseRequest, BrowseResponse> constructResultFunc);
 
         void ReadNodes(List<NodeId> nodeIds, int batchSize, List<object> values, List<ServiceResult> errors);
+
+        CallMethodResultCollection Call(IEnumerable<CallMethodRequest> callMethodRequests);
 
         StatusCodeCollection WriteNodes(WriteValueCollection writeValues);
 

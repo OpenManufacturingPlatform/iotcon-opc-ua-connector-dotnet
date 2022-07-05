@@ -36,7 +36,7 @@ namespace OMP.Connector.Infrastructure.Kafka.CommandEndpoint
             catch (ConsumeException cx)
             {
                 var message = cx.GetMessage();
-                Logger.LogDebug($"Unable to Consumer message:\t{message}", cx);
+                Logger.LogDebug($"Unable to consume message:\t{message}", cx);
             }
             catch (Exception)
             {

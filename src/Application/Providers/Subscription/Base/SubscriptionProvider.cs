@@ -12,18 +12,18 @@ using OMP.Connector.Application.Extensions;
 using OMP.Connector.Domain;
 using OMP.Connector.Domain.Configuration;
 using OMP.Connector.Domain.Extensions;
+using OMP.Connector.Domain.OpcUa;
 using OMP.Connector.Domain.Providers;
 using OMP.Connector.Domain.Schema;
 using OMP.Connector.Domain.Schema.Interfaces;
 using OMP.Connector.Domain.Schema.Request.Subscription.Base;
-using Opc.Ua.Client;
 
 namespace OMP.Connector.Application.Providers.Subscription.Base
 {
     public abstract class SubscriptionProvider<TCommand, TResult> : ISubscriptionProvider
         where TCommand : SubscriptionRequest where TResult : ICommandResponse, new()
     {
-        protected Session Session;
+        protected IOpcSession OpcSession;
         protected readonly ILogger Logger;
         protected readonly TCommand Command;
         protected readonly ConnectorConfiguration Settings;
@@ -36,14 +36,13 @@ namespace OMP.Connector.Application.Providers.Subscription.Base
             this.Logger = logger;
         }
 
-        public async Task<ICommandResponse> ExecuteAsync(Session session, IComplexTypeSystem complexTypeSystem)
+        public async Task<ICommandResponse> ExecuteAsync(IOpcSession opcSession)
         {
             this.Logger.Trace($"Executing {typeof(TCommand).Name}");
             TResult result = default;
             try
             {
-                this.Session = session;
-                this.ComplexTypeSystem = complexTypeSystem;
+                this.OpcSession = opcSession;
 
                 string message;
                 try
@@ -69,13 +68,13 @@ namespace OMP.Connector.Application.Providers.Subscription.Base
             return result;
         }
 
-        protected string EndpointUrl => this.Session.GetBaseEndpointUrl();
+        protected string EndpointUrl => this.OpcSession.Session.GetBaseEndpointUrl();
 
         protected Opc.Ua.Client.Subscription GetSubscription(SubscriptionMonitoredItem monitoredItem)
         {
             if (monitoredItem == default) return null;
 
-            var subscriptions = this.Session.Subscriptions
+            var subscriptions = this.OpcSession.Session.Subscriptions
                 .Where(x => x.MonitoredItems.Any(y => monitoredItem.NodeId.Equals(y.ResolvedNodeId.ToString())));
 
             return subscriptions.FirstOrDefault();

@@ -3,16 +3,19 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 using NUnit.Framework;
 using OMP.Connector.Application.Factories;
 using OMP.Connector.Application.OpcUa;
+using OMP.Connector.Application.Providers.Commands;
 using OMP.Connector.Application.Tests.Fakes;
 using OMP.Connector.Application.Tests.TestSetup;
 using OMP.Connector.Domain.OpcUa;
 using OMP.Connector.Domain.Providers.Commands;
+using OMP.Connector.Domain.Schema.Enums;
 using OMP.Connector.Domain.Schema.Interfaces;
 using OMP.Connector.Tests.Support.Fakes;
 using Opc.Ua;
@@ -23,20 +26,15 @@ namespace OMP.Connector.Application.Tests.Services
     public class CommandServiceTests
     {
         [Test]
-        public Task ExecuteAsync_Causes_Exception_Returns_Error()
-            => this.Test_When_Raising_An_Exception<Exception>();
-
-        [Test]
-        public Task ExecuteAsync_Causes_ServiceResultException_Returns_Error()
-            => this.Test_When_Raising_An_Exception<ServiceResultException>("Failed to execute command request on Unit Test Endpoint, ErrorMessage: A UA specific error occurred.");
-
-        [Test]
         public async Task ExecuteAsync_For_Unknown_Command_Succeed_With_An_Error_Message()
         {
+            //When not setting up a return value for commandProcessorFactory.GetProcessors(), the commandProcessorFactory
+            //inside commandService returns no processors when called, thus simulating an unknown command
+
             // Arrange
             var commandService = CommandServiceSetup.CreateCommandService(TestConstants.SchemaUrl);
-            var command = CommandHelper.CreateReadCommandRequest(TestConstants.NodeId, TestConstants.SchemaUrl);
-            var expected = CommandHelper.CreateReadCommandResponse(TestConstants.SchemaUrl, command);
+            var command = CommandHelper.CreateCommandRequest(OpcUaCommandType.Read, TestConstants.NodeId, TestConstants.SchemaUrl);
+            var expected = CommandHelper.CreateCommandResponse(TestConstants.SchemaUrl, command);
 
             // Test
             var actual = await commandService.ExecuteAsync(command);
@@ -49,10 +47,16 @@ namespace OMP.Connector.Application.Tests.Services
         public async Task ExecuteAsync_With_Null_OpcUaSession_Must_Succeed_With_An_Error_Message()
         {
             // Arrange
+            IOpcSession nullOpcUaSession = null;
+            var sessionPoolStateManager = Substitute.For<ISessionPoolStateManager>();
+            sessionPoolStateManager
+                .GetSessionAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
+                .Returns(nullOpcUaSession);
+
             var fakeSession = FakeOpcUaSession.Create<FakeOpcUaSessionWithCustomRead>();
             var readResponse = fakeSession.ReturnNullReferenceReadResponse(TestConstants.NodeId);
-            var command = CommandHelper.CreateReadCommandRequest(TestConstants.NodeId, TestConstants.SchemaUrl);
-            var expected = CommandHelper.CreateReadCommandResponse(TestConstants.SchemaUrl, command, commandResponses: readResponse);
+            var command = CommandHelper.CreateCommandRequest(OpcUaCommandType.Read, TestConstants.NodeId, TestConstants.SchemaUrl);
+            var expected = CommandHelper.CreateCommandResponse(TestConstants.SchemaUrl, command, commandResponses: readResponse);
 
             var commandProvider = Substitute.For<ICommandProvider>();
 
@@ -62,10 +66,10 @@ namespace OMP.Connector.Application.Tests.Services
 
             var commandProcessorFactory = Substitute.For<ICommandProviderFactory>();
             commandProcessorFactory
-                .GetProcessors(Arg.Any<IEnumerable<ICommandRequest>>(), Arg.Any<IOpcSession>())
+                .GetProcessors(Arg.Any<IEnumerable<ICommandRequest>>(), nullOpcUaSession)
                 .Returns(new[] { commandProvider });
 
-            var commandService = CommandServiceSetup.CreateCommandService(TestConstants.SchemaUrl, commandProcessorFactory: commandProcessorFactory);
+            var commandService = CommandServiceSetup.CreateCommandService(TestConstants.SchemaUrl, sessionPoolStateManager, commandProcessorFactory);
 
             // Test
             var actual = await commandService.ExecuteAsync(command);
@@ -80,9 +84,8 @@ namespace OMP.Connector.Application.Tests.Services
             // Arrange
             var fakeSession = FakeOpcUaSession.Create<FakeOpcUaSessionWithCustomRead>();
             var readResponse = fakeSession.ReturnGoodReadResponse(TestConstants.NodeId);
-            var command = CommandHelper.CreateReadCommandRequest(TestConstants.NodeId, TestConstants.SchemaUrl);
-            var expected = CommandHelper.CreateReadCommandResponse(TestConstants.SchemaUrl, command, commandResponses: readResponse);
-
+            var command = CommandHelper.CreateCommandRequest(OpcUaCommandType.Read, TestConstants.NodeId, TestConstants.SchemaUrl);
+            var expected = CommandHelper.CreateCommandResponse(TestConstants.SchemaUrl, command, commandResponses: readResponse);
 
             var commandProvider = Substitute.For<ICommandProvider>();
 
@@ -123,13 +126,21 @@ namespace OMP.Connector.Application.Tests.Services
 
             var commandService = CommandServiceSetup.CreateCommandService(TestConstants.SchemaUrl, commandProcessorFactory: commandProcessorFactory, setupServerDetailsInEndpointRepo: false);
 
-            var command = CommandHelper.CreateReadCommandRequest(TestConstants.NodeId, TestConstants.SchemaUrl);
-            var expected = CommandHelper.CreateReadCommandResponse(TestConstants.SchemaUrl, command, commandResponses: response);
+            var command = CommandHelper.CreateCommandRequest(OpcUaCommandType.Read, TestConstants.NodeId, TestConstants.SchemaUrl);
+            var expected = CommandHelper.CreateCommandResponse(TestConstants.SchemaUrl, command, commandResponses: response);
 
             var actual = await commandService.ExecuteAsync(command);
 
             CommandHelper.AreEqual(expected, actual);
         }
+
+        [Test]
+        public Task ExecuteAsync_Causes_Exception_Returns_Error()
+            => this.Test_When_Raising_An_Exception<Exception>();
+
+        [Test]
+        public Task ExecuteAsync_Causes_ServiceResultException_Returns_Error()
+            => this.Test_When_Raising_An_Exception<ServiceResultException>("Failed to execute command request on Unit Test Endpoint, ErrorMessage: A UA specific error occurred.");
 
         private async Task Test_When_Raising_An_Exception<T>(string errorMessage = null)
             where T : Exception, new()
@@ -140,7 +151,7 @@ namespace OMP.Connector.Application.Tests.Services
                 .GetProcessors(Arg.Any<IEnumerable<ICommandRequest>>(), Arg.Any<IOpcSession>())
                 .Throws(new T());
 
-            var command = CommandHelper.CreateReadCommandRequest(TestConstants.NodeId, TestConstants.SchemaUrl);
+            var command = CommandHelper.CreateCommandRequest(OpcUaCommandType.Read, TestConstants.NodeId, TestConstants.SchemaUrl);
             var expected = CommandResponseCreator.GetErrorResponseMessage(TestConstants.SchemaUrl, command);
             var commandService = CommandServiceSetup.CreateCommandService(TestConstants.SchemaUrl, commandProcessorFactory: commandProcessorFactory);
 

@@ -7,17 +7,18 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using FluentValidation;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OMP.Connector.Application.Extensions;
 using OMP.Connector.Application.Providers.Subscription.Base;
-using OMP.Connector.Application.Validators;
 using OMP.Connector.Domain;
 using OMP.Connector.Domain.Configuration;
 using OMP.Connector.Domain.Extensions;
 using OMP.Connector.Domain.Models;
 using OMP.Connector.Domain.Models.Telemetry;
 using OMP.Connector.Domain.OpcUa;
+using OMP.Connector.Domain.OpcUa.Services;
 using OMP.Connector.Domain.Schema;
 using OMP.Connector.Domain.Schema.Enums;
 using OMP.Connector.Domain.Schema.Request.Subscription;
@@ -27,31 +28,26 @@ using Opc.Ua.Client;
 
 namespace OMP.Connector.Application.Providers.Subscription
 {
-    public delegate MonitoredItem MonitoredItemServiceInitializerFactoryDelegate(
-        SubscriptionMonitoredItem monitoredItem,
-        IComplexTypeSystem complexTypeSystem,
-        TelemetryMessageMetadata telemetryMessageMetaData);
-
     public class CreateSubscriptionProvider : SubscriptionProvider<CreateSubscriptionsRequest, CreateSubscriptionsResponse>
     {
         private readonly ISubscriptionRepository _subscriptionRepository;
         private readonly TelemetryMessageMetadata _messageMetadata;
-        private readonly MonitoredItemValidator _monitoredItemValidator;
+        private readonly AbstractValidator<SubscriptionMonitoredItem> _monitoredItemValidator;
         private readonly int _batchSize;
-        private readonly MonitoredItemServiceInitializerFactoryDelegate _opcMonitoredItemServiceInitializerFactory;
+        private readonly IOpcMonitoredItemService _opcMonitoredItemService;
         private readonly Dictionary<string, List<string>> _groupedItemsNotCreated;
 
         public CreateSubscriptionProvider(
             ISubscriptionRepository subscriptionRepository,
             ILogger<CreateSubscriptionProvider> logger,
             IOptions<ConnectorConfiguration> connectorConfiguration,
-            MonitoredItemServiceInitializerFactoryDelegate opcMonitoredItemServiceInitializerFactory,
+            IOpcMonitoredItemService opcMonitoredItemService,
             CreateSubscriptionsRequest command,
             TelemetryMessageMetadata messageMetadata,
-            MonitoredItemValidator monitoredItemValidator) : base(command, connectorConfiguration, logger)
+            AbstractValidator<SubscriptionMonitoredItem> monitoredItemValidator) : base(command, connectorConfiguration, logger)
         {
             this._subscriptionRepository = subscriptionRepository;
-            this._opcMonitoredItemServiceInitializerFactory = opcMonitoredItemServiceInitializerFactory;
+            this._opcMonitoredItemService = opcMonitoredItemService;
             this._messageMetadata = messageMetadata;
             this._monitoredItemValidator = monitoredItemValidator;
             this._batchSize = this.Settings.OpcUa.SubscriptionBatchSize;
@@ -81,7 +77,7 @@ namespace OMP.Connector.Application.Providers.Subscription
                     this.Logger.Trace($"Subscription with publishing interval {group.Key} ms: Subscribed to {groupItems.Count} nodes.");
                 }
 
-                foreach (var sub in this.Session.Subscriptions.Where(sub => !sub.PublishingEnabled))
+                foreach (var sub in this.OpcSession.Session.Subscriptions.Where(sub => !sub.PublishingEnabled))
                 {
                     this.Logger.Trace($"Enabling publishing for subscription {sub.Id}");
                     sub.SetPublishingMode(true);
@@ -95,7 +91,7 @@ namespace OMP.Connector.Application.Providers.Subscription
 
             if (!base.Settings.DisableSubscriptionRestoreService && !errorMessages.Any())
             {
-                var baseEndpointUrl = this.Session.GetBaseEndpointUrl();
+                var baseEndpointUrl = this.OpcSession.Session.GetBaseEndpointUrl();
 
                 if (!errorMessages.Any())
                 {
@@ -211,7 +207,7 @@ namespace OMP.Connector.Application.Providers.Subscription
         private Opc.Ua.Client.Subscription CreateNewSubscription(SubscriptionMonitoredItem monitoredItem)
         {
             var keepAliveCount = Convert.ToUInt32(monitoredItem.HeartbeatInterval);
-            var subscription = this.Session.Subscriptions.FirstOrDefault(x => monitoredItem.PublishingInterval.Equals(x.PublishingInterval.ToString()));
+            var subscription = this.OpcSession.Session.Subscriptions.FirstOrDefault(x => monitoredItem.PublishingInterval.Equals(x.PublishingInterval.ToString()));
             if (subscription == default)
             {
                 subscription = new Opc.Ua.Client.Subscription
@@ -223,7 +219,7 @@ namespace OMP.Connector.Application.Providers.Subscription
                     Priority = 0,
                     PublishingEnabled = false
                 };
-                this.Session.AddSubscription(subscription);
+                this.OpcSession.Session.AddSubscription(subscription);
                 subscription.Create();
             }
             var item = this.CreateMonitoredItem(monitoredItem);
@@ -255,8 +251,7 @@ namespace OMP.Connector.Application.Providers.Subscription
             MonitoredItem monitoredItem = null;
             try
             {
-                monitoredItem = this._opcMonitoredItemServiceInitializerFactory.Invoke(subscriptionMonitoredItem,
-                    this.ComplexTypeSystem, this._messageMetadata);
+                monitoredItem = InitializeMonitoredItem(subscriptionMonitoredItem, this.ComplexTypeSystem, this._messageMetadata);
 
                 this.Logger.Trace($"Monitored item with NodeId: [{subscriptionMonitoredItem.NodeId}] " +
                                         $", Sampling Interval: [{monitoredItem.SamplingInterval}] and " +
@@ -269,6 +264,12 @@ namespace OMP.Connector.Application.Providers.Subscription
             }
 
             return monitoredItem;
+        }
+
+        private MonitoredItem InitializeMonitoredItem(SubscriptionMonitoredItem monitoredItem, IComplexTypeSystem complexTypeSystem, TelemetryMessageMetadata telemetryMessageMetadata)
+        {
+            this._opcMonitoredItemService.Initialize(monitoredItem, complexTypeSystem, telemetryMessageMetadata);
+            return this._opcMonitoredItemService as MonitoredItem;
         }
     }
 }

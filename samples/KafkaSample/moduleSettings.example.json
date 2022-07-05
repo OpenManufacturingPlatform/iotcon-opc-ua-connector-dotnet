@@ -97,6 +97,16 @@
         "Topic": "ResponseTopic",
         "groupId": "ResponseGroupId"
       }
+    },
+    "AlarmEndpoint": {
+      "Type": "kafka",
+      "UploadTimeoutMs": null,
+      "NativeSettings": {
+        "MaxRetries": 5,
+        "WaitTimeBetweenRetriesInSeconds": 3,
+        "Topic": "AlarmTopic",
+        "groupId": "AlarmGroupId"
+      }
     }
   },
   "Persistence": {

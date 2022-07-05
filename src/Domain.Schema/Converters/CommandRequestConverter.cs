@@ -7,6 +7,7 @@ using OMP.Connector.Domain.Schema.Converters.Base;
 using OMP.Connector.Domain.Schema.Enums;
 using OMP.Connector.Domain.Schema.Extenions;
 using OMP.Connector.Domain.Schema.Interfaces;
+using OMP.Connector.Domain.Schema.Request.AlarmSubscription;
 using OMP.Connector.Domain.Schema.Request.Base;
 using OMP.Connector.Domain.Schema.Request.Control;
 using OMP.Connector.Domain.Schema.Request.Discovery;
@@ -35,6 +36,11 @@ namespace OMP.Connector.Domain.Schema.Converters
                 OpcUaCommandType.RemoveAllSubscriptions => new RemoveAllSubscriptionsRequest(),
                 OpcUaCommandType.RemoveSubscriptions => new RemoveSubscriptionsRequest(),
                 OpcUaCommandType.RestoreSubscriptions => new RestoreSubscriptionsRequest(),
+                OpcUaCommandType.CreateAlarmSubscription => new CreateAlarmSubscriptionsRequest(),
+                OpcUaCommandType.RespondToAlarmEvents => new RespondToAlarmEventsRequest(),
+                OpcUaCommandType.RemoveAllAlarmSubscriptions => new RemoveAllAlarmSubscriptionsRequest(),
+                OpcUaCommandType.RemoveAlarmSubscriptions => new RemoveAlarmSubscriptionsRequest(),
+                OpcUaCommandType.RestoreAlarmSubscriptions => new RestoreAlarmSubscriptionsRequest(),
                 OpcUaCommandType.ServerDiscovery => new ServerDiscoveryRequest(),
                 OpcUaCommandType.BrowseChildNodes => new BrowseChildNodesRequest(),
                 OpcUaCommandType.BrowseChildNodesFromRoot => new BrowseChildNodesFromRootRequest(),

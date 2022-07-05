@@ -2,6 +2,7 @@
 // Copyright Contributors to the Open Manufacturing Platform.
 
 using System.Linq;
+using FluentValidation;
 using NUnit.Framework;
 using OMP.Connector.Application.Validators;
 using OMP.Connector.Domain.Schema;
@@ -11,17 +12,13 @@ namespace OMP.Connector.Application.Tests.Validators
     [TestFixture]
     public class MonitoredItemValidatorTests
     {
-        private const string SamplingIntervalFieldName = nameof(SubscriptionMonitoredItem.SamplingInterval);
-        private const string PublishingIntervalFieldName = nameof(SubscriptionMonitoredItem.PublishingInterval);
-        private const string HeartbeatIntervalFieldName = nameof(SubscriptionMonitoredItem.HeartbeatInterval);
-
         private const string IntervalNotANumber = " ";
         private const string IntervalLow = "10";
         private const string IntervalMedium = "20";
         private const string IntervalHigh = "30";
 
         private SubscriptionMonitoredItem _testItem;
-        private MonitoredItemValidator _classUnderTest;
+        private AbstractValidator<SubscriptionMonitoredItem> _classUnderTest;
 
         [SetUp]
         public void SetUp()

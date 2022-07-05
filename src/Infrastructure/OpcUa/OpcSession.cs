@@ -79,6 +79,12 @@ namespace OMP.Connector.Infrastructure.OpcUa
             set => _session = value;
         }
 
+        public IComplexTypeSystem ComplexTypeSystem
+        {
+            get => _complexTypeSystem;
+            set => _complexTypeSystem = value;
+        }
+
         #region [Public Members]
 
         public async Task ConnectAsync(EndpointDescription endpointDescription)
@@ -278,6 +284,15 @@ namespace OMP.Connector.Infrastructure.OpcUa
                     _logger.Error(ex, $"Error occurred while parsing the write command value for node: {command.NodeId}");
                 }
             }
+        }
+
+        public CallMethodResultCollection Call(IEnumerable<CallMethodRequest> callMethodRequests)
+        {
+            var callMethodRequestCollection = new CallMethodRequestCollection(callMethodRequests);
+
+            _session.Call(default, callMethodRequestCollection, out CallMethodResultCollection callMethodResultCollection, out _);
+
+            return callMethodResultCollection;
         }
         #endregion
 

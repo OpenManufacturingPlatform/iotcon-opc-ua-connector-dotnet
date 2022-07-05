@@ -5,6 +5,7 @@ using Confluent.Kafka;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OMP.Connector.Domain.Configuration;
+using OMP.Connector.Infrastructure.Kafka.AlarmEndpoint;
 using OMP.Connector.Infrastructure.Kafka.Common.Configuration;
 using OMP.Connector.Infrastructure.Kafka.Common.Events;
 using OMP.Connector.Infrastructure.Kafka.ConfigurationEndpoint;
@@ -84,6 +85,21 @@ namespace OMP.Connector.Infrastructure.Kafka.Common.Producers
                 kafkaConfiguration,
                 producerConfig,
                 _loggerFactory.CreateLogger<TelemetryProducer>(),
+                _serializerFactory,
+                _kafkaEventHandlerFactory);
+        }
+
+        public IAlarmProducer CreateAlarmProducer()
+        {
+            if (_connectorConfiguration?.Communication?.AlarmEndpoint?.Type != CommunicationType.Kafka)
+                return null;
+
+            var (kafkaConfiguration, producerConfig) = GetEndpointConfiguration(_connectorConfiguration.Communication.AlarmEndpoint);
+
+            return new AlarmProducer(
+                kafkaConfiguration,
+                producerConfig,
+                _loggerFactory.CreateLogger<AlarmProducer>(),
                 _serializerFactory,
                 _kafkaEventHandlerFactory);
         }

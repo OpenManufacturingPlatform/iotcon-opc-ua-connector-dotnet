@@ -80,6 +80,8 @@ namespace OMP.Connector.Application.Providers.Subscription
                     var batchHandler = new BatchHandler<MonitoredItem>(this._batchSize, this.UnsubscribeBatches(subscription));
                     batchHandler.RunBatches(items);
                     this.Logger.Debug($"{items.Count} monitored items were removed from subscription [Id: {subscription.Id}]");
+                    if (!subscription.MonitoredItems.Any())
+                        this.OpcSession.Session.RemoveSubscription(subscription);
                 }
             }
             catch (Exception ex)
@@ -113,7 +115,7 @@ namespace OMP.Connector.Application.Providers.Subscription
             foreach (var monitoredItem in this.Command.MonitoredItems)
                 nodeIds.Add(new NodeId(monitoredItem.NodeId));
 
-            return (from subscription in this.Session.Subscriptions
+            return (from subscription in this.OpcSession.Session.Subscriptions
                     select (subscription, (from nodeId in nodeIds
                                            join monitoredItem in subscription.MonitoredItems
                                                on nodeId.ToString() equals monitoredItem.ResolvedNodeId.ToString()

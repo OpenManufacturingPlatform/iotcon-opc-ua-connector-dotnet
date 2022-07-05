@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using OMP.Connector.Domain;
 using OMP.Connector.Domain.Models;
+using OMP.Connector.Domain.Schema.Alarms;
 using OMP.Connector.Domain.Schema.Messages;
 using OMP.Connector.Domain.Schema.SensorTelemetry;
 using OMP.Connector.Infrastructure.MQTT.Common.Publishers;
@@ -17,16 +18,19 @@ namespace OMP.Connector.Infrastructure.MQTT
     {
         private readonly IMqttResponsePublisher _responsePublisher;
         private readonly IMqttTelemetryPublisher _telemetryPublisher;
+        private readonly IMqttAlarmPublisher _alarmPublisher;
         private readonly ILogger<MqttMessageSender> _logger;
 
         public MqttMessageSender(
             IMqttResponsePublisher responsePublisher,
             IMqttTelemetryPublisher telemetryPublisher,
+            IMqttAlarmPublisher alarmPublisher,
             ILogger<MqttMessageSender> logger
             )
         {
             this._responsePublisher = responsePublisher;
             this._telemetryPublisher = telemetryPublisher;
+            this._alarmPublisher = alarmPublisher;
             this._logger = logger;
         }
 
@@ -50,6 +54,12 @@ namespace OMP.Connector.Infrastructure.MQTT
         public bool SendMessageToConfig(AppConfigDto configuration)
         {
             throw new NotSupportedException();
+        }
+
+        public async Task SendMessageToAlarmAsync(AlarmMessage alarmMessage)
+        {
+            await _alarmPublisher.PublishAsync(alarmMessage);
+            _logger.LogTrace($"{nameof(MqttMessageSender)} send message to alarm topic.");
         }
     }
 }

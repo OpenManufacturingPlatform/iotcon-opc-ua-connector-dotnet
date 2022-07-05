@@ -1,14 +1,16 @@
 ﻿// SPDX-License-Identifier: MIT. 
 // Copyright Contributors to the Open Manufacturing Platform.
 
+using FluentValidation;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OMP.Connector.Application.Providers.Subscription;
-using OMP.Connector.Application.Validators;
 using OMP.Connector.Domain.Configuration;
 using OMP.Connector.Domain.Models.Telemetry;
 using OMP.Connector.Domain.OpcUa;
+using OMP.Connector.Domain.OpcUa.Services;
 using OMP.Connector.Domain.Providers;
+using OMP.Connector.Domain.Schema;
 using OMP.Connector.Domain.Schema.Interfaces;
 using OMP.Connector.Domain.Schema.Request.Subscription;
 
@@ -19,20 +21,20 @@ namespace OMP.Connector.Application.Factories
         private readonly ISubscriptionRepository _subscriptionRepository;
         private readonly ILoggerFactory _loggerFactory;
         private readonly IOptions<ConnectorConfiguration> _connectorConfiguration;
-        private readonly MonitoredItemServiceInitializerFactoryDelegate _monitoredItemServiceInitializerFactory;
-        private readonly MonitoredItemValidator _monitoredItemValidator;
+        private readonly IOpcMonitoredItemService _monitoredItemService;
+        private readonly AbstractValidator<SubscriptionMonitoredItem> _monitoredItemValidator;
 
         public SubscriptionProviderFactory(
             ISubscriptionRepository dataManagementService,
             ILoggerFactory loggerFactory,
             IOptions<ConnectorConfiguration> connectorConfiguration,
-            MonitoredItemServiceInitializerFactoryDelegate monitoredItemServiceInitializerFactory,
-            MonitoredItemValidator monitoredItemValidator)
+            IOpcMonitoredItemService opcMonitoredItemService,
+            AbstractValidator<SubscriptionMonitoredItem> monitoredItemValidator)
         {
             this._subscriptionRepository = dataManagementService;
             this._loggerFactory = loggerFactory;
             this._connectorConfiguration = connectorConfiguration;
-            this._monitoredItemServiceInitializerFactory = monitoredItemServiceInitializerFactory;
+            this._monitoredItemService = opcMonitoredItemService;
             this._monitoredItemValidator = monitoredItemValidator;
         }
 
@@ -50,7 +52,7 @@ namespace OMP.Connector.Application.Factories
                                 this._subscriptionRepository,
                                 this._loggerFactory.CreateLogger<CreateSubscriptionProvider>(),
                                 this._connectorConfiguration,
-                                this._monitoredItemServiceInitializerFactory,
+                                this._monitoredItemService,
                                 createCommand,
                                 telemetryMessageMetadata,
                                 this._monitoredItemValidator);

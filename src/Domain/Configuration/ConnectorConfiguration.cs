@@ -83,6 +83,7 @@ namespace OMP.Connector.Domain.Configuration
     {
         public bool EnableRegisteredNodes { get; set; }
         public int SubscriptionBatchSize { get; set; }
+        public int AlarmSubscriptionBatchSize { get; set; }
         public int ReadBatchSize { get; set; }
         public int RegisterNodeBatchSize { get; set; }
         public int AwaitSessionLockTimeoutSeconds { get; set; } = 3;
@@ -112,6 +113,7 @@ namespace OMP.Connector.Domain.Configuration
         public string SchemaUrl { get; set; }
         public SharedConfiguration Shared { get; set; }
         public CommunicationChannelConfiguration TelemetryEndpoint { get; set; }
+        public CommunicationChannelConfiguration AlarmEndpoint { get; set; }
         public CommunicationChannelConfiguration RequestEndpoint { get; set; }
         public CommunicationChannelConfiguration ResponseEndpoint { get; set; }
     }

@@ -1,7 +1,6 @@
 ﻿// SPDX-License-Identifier: MIT. 
 // Copyright Contributors to the Open Manufacturing Platform.
 
-using System;
 using System.ComponentModel;
 using Newtonsoft.Json;
 
@@ -20,11 +19,5 @@ namespace OMP.Connector.Domain.Schema
         [JsonProperty("heartbeatInterval", NullValueHandling = NullValueHandling.Ignore)]
         [Description("Heartbeat interval - should be greater than / equal to publishing interval")]
         public string HeartbeatInterval { get; set; }
-
-        [Obsolete("This property is not in use.", false)]
-        [JsonProperty("skipFirst", NullValueHandling = NullValueHandling.Ignore)]
-        [DefaultValue(false)]
-        [Description("Skip the first notification after creation of the subscription")]
-        public bool SkipFirst { get; set; }
     }
 }

@@ -7,11 +7,11 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
+using FluentValidation;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OMP.Connector.Application.OpcUa;
 using OMP.Connector.Application.Services;
-using OMP.Connector.Application.Validators;
 using OMP.Connector.Domain;
 using OMP.Connector.Domain.Configuration;
 using OMP.Connector.Domain.Enums;
@@ -19,6 +19,7 @@ using OMP.Connector.Domain.Extensions;
 using OMP.Connector.Domain.OpcUa;
 using OMP.Connector.Domain.Schema.Interfaces;
 using OMP.Connector.Domain.Schema.Messages;
+using OMP.Connector.Domain.Schema.Request.AlarmSubscription.Base;
 using OMP.Connector.Domain.Schema.Request.Control.Base;
 using OMP.Connector.Domain.Schema.Request.Discovery.Base;
 using OMP.Connector.Domain.Schema.Request.Subscription.Base;
@@ -32,9 +33,10 @@ namespace OMP.Connector.Application.Clients.Base
         protected readonly IMapper Mapper;
         protected readonly ICommandService CommandService;
         protected readonly ISubscriptionServiceStateManager SubscriptionServiceStateManager;
+        protected readonly IAlarmSubscriptionServiceStateManager AlarmSubscriptionServiceStateManager;
         protected readonly IDiscoveryService DiscoveryService;
         private readonly ConnectorConfiguration _connectorConfiguration;
-        protected readonly CommandRequestValidator RequestValidator;
+        protected readonly AbstractValidator<CommandRequest> RequestValidator;
         protected string SchemaUrl => this._connectorConfiguration.Communication.SchemaUrl;
 
         protected RequestHandler(
@@ -43,15 +45,17 @@ namespace OMP.Connector.Application.Clients.Base
             IMapper mapper,
             ICommandService commandService,
             ISubscriptionServiceStateManager subscriptionServiceStateManager,
+            IAlarmSubscriptionServiceStateManager alarmSubscriptionServiceStateManager,
             IDiscoveryService discoveryService,
             IOptions<ConnectorConfiguration> connectorConfiguration,
-            CommandRequestValidator commandRequestValidator)
+            AbstractValidator<CommandRequest> commandRequestValidator)
         {
             this.Logger = logger;
             this.MessageSender = messageSender;
             this.Mapper = mapper;
             this.CommandService = commandService;
             this.SubscriptionServiceStateManager = subscriptionServiceStateManager;
+            this.AlarmSubscriptionServiceStateManager = alarmSubscriptionServiceStateManager;
             this.DiscoveryService = discoveryService;
             this._connectorConfiguration = connectorConfiguration.Value;
             this.RequestValidator = commandRequestValidator;
@@ -88,12 +92,12 @@ namespace OMP.Connector.Application.Clients.Base
             if (!commandRequests.Any())
             {
                 var emptyRequestResponse = CommandResponseCreator.GetCommandResponseMessage(this.SchemaUrl, commandMessage, null);
-                //await this.MessageSender.SendMessageToComConUpAsync(emptyRequestResponse);
                 return new CommandResponse[] { emptyRequestResponse };
             }
 
             var opcUaCommands = new List<ICommandRequest>();
             var subscriptionCommands = new List<ICommandRequest>();
+            var alarmSubscriptionCommands = new List<ICommandRequest>();
             var discoveryCommands = new List<ICommandRequest>();
 
             foreach (var req in commandRequests)
@@ -106,6 +110,9 @@ namespace OMP.Connector.Application.Clients.Base
                     case SubscriptionRequest subscriptionRequest:
                         subscriptionCommands.Add(subscriptionRequest);
                         break;
+                    case AlarmSubscriptionRequest alarmSubscriptionRequest:
+                        alarmSubscriptionCommands.Add(alarmSubscriptionRequest);
+                        break;
                     case DiscoveryRequest discoveryRequest:
                         discoveryCommands.Add(discoveryRequest);
                         break;
@@ -115,8 +122,10 @@ namespace OMP.Connector.Application.Clients.Base
             }
 
             //TODO: Consider a Task.WaitAll for better parallelism
+
             var commandRequestResponse = await this.ProcessCommandRequestsAsync(opcUaCommands, commandMessage);
             var subscriptionCommandResponse = await this.ProcessSubscriptionRequestsAsync(subscriptionCommands, commandMessage);
+            var alarmSubscriptionCommandResponse = await this.ProcessAlarmSubscriptionRequestsAsync(alarmSubscriptionCommands, commandMessage);
             var discoveryCommandResponse = await this.ProcessDiscoveryRequestsAsync(discoveryCommands, commandMessage);
 
             var responses = new List<CommandResponse>();
@@ -126,6 +135,9 @@ namespace OMP.Connector.Application.Clients.Base
 
             if (subscriptionCommandResponse is not null)
                 responses.Add(subscriptionCommandResponse);
+
+            if (alarmSubscriptionCommandResponse is not null)
+                responses.Add(alarmSubscriptionCommandResponse);
 
             if (discoveryCommandResponse is not null)
                 responses.Add(discoveryCommandResponse);
@@ -148,16 +160,6 @@ namespace OMP.Connector.Application.Clients.Base
             return true;
         }
 
-        //private void ValidateRoutingSettings(IRoutingSettings routingSettings, RoutingSettingsValidator routingSettingsValidator)
-        //{
-        //    var validationResult = routingSettingsValidator.Validate(routingSettings);
-        //    if (validationResult?.IsValid == false)
-        //    {
-        //        var reason = validationResult?.ToString(";");
-        //        this.Logger.LogWarning($"{nameof(RequestHandler)} routing settings validation failed: {reason}");
-        //    }
-        //}
-
         protected virtual async Task<CommandResponse?> ProcessCommandRequestsAsync(IReadOnlyCollection<ICommandRequest> filteredRequests, CommandRequest originalRequest)
         {
             if (!filteredRequests.Any())
@@ -175,7 +177,6 @@ namespace OMP.Connector.Application.Clients.Base
                 this.Logger.Error(exception);
             }
 
-            //await this.MessageSender.SendMessageToComConUpAsync(response);
             return response;
         }
 
@@ -201,7 +202,36 @@ namespace OMP.Connector.Application.Clients.Base
                     this.Logger.Error(exception);
                 }
 
-                //await this.MessageSender.SendMessageToComConUpAsync(response);
+                return response;
+            }
+            finally
+            {
+                await this.CleanupStaleServices();
+            }
+        }
+
+        protected virtual async Task<CommandResponse?> ProcessAlarmSubscriptionRequestsAsync(IReadOnlyCollection<ICommandRequest> filteredRequests, CommandRequest originalRequest)
+        {
+            if (!filteredRequests.Any())
+                return null;
+
+            try
+            {
+                CommandResponse response;
+                try
+                {
+                    var subscriptionRequest = this.CloneRequest(filteredRequests, originalRequest);
+                    var opcUaServerUrl = originalRequest.Payload.RequestTarget.EndpointUrl;
+                    var alarmSubscriptionService = this.AlarmSubscriptionServiceStateManager.GetAlarmSubscriptionServiceInstanceAsync(opcUaServerUrl, CancellationToken.None).GetAwaiter().GetResult();
+
+                    response = await alarmSubscriptionService.ExecuteAsync(subscriptionRequest);
+                }
+                catch (Exception exception)
+                {
+                    response = CommandResponseCreator.GetErrorResponseMessage(this.SchemaUrl, originalRequest);
+                    this.Logger.Error(exception);
+                }
+
                 return response;
             }
             finally
@@ -227,7 +257,6 @@ namespace OMP.Connector.Application.Clients.Base
                 this.Logger.Error(exception);
             }
 
-            //await this.MessageSender.SendMessageToComConUpAsync(response);
             return response;
         }
 

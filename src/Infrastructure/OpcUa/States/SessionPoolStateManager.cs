@@ -60,6 +60,7 @@ namespace OMP.Connector.Infrastructure.OpcUa.States
 
                 opcUaServerUrl = opcUaServerUrl.ToValidBaseEndpointUrl();
 
+
                 if (_sessionPool.TryGetValue(opcUaServerUrl, out IOpcSession session)) { return session; }
 
                 session = await OpenNewSessionAsync(opcUaServerUrl);
