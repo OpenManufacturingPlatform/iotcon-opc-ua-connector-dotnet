@@ -458,7 +458,7 @@ namespace OMP.Connector.Infrastructure.OpcUa
         {
             return (items) =>
             {
-                _logger.Trace($"Reading {items.Length} nodes...");
+                _logger.Trace($"Reading {items.Length} nodes...");                
                 session.ReadValues(
                     items,
                     omitExpectedTypes.Take(items.Length).ToList(),
