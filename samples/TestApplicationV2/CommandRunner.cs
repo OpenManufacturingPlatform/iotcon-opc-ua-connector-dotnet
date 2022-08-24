@@ -24,12 +24,12 @@ namespace TestApplicationV2
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             var commandCollection = new ReadCommandCollection();
-            commandCollection.EndpointUrl = "";
-            var readCommand = new ReadCommand
+            commandCollection.EndpointUrl = "opc.tcp://bw09861291:52210/UA/SampleServer";
+            commandCollection.Add(new ReadCommand
             {
                 DoRegisteredRead = false,
-                NodeId = ""
-            };
+                NodeId = "ns=2;i=1585"
+            });
             var resulst = ompOpcUaClient.ReadValuesAsync(commandCollection, stoppingToken);
         }
     }

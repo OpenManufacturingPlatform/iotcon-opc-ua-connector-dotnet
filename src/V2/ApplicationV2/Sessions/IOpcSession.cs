@@ -133,6 +133,7 @@ namespace ApplicationV2.Sessions
             var omitExpectedTypes = nodeIds.Select(_ => (Type)null).ToList();
             var values = new List<object>();
             errors = new List<ServiceResult>();
+
             var batchHandler = new BatchHandler<NodeId>(batchSize, ReadBatch(session!, values, errors, omitExpectedTypes!));
             batchHandler.RunBatches(nodeIds.ToList());
 
