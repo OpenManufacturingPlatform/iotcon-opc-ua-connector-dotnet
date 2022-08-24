@@ -16,7 +16,7 @@ namespace ApplicationV2.Configuration
 
         public string ApplicationUri { get; set; } = $"urn:{Utils.GetHostName().ToLowerInvariant()}:{ModuleName}";
 
-        public string ProductUri { get; set; } = "https://www.bmwgroup.com/OpcUaConnector";
+        public string ProductUri { get; set; } = "https://www.omp.org/OpcUaConnector";
 
         public string ServerBaseAddress => $"opc.tcp://{Utils.GetHostName().ToLowerInvariant()}:4840/UA/EdgeClient";
 
