@@ -11,7 +11,16 @@ namespace ApplicationV2.Models
         {
             Command = command;
             Response = response;
+            Succeeded = true;
         }
+
+        public CommandResult(TCommand command, TResponse response, bool succeeded)
+        {
+            Command = command;
+            Response = response;
+            Succeeded = succeeded;
+        }
+
         public TCommand? Command { get; set; }
         public TResponse? Response { get; set; }
     }

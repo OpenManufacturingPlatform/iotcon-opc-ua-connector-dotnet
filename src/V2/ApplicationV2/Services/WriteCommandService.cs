@@ -4,24 +4,16 @@
 using ApplicationV2.Models;
 using ApplicationV2.Models.Writes;
 using ApplicationV2.Sessions;
-using ApplicationV2.Sessions.SessionManagement;
 using Opc.Ua;
 
 namespace ApplicationV2.Services
 {
     public class WriteCommandService : IWriteCommandService
     {
-        private readonly ISessionPoolStateManager sessionPoolStateManager;
-
-        public WriteCommandService(ISessionPoolStateManager sessionPoolStateManager)
-        {
-            this.sessionPoolStateManager = sessionPoolStateManager;
-        }
-        public async Task<WriteResponseCollection> WriteAsync(WriteCommandCollection commands, CancellationToken cancellationToken)
+        public Task<WriteResponseCollection> WriteAsync(IOpcUaSession opcSession, WriteCommandCollection commands, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var opcSession = await sessionPoolStateManager.GetSessionAsync(commands.EndpointUrl, cancellationToken);
             var commandsWithRegisteredNodeIds = GetCommandsWithRegisterdNodeIds(opcSession, commands);
 
             var writeValueCollection = new WriteValueCollection(commandsWithRegisteredNodeIds);
@@ -35,10 +27,10 @@ namespace ApplicationV2.Services
             writeResults.AddRange(commands.Zip(statusCodeCollection)
                                     .Select(z => new CommandResult<WriteCommand, StatusCode>(z.First, z.Second)));
 
-            return writeResults;
+            return Task.FromResult(writeResults);
         }
 
-        private IEnumerable<WriteValue> GetCommandsWithRegisterdNodeIds(IOpcUaSession opcSession, WriteCommandCollection commands)
+        private static IEnumerable<WriteValue> GetCommandsWithRegisterdNodeIds(IOpcUaSession opcSession, WriteCommandCollection commands)
         {
             var results = commands.ToList();
 

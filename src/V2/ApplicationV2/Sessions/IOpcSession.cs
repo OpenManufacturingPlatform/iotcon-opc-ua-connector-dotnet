@@ -15,19 +15,27 @@ using EndpointConfiguration = Opc.Ua.EndpointConfiguration;
 
 namespace ApplicationV2.Sessions
 {
-
     public interface IOpcUaSession : IDisposable
     {
+        #region [Connection]
         Task ConnectAsync(string opcUaServerUrl);
         Task ConnectAsync(EndpointDescription endpointDescription);
+        #endregion
+
+        #region [Write]
         ResponseHeader WriteNodes(WriteValueCollection writeValues, out StatusCodeCollection statusCodeCollection);
-        IEnumerable<KeyValuePair<string, NodeId>> GetRegisteredNodeIds(IEnumerable<string> nodeIds);
+        #endregion
 
-        List<DataValue> ReadNodes(List<NodeId> nodeIds, int batchSize, out List<ServiceResult> errors);
+        #region [Read]
+        List<object> ReadNodes(List<NodeId> nodeIds, int batchSize, out List<ServiceResult> errors); 
+        #endregion
 
+        #region [Registered Nodes]
         void RestoreRegisteredNodeIds();
         ResponseHeader RegisterNodes(NodeIdCollection nodesToRegister, out NodeIdCollection registeredNodeIds);
         ResponseHeader RegisterNodes(RequestHeader requestHeader, NodeIdCollection nodesToRegister, out NodeIdCollection registeredNodeIds);
+        IEnumerable<KeyValuePair<string, NodeId>> GetRegisteredNodeIds(IEnumerable<string> nodeIds); 
+        #endregion
     }
 
     public class OpcUaSession : IOpcUaSession
@@ -126,7 +134,7 @@ namespace ApplicationV2.Sessions
         #endregion
 
         #region [Read]
-        public List<DataValue> ReadNodes(List<NodeId> nodeIds, int batchSize, out List<ServiceResult> errors)
+        public List<object> ReadNodes(List<NodeId> nodeIds, int batchSize, out List<ServiceResult> errors)
         {
             CheckConnection();
 
@@ -139,7 +147,7 @@ namespace ApplicationV2.Sessions
 
             logger.LogDebug("Executed Read commands. Endpoint: [{endpointUrl}]", session!.Endpoint.EndpointUrl);
 
-            return values.Cast<DataValue>().ToList();//TODO: Test and Check with Hermo if this is valid and working
+            return values.ToList();//TODO: Test and Check with Hermo if this is valid and working
         }
         #endregion
 

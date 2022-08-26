@@ -1,6 +1,7 @@
 ﻿// SPDX-License-Identifier: MIT. 
 // Copyright Contributors to the Open Manufacturing Platform.
 
+using System.Threading;
 using ApplicationV2.Models;
 using ApplicationV2.Models.Browse;
 using ApplicationV2.Models.Call;
@@ -8,6 +9,8 @@ using ApplicationV2.Models.Reads;
 using ApplicationV2.Models.Subscriptions;
 using ApplicationV2.Models.Writes;
 using ApplicationV2.Services;
+using ApplicationV2.Sessions;
+using ApplicationV2.Sessions.SessionManagement;
 using Microsoft.Extensions.Logging;
 using OneOf;
 using Opc.Ua;
@@ -16,16 +19,19 @@ namespace ApplicationV2
 {
     public class OmpOpcUaClient : IOmpOpcUaClient
     {
+        private readonly ISessionPoolStateManager sessionPoolStateManager;
         private readonly IWriteCommandService writeCommandService;
         private readonly IReadCommandService readCommandService;
         private readonly ILogger<OmpOpcUaClient> logger;
 
         public OmpOpcUaClient(
+            ISessionPoolStateManager sessionPoolStateManager,
             IWriteCommandService writeCommandService,
             IReadCommandService readCommandService,
             ILogger<OmpOpcUaClient> logger
             )
         {
+            this.sessionPoolStateManager = sessionPoolStateManager;
             this.writeCommandService = writeCommandService;
             this.readCommandService = readCommandService;
             this.logger = logger;
@@ -50,7 +56,8 @@ namespace ApplicationV2
         {
             try
             {
-                return await readCommandService.ReadValuesAsync(commands, cancellationToken);
+                var opcUaSession = await GetSession(commands.EndpointUrl, cancellationToken);
+                return await readCommandService.ReadValuesAsync(opcUaSession, commands, cancellationToken);
             }
             catch (Exception ex)
             {
@@ -73,7 +80,8 @@ namespace ApplicationV2
         {
             try
             {
-                return await writeCommandService.WriteAsync(commands, cancellationToken);
+                var opcUaSession = await GetSession(commands.EndpointUrl, cancellationToken);
+                return await writeCommandService.WriteAsync(opcUaSession, commands, cancellationToken);
             }
             catch (Exception ex)
             {
@@ -81,6 +89,10 @@ namespace ApplicationV2
                 return ex;
             }
         }
+
+        protected virtual Task<IOpcUaSession> GetSession(string endpointUrl, CancellationToken cancellationToken)
+            => sessionPoolStateManager.GetSessionAsync(endpointUrl, cancellationToken);
+        
     }
 
 }

@@ -8,6 +8,4 @@ namespace ApplicationV2.Models.Reads
         public bool DoRegisteredRead { get; set; } = false;
         public virtual string NodeId { get; set; } = string.Empty;
     }
-
-
 }

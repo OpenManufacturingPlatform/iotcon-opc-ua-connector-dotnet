@@ -10,6 +10,4 @@ namespace ApplicationV2.Models.Writes
         public bool DoRegisteredWrite { get; set; } = false;
         public WriteValue? Value { get; set; }
     }
-
-
 }
