@@ -9,6 +9,7 @@ using ApplicationV2.Models.Subscriptions;
 using ApplicationV2.Models.Writes;
 using OneOf;
 using Opc.Ua;
+using CreateSubscriptionResponse = ApplicationV2.Models.Subscriptions.CreateSubscriptionResponse;
 
 namespace ApplicationV2
 {
@@ -22,7 +23,7 @@ namespace ApplicationV2
 
         Task<OneOf<WriteResponseCollection, Exception>> WriteAsync(WriteCommandCollection commands, CancellationToken cancellationToken);
 
-        Task<CommandResult<CreateSubscriptionsCommand, CreateSubscriptionResult>> CreateSubscriptions(CreateSubscriptionsCommand command, CancellationToken CancellationToken);
+        Task<OneOf<CreateSubscriptionResponse, Exception>> CreateSubscriptions(CreateSubscriptionsCommand command, CancellationToken CancellationToken);
 
         Task<CommandResultBase> RemoveSubscriptionsCommand(RemoveSubscriptionsCommand command, CancellationToken cancellationToken);
 

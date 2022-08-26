@@ -29,7 +29,7 @@ namespace TestApplicationV2
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            await PssReadTestAsync(stoppingToken);
+            //await PssReadTestAsync(stoppingToken);
             await RunReadTest(stoppingToken);
             await RunWriteTest(stoppingToken);
         }

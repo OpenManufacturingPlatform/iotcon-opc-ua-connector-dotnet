@@ -3,6 +3,7 @@
 
 using ApplicationV2.Configuration;
 using ApplicationV2.Extensions;
+using ApplicationV2.Models.Subscriptions;
 using ApplicationV2.Sessions.Auth;
 using ApplicationV2.Sessions.Reconnect;
 using ApplicationV2.Sessions.RegisteredNodes;
@@ -27,14 +28,19 @@ namespace ApplicationV2.Sessions
         #endregion
 
         #region [Read]
-        List<object> ReadNodes(List<NodeId> nodeIds, int batchSize, out List<ServiceResult> errors); 
+        List<object> ReadNodes(List<NodeId> nodeIds, int batchSize, out List<ServiceResult> errors);
         #endregion
 
         #region [Registered Nodes]
         void RestoreRegisteredNodeIds();
         ResponseHeader RegisterNodes(NodeIdCollection nodesToRegister, out NodeIdCollection registeredNodeIds);
         ResponseHeader RegisterNodes(RequestHeader requestHeader, NodeIdCollection nodesToRegister, out NodeIdCollection registeredNodeIds);
-        IEnumerable<KeyValuePair<string, NodeId>> GetRegisteredNodeIds(IEnumerable<string> nodeIds); 
+        IEnumerable<KeyValuePair<string, NodeId>> GetRegisteredNodeIds(IEnumerable<string> nodeIds);
+        #endregion
+
+        #region [Subscriptions]
+        Subscription CreateOrUpdateSubscription(SubscriptionMonitoredItem monitoredItem);
+        void ActivatePublishingOnAllSubscriptions();
         #endregion
     }
 
@@ -157,16 +163,115 @@ namespace ApplicationV2.Sessions
             CheckConnection();
             var response = session!.Write(default, writeValues, out statusCodeCollection, out _);
             return response;
-        } 
+        }
         #endregion
 
+        #region [Subscriptions] 
+
+        public Subscription CreateOrUpdateSubscription(SubscriptionMonitoredItem monitoredItem)
+        {
+            var opcUaSubscription = this.GetSubscription(monitoredItem);
+
+            return opcUaSubscription == default
+                            ? this.CreateNewSubscription(monitoredItem)
+                            : this.ModifySubscription(opcUaSubscription, monitoredItem);
+        }
+
+        public void ActivatePublishingOnAllSubscriptions()
+        {
+            CheckConnection();
+
+            foreach (var sub in session!.Subscriptions.Where(sub => !sub.PublishingEnabled))
+            {
+                logger.LogTrace($"Enabling publishing for subscription {sub.Id}");
+                sub.SetPublishingMode(true);
+            }
+        }
+
+        private Subscription? GetSubscription(SubscriptionMonitoredItem monitoredItem)
+        {
+            if (monitoredItem == default) return null;
+
+            var subscriptions = session!.Subscriptions
+                .Where(x => x.MonitoredItems.Any(y => monitoredItem.NodeId.Equals(y.ResolvedNodeId.ToString())));
+
+            return subscriptions.FirstOrDefault();
+        }
+
+        private Opc.Ua.Client.Subscription CreateNewSubscription(SubscriptionMonitoredItem monitoredItem)
+        {
+            var keepAliveCount = Convert.ToUInt32(monitoredItem.HeartbeatInterval);
+            var subscription = session!.Subscriptions.FirstOrDefault(x => monitoredItem.PublishingInterval.Equals(x.PublishingInterval.ToString()));
+            if (subscription == default)
+            {
+                subscription = new Opc.Ua.Client.Subscription
+                {
+                    PublishingInterval = int.Parse(monitoredItem.PublishingInterval),
+                    LifetimeCount = 100000,
+                    KeepAliveCount = keepAliveCount > 0 ? keepAliveCount : 100000,
+                    MaxNotificationsPerPublish = 1,
+                    Priority = 0,
+                    PublishingEnabled = false
+                };
+
+                session!.AddSubscription(subscription);
+                subscription.Create();
+            }
+            var item = this.CreateMonitoredItem(monitoredItem);
+            subscription.AddItem(item);
+            return subscription;
+        }
+
+        private Opc.Ua.Client.Subscription ModifySubscription(
+            Opc.Ua.Client.Subscription opcUaSubscription, SubscriptionMonitoredItem monitoredItem)
+        {
+            var existingItems = opcUaSubscription
+                .MonitoredItems
+                .Where(x => monitoredItem.NodeId.Equals(x.ResolvedNodeId.ToString()))
+                .ToList();
+
+            if (SamplingIntervalsAreTheSame(monitoredItem, existingItems))
+                return opcUaSubscription;
+
+            opcUaSubscription.RemoveItems(existingItems);// Notification of intent
+            opcUaSubscription.ApplyChanges(); // enforces intent is executed
+            return this.CreateNewSubscription(monitoredItem); // now re-add the monitored item
+        }
+
+        private MonitoredItem CreateMonitoredItem(SubscriptionMonitoredItem subscriptionMonitoredItem)
+        {
+            MonitoredItem monitoredItem = null;
+            try
+            {
+                monitoredItem = InitializeMonitoredItem(subscriptionMonitoredItem, complexTypeSystem, this._messageMetadata);
+
+                logger.LogTrace("Monitored item with NodeId: {nodeId}, Sampling Interval: [{samplingInterval}] and Publishing Interval: [{subscriptionMonitoredItem.PublishingInterval}] has been created successfully"
+                    , subscriptionMonitoredItem.NodeId
+                    , monitoredItem.SamplingInterval
+                    , subscriptionMonitoredItem.PublishingInterval);
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning("Unable to create monitored item with NodeId: [{nodeId}] | Error: {error}", subscriptionMonitoredItem.NodeId, ex);
+            }
+
+            return monitoredItem;
+        }
+
+        private MonitoredItem InitializeMonitoredItem(SubscriptionMonitoredItem monitoredItem, IComplexTypeSystem complexTypeSystem, TelemetryMessageMetadata telemetryMessageMetadata)
+        {
+            this._opcMonitoredItemService.Initialize(monitoredItem, complexTypeSystem, telemetryMessageMetadata);
+            return this._opcMonitoredItemService as MonitoredItem;
+        }
+
+        #endregion
 
         #region [Disposal]
         public void Dispose()
         {
             Dispose(disposing: true);
             GC.SuppressFinalize(this);
-        } 
+        }
         #endregion
 
         #region [Protected]
@@ -336,7 +441,7 @@ namespace ApplicationV2.Sessions
             {
                 var locked = await LockSessionAsync().ConfigureAwait(false);
 
-                if (!locked) 
+                if (!locked)
                     return;
 
                 var sessionName = $"{applicationConfiguration.ApplicationUri}:{Guid.NewGuid()}";

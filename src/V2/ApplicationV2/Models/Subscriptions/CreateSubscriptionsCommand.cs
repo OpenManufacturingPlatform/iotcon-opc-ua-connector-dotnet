@@ -5,8 +5,8 @@ namespace ApplicationV2.Models.Subscriptions
 {
     public record CreateSubscriptionsCommand
     {
+        public string EndpointUrl { get; set; } = string.Empty;
+
         public SubscriptionMonitoredItem[] MonitoredItems { get; set; } = new SubscriptionMonitoredItem[0];
     }
-
-
 }
