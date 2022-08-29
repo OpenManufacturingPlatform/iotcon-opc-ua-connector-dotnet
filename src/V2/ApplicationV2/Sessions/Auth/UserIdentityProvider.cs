@@ -11,7 +11,7 @@ namespace ApplicationV2.Sessions.Auth
     {
         private readonly List<AuthenticationConfiguration> authenticationSettings;
 
-        public UserIdentityProvider(IOptions<OpcUaConfiguration> opcUaConfiguration)
+        public UserIdentityProvider(IOptions<OmpOpcUaConfiguration> opcUaConfiguration)
         {
             authenticationSettings = opcUaConfiguration.Value.Authentication;
         }

@@ -2,12 +2,16 @@
 // Copyright Contributors to the Open Manufacturing Platform.
 using ApplicationV2;
 using ApplicationV2.Configuration;
+using ApplicationV2.Models.Subscriptions;
+using ApplicationV2.Repositories;
 using ApplicationV2.Services;
 using ApplicationV2.Sessions.Auth;
 using ApplicationV2.Sessions.Reconnect;
 using ApplicationV2.Sessions.RegisteredNodes;
 using ApplicationV2.Sessions.SessionManagement;
 using ApplicationV2.Sessions.Types;
+using ApplicationV2.Validation;
+using FluentValidation;
 using Microsoft.Extensions.Configuration;
 
 namespace Microsoft.Extensions.DependencyInjection
@@ -17,8 +21,12 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceCollection AddOmpOpcUaClient(this IServiceCollection serviceCollection, IConfiguration configuration)
         {
             //Configuration
-            serviceCollection.Configure<OpcUaConfiguration>(configuration.GetSection("OpcUa"));
-            serviceCollection.Configure<OpcUaSettings>(configuration.GetSection("OpcUa"));
+            serviceCollection.Configure<ConnectorConfiguration>(configuration, options =>
+            {
+                configuration.Bind(options);
+            });
+            serviceCollection.Configure<OmpOpcUaConfiguration>(configuration.GetSection("OpcUa"));
+            serviceCollection.Configure<OpcUaClientSettings>(configuration.GetSection("OpcUa"));
             
             //OpcUaConfiguration
 
@@ -26,11 +34,18 @@ namespace Microsoft.Extensions.DependencyInjection
             serviceCollection.AddSingleton<IRegisteredNodeStateManagerFactory, RegisteredNodeStateManagerFactory>();
             serviceCollection.AddTransient<IOpcUaSessionReconnectHandlerFactory, OpcUaSessionReconnectHandlerFactory>();
             serviceCollection.AddTransient<IComplexTypeSystemFactory, ComplexTypeSystemFactory>();
-            
+
+            //Repositories
+            serviceCollection.AddSingleton<ISubscriptionRepository, SubscriptionRepositoryInMemory>();
+
+            //Validation
+            serviceCollection.AddTransient<IValidator<SubscriptionMonitoredItem>, MonitoredItemValidator>(); 
 
             //Services
             serviceCollection.AddTransient<IReadCommandService, ReadCommandService>();
             serviceCollection.AddTransient<IWriteCommandService, WriteCommandService>();
+            serviceCollection.AddTransient<ISubscriptionCommandService, SubscriptionCommandService>();
+            serviceCollection.AddTransient<IMonitoredItemMessageProcessor, LoggingMonitoredItemMessageProcessor>(); 
             serviceCollection.AddSingleton<ISessionPoolStateManager, SessionPoolStateManager>();
             serviceCollection.AddSingleton<IUserIdentityProvider, UserIdentityProvider>();
             serviceCollection.AddSingleton<IOmpOpcUaClient, OmpOpcUaClient>();

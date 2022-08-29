@@ -24,7 +24,7 @@ namespace ApplicationV2
         private readonly ISessionPoolStateManager sessionPoolStateManager;
         private readonly IWriteCommandService writeCommandService;
         private readonly IReadCommandService readCommandService;
-        private readonly ISubscriptionCommandsService subscriptionCommandsService;
+        private readonly ISubscriptionCommandService subscriptionCommandsService;
         private readonly ILogger<OmpOpcUaClient> logger; 
         #endregion
 
@@ -33,7 +33,7 @@ namespace ApplicationV2
             ISessionPoolStateManager sessionPoolStateManager,
             IWriteCommandService writeCommandService,
             IReadCommandService readCommandService,
-            ISubscriptionCommandsService subscriptionCommandsService,
+            ISubscriptionCommandService subscriptionCommandsService,
             ILogger<OmpOpcUaClient> logger
             )
         {

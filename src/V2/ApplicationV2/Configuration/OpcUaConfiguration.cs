@@ -5,12 +5,12 @@ using Opc.Ua;
 
 namespace ApplicationV2.Configuration
 {
-    public sealed class OpcUaConfiguration : BaseConnectorConfiguration
+    public sealed class OmpOpcUaConfiguration
     {
-        public int SubscriptionBatchSize { get; set; }
-        public int AlarmSubscriptionBatchSize { get; set; }
-        public int ReadBatchSize { get; set; }
-        public int RegisterNodeBatchSize { get; set; }
+        public int SubscriptionBatchSize { get; set; } = 100;
+        public int AlarmSubscriptionBatchSize { get; set; } = 100;
+        public int ReadBatchSize { get; set; } = 100;
+        public int RegisterNodeBatchSize { get; set; } = 100;
         public int AwaitSessionLockTimeoutSeconds { get; set; } = 3;
         public int OperationTimeoutInSeconds { get; set; } = 120;
         public int ReconnectIntervalInSeconds { get; set; } = 10;

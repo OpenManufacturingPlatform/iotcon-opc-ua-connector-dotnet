@@ -6,7 +6,7 @@ using Opc.Ua;
 
 namespace ApplicationV2.Configuration
 {
-    public record OpcUaSettings
+    public record OpcUaClientSettings
     {
         private const string ModuleName = "OpcUaConnector";
 

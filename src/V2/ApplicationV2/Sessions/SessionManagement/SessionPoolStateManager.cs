@@ -4,6 +4,7 @@
 using System.Collections.Concurrent;
 using ApplicationV2.Configuration;
 using ApplicationV2.Extensions;
+using ApplicationV2.Services;
 using ApplicationV2.Sessions.Auth;
 using ApplicationV2.Sessions.Reconnect;
 using ApplicationV2.Sessions.RegisteredNodes;
@@ -20,21 +21,23 @@ namespace ApplicationV2.Sessions.SessionManagement
 
         private readonly ConcurrentDictionary<string, IOpcUaSession> sessionPool;
         private readonly SemaphoreSlim semaphoreSlim;
-        private readonly IOptions<OpcUaConfiguration> opcUaConfiguration;
+        private readonly IOptions<OmpOpcUaConfiguration> opcUaConfiguration;
         private readonly IRegisteredNodeStateManagerFactory registeredNodeStateManagerFactory;
         private readonly IOpcUaSessionReconnectHandlerFactory opcSessionReconnectHandlerFactory;
         private readonly IUserIdentityProvider identityProvider;
         private readonly ApplicationConfiguration applicationConfiguration;
         private readonly IComplexTypeSystemFactory complexTypeSystemFactory;
+        private readonly IEnumerable<IMonitoredItemMessageProcessor> monitoredItemMessageProcessors;
         private readonly ILoggerFactory loggerFactory;
 
         public SessionPoolStateManager(
-            IOptions<OpcUaConfiguration> opcUaConfiguration,
+            IOptions<OmpOpcUaConfiguration> opcUaConfiguration,
             IRegisteredNodeStateManagerFactory registeredNodeStateManagerFactory,
             IOpcUaSessionReconnectHandlerFactory opcSessionReconnectHandlerFactory,
             IUserIdentityProvider identityProvider,
             ApplicationConfiguration applicationConfiguration,
             IComplexTypeSystemFactory complexTypeSystemFactory,
+            IEnumerable<IMonitoredItemMessageProcessor> monitoredItemMessageProcessors,
             ILoggerFactory loggerFactory)
         {
             sessionPool = new ConcurrentDictionary<string, IOpcUaSession>();
@@ -45,6 +48,7 @@ namespace ApplicationV2.Sessions.SessionManagement
             this.identityProvider = identityProvider;
             this.applicationConfiguration = applicationConfiguration;
             this.complexTypeSystemFactory = complexTypeSystemFactory;
+            this.monitoredItemMessageProcessors = monitoredItemMessageProcessors;
             this.loggerFactory = loggerFactory;
         }
 
@@ -86,6 +90,7 @@ namespace ApplicationV2.Sessions.SessionManagement
                 identityProvider,
                 applicationConfiguration,
                 complexTypeSystemFactory,
+                monitoredItemMessageProcessors,
                 loggerFactory.CreateLogger<OpcUaSession>());
 
             await session.ConnectAsync(opcUaServerUrl);

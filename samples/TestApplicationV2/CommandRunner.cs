@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ApplicationV2;
 using ApplicationV2.Models.Reads;
+using ApplicationV2.Models.Subscriptions;
 using ApplicationV2.Models.Writes;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -29,9 +30,10 @@ namespace TestApplicationV2
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            await SubscribeToNodes(stoppingToken);
             //await PssReadTestAsync(stoppingToken);
-            await RunReadTest(stoppingToken);
-            await RunWriteTest(stoppingToken);
+            //await RunReadTest(stoppingToken);
+            //await RunWriteTest(stoppingToken);
         }
 
         private async Task PssReadTestAsync(CancellationToken stoppingToken)
@@ -116,6 +118,27 @@ namespace TestApplicationV2
                failure =>
                {
                    logger.LogCritical("Write failed");
+               });
+        }
+
+        private async Task SubscribeToNodes(CancellationToken stoppingToken)
+        {
+            var commandCollection = new CreateSubscriptionsCommand();
+            commandCollection.EndpointUrl = EndPointUrl;
+            commandCollection.MonitoredItems.Add(new SubscriptionMonitoredItem
+            {
+                NodeId = "ns=2;i=1587"
+            });
+
+            var resulst = await ompOpcUaClient.CreateSubscriptions(commandCollection, stoppingToken);
+            resulst.Switch(
+               success =>
+               {
+                   logger.LogInformation("Subscriptions Succeeded: : {results}", success.Succeeded);
+               },
+               failure =>
+               {
+                   logger.LogCritical("Subscriptions failed");
                });
         }
     }

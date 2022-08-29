@@ -4,6 +4,7 @@
 using ApplicationV2.Configuration;
 using ApplicationV2.Extensions;
 using ApplicationV2.Models.Subscriptions;
+using ApplicationV2.Services;
 using ApplicationV2.Sessions.Auth;
 using ApplicationV2.Sessions.Reconnect;
 using ApplicationV2.Sessions.RegisteredNodes;
@@ -18,6 +19,7 @@ namespace ApplicationV2.Sessions
 {
     public interface IOpcUaSession : IDisposable
     {
+        string GetBaseEndpointUrl();
         #region [Connection]
         Task ConnectAsync(string opcUaServerUrl);
         Task ConnectAsync(EndpointDescription endpointDescription);
@@ -39,7 +41,7 @@ namespace ApplicationV2.Sessions
         #endregion
 
         #region [Subscriptions]
-        Subscription CreateOrUpdateSubscription(SubscriptionMonitoredItem monitoredItem);
+        Subscription CreateOrUpdateSubscription(SubscriptionMonitoredItem monitoredItem, bool autoApplyChanges = false);
         void ActivatePublishingOnAllSubscriptions();
         #endregion
     }
@@ -51,12 +53,13 @@ namespace ApplicationV2.Sessions
         private SemaphoreSlim opcSessionSemaphore;
         private CancellationTokenSource sessionCancellationTokenSource;
         private Session? session;
-        private readonly OpcUaConfiguration opcUaConfiguration;
+        private readonly OmpOpcUaConfiguration opcUaConfiguration;
         private readonly IRegisteredNodeStateManager registeredNodeStateManager;
         private readonly IOpcUaSessionReconnectHandlerFactory opcSessionReconnectHandlerFactory;
         private readonly IUserIdentityProvider identityProvider;
         private readonly ApplicationConfiguration applicationConfiguration;
         private readonly IComplexTypeSystemFactory complexTypeSystemFactory;
+        private readonly IEnumerable<IMonitoredItemMessageProcessor> monitoredItemMessageProcessors;
         private IOpcUaSessionReconnectHandler? reconnectHandler;
         private readonly ILogger<OpcUaSession> logger;
         private readonly EndpointConfiguration endpointConfiguration;
@@ -66,12 +69,13 @@ namespace ApplicationV2.Sessions
 
         #region [Ctor]
         public OpcUaSession(
-            IOptions<OpcUaConfiguration> opcUaConfiguration,
+            IOptions<OmpOpcUaConfiguration> opcUaConfiguration,
             IRegisteredNodeStateManagerFactory registeredNodeStateManagerFactory,
             IOpcUaSessionReconnectHandlerFactory opcSessionReconnectHandlerFactory,
             IUserIdentityProvider identityProvider,
             ApplicationConfiguration applicationConfiguration,
             IComplexTypeSystemFactory complexTypeSystemFactory,
+            IEnumerable<IMonitoredItemMessageProcessor> monitoredItemMessageProcessors,
             ILogger<OpcUaSession> logger)
         {
             opcSessionSemaphore = new SemaphoreSlim(1);
@@ -82,6 +86,7 @@ namespace ApplicationV2.Sessions
             this.identityProvider = identityProvider;
             this.applicationConfiguration = applicationConfiguration;
             this.complexTypeSystemFactory = complexTypeSystemFactory;
+            this.monitoredItemMessageProcessors = monitoredItemMessageProcessors;
             this.logger = logger;
             endpointConfiguration = EndpointConfiguration.Create(applicationConfiguration);
         }
@@ -168,13 +173,19 @@ namespace ApplicationV2.Sessions
 
         #region [Subscriptions] 
 
-        public Subscription CreateOrUpdateSubscription(SubscriptionMonitoredItem monitoredItem)
+        public Subscription CreateOrUpdateSubscription(SubscriptionMonitoredItem monitoredItem, bool autoApplyChanges = false)
         {
+            CheckConnection();
             var opcUaSubscription = this.GetSubscription(monitoredItem);
 
-            return opcUaSubscription == default
+            var subscription = opcUaSubscription == default
                             ? this.CreateNewSubscription(monitoredItem)
                             : this.ModifySubscription(opcUaSubscription, monitoredItem);
+
+            if (autoApplyChanges)
+                subscription.ApplyChanges();
+
+            return subscription;
         }
 
         public void ActivatePublishingOnAllSubscriptions()
@@ -190,7 +201,8 @@ namespace ApplicationV2.Sessions
 
         private Subscription? GetSubscription(SubscriptionMonitoredItem monitoredItem)
         {
-            if (monitoredItem == default) return null;
+            if (monitoredItem == default)
+                return null;
 
             var subscriptions = session!.Subscriptions
                 .Where(x => x.MonitoredItems.Any(y => monitoredItem.NodeId.Equals(y.ResolvedNodeId.ToString())));
@@ -198,15 +210,15 @@ namespace ApplicationV2.Sessions
             return subscriptions.FirstOrDefault();
         }
 
-        private Opc.Ua.Client.Subscription CreateNewSubscription(SubscriptionMonitoredItem monitoredItem)
+        private Subscription CreateNewSubscription(SubscriptionMonitoredItem monitoredItem)
         {
             var keepAliveCount = Convert.ToUInt32(monitoredItem.HeartbeatInterval);
-            var subscription = session!.Subscriptions.FirstOrDefault(x => monitoredItem.PublishingInterval.Equals(x.PublishingInterval.ToString()));
+            var subscription = session!.Subscriptions.FirstOrDefault(x => monitoredItem.PublishingInterval.Equals(x.PublishingInterval));
             if (subscription == default)
             {
-                subscription = new Opc.Ua.Client.Subscription
+                subscription = new Subscription
                 {
-                    PublishingInterval = int.Parse(monitoredItem.PublishingInterval),
+                    PublishingInterval = monitoredItem.PublishingInterval,
                     LifetimeCount = 100000,
                     KeepAliveCount = keepAliveCount > 0 ? keepAliveCount : 100000,
                     MaxNotificationsPerPublish = 1,
@@ -222,8 +234,7 @@ namespace ApplicationV2.Sessions
             return subscription;
         }
 
-        private Opc.Ua.Client.Subscription ModifySubscription(
-            Opc.Ua.Client.Subscription opcUaSubscription, SubscriptionMonitoredItem monitoredItem)
+        private Subscription ModifySubscription(Subscription opcUaSubscription, SubscriptionMonitoredItem monitoredItem)
         {
             var existingItems = opcUaSubscription
                 .MonitoredItems
@@ -240,29 +251,37 @@ namespace ApplicationV2.Sessions
 
         private MonitoredItem CreateMonitoredItem(SubscriptionMonitoredItem subscriptionMonitoredItem)
         {
-            MonitoredItem monitoredItem = null;
             try
             {
-                monitoredItem = InitializeMonitoredItem(subscriptionMonitoredItem, complexTypeSystem, this._messageMetadata);
+                var monitoredItem = new MonitoredItem
+                {
+                    StartNodeId = subscriptionMonitoredItem.NodeId,
+                    AttributeId = subscriptionMonitoredItem.AttributeId,
+                    MonitoringMode = subscriptionMonitoredItem.MonitoringMode,
+                    SamplingInterval = subscriptionMonitoredItem.SamplingInterval,
+                    QueueSize = subscriptionMonitoredItem.QueueSize,
+                    DiscardOldest = subscriptionMonitoredItem.DiscardOldest
+                };
 
-                logger.LogTrace("Monitored item with NodeId: {nodeId}, Sampling Interval: [{samplingInterval}] and Publishing Interval: [{subscriptionMonitoredItem.PublishingInterval}] has been created successfully"
+                foreach (var processor in monitoredItemMessageProcessors)
+                    monitoredItem.Notification += processor.ProcessMessage; //If processor throws error the application crashes
+
+                logger.LogTrace("Monitored item with NodeId: {nodeId}, Sampling Interval: [{samplingInterval}] has been created successfully"
                     , subscriptionMonitoredItem.NodeId
-                    , monitoredItem.SamplingInterval
-                    , subscriptionMonitoredItem.PublishingInterval);
+                    , monitoredItem.SamplingInterval);
+
+                return monitoredItem;
             }
             catch (Exception ex)
             {
                 logger.LogWarning("Unable to create monitored item with NodeId: [{nodeId}] | Error: {error}", subscriptionMonitoredItem.NodeId, ex);
+                //TODO: subscribe to all items we can but let the error buble up as well
+                throw;
             }
-
-            return monitoredItem;
         }
 
-        private MonitoredItem InitializeMonitoredItem(SubscriptionMonitoredItem monitoredItem, IComplexTypeSystem complexTypeSystem, TelemetryMessageMetadata telemetryMessageMetadata)
-        {
-            this._opcMonitoredItemService.Initialize(monitoredItem, complexTypeSystem, telemetryMessageMetadata);
-            return this._opcMonitoredItemService as MonitoredItem;
-        }
+        private static bool SamplingIntervalsAreTheSame(SubscriptionMonitoredItem monitoredItem, List<MonitoredItem> existingItems)
+            => existingItems.Any(m => m.SamplingInterval == monitoredItem.SamplingInterval);
 
         #endregion
 
@@ -272,6 +291,11 @@ namespace ApplicationV2.Sessions
             Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
+        #endregion
+
+        #region [Misc]
+        public string GetBaseEndpointUrl()
+            => session?.GetBaseEndpointUrl() ?? string.Empty;
         #endregion
 
         #region [Protected]

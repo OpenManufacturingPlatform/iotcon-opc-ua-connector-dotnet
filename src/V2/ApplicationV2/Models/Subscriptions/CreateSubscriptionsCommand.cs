@@ -7,6 +7,6 @@ namespace ApplicationV2.Models.Subscriptions
     {
         public string EndpointUrl { get; set; } = string.Empty;
 
-        public SubscriptionMonitoredItem[] MonitoredItems { get; set; } = new SubscriptionMonitoredItem[0];
+        public List<SubscriptionMonitoredItem> MonitoredItems { get; set; } = new List<SubscriptionMonitoredItem>();
     }
 }

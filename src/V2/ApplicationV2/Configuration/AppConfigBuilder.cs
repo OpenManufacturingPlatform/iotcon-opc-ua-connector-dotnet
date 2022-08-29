@@ -12,10 +12,10 @@ namespace ApplicationV2.Configuration
     public class AppConfigBuilder : IAppConfigBuilder
     {
         private readonly ILogger logger;
-        private readonly OpcUaSettings opcUaSettings;
-        private readonly OpcUaConfiguration opcUaConfiguration;
+        private readonly OpcUaClientSettings opcUaSettings;
+        private readonly OmpOpcUaConfiguration opcUaConfiguration;
 
-        public AppConfigBuilder(ILogger<AppConfigBuilder> logger, IOptions<OpcUaConfiguration> opcUaConfiguration, IOptions<OpcUaSettings> opcUaSettings)
+        public AppConfigBuilder(ILogger<AppConfigBuilder> logger, IOptions<OmpOpcUaConfiguration> opcUaConfiguration, IOptions<OpcUaClientSettings> opcUaSettings)
         {
             this.opcUaConfiguration = opcUaConfiguration.Value;
             this.opcUaSettings = opcUaSettings.Value;
