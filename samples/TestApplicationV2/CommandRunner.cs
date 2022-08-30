@@ -31,6 +31,7 @@ namespace TestApplicationV2
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             await SubscribeToNodes(stoppingToken);
+            await UnSubscribeFromNodes(stoppingToken);
             //await PssReadTestAsync(stoppingToken);
             //await RunReadTest(stoppingToken);
             //await RunWriteTest(stoppingToken);
@@ -134,11 +135,30 @@ namespace TestApplicationV2
             resulst.Switch(
                success =>
                {
-                   logger.LogInformation("Subscriptions Succeeded: : {results}", success.Succeeded);
+                   logger.LogInformation("Create Subscriptions Succeeded: : {results}", success.Succeeded);
                },
                failure =>
                {
-                   logger.LogCritical("Subscriptions failed");
+                   logger.LogCritical("Create Subscriptions failed");
+               });
+        }
+
+        private async Task UnSubscribeFromNodes(CancellationToken stoppingToken)
+        {
+            await Task.Delay(TimeSpan.FromSeconds(55));
+            var commandCollection = new RemoveSubscriptionsCommand();
+            commandCollection.EndpointUrl = EndPointUrl;
+            commandCollection.NodeIds.Add("ns=2;i=1587");
+
+            var resulst = await ompOpcUaClient.RemoveSubscriptionsCommand(commandCollection, stoppingToken);
+            resulst.Switch(
+               success =>
+               {
+                   logger.LogInformation("Remove Subscriptions Succeeded: : {results}", success.Succeeded);
+               },
+               failure =>
+               {
+                   logger.LogCritical("Remove Subscriptions failed");
                });
         }
     }

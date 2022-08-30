@@ -7,7 +7,15 @@ namespace ApplicationV2.Models
     {
         public bool Succeeded { get; set; }
         public string? Message { get; set; }
+
+        public CommandResultBase() { }
+
+        public CommandResultBase(bool succeeded, string? message = default)
+        {
+            Succeeded = succeeded;
+            Message = message;
+        }
     }
 
-    
+
 }

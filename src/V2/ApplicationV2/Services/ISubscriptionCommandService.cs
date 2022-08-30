@@ -44,7 +44,7 @@ namespace ApplicationV2.Services
     public interface ISubscriptionCommandService
     {
         Task<CreateSubscriptionResponse> CreateSubscriptions(IOpcUaSession opcUaSession, CreateSubscriptionsCommand command, CancellationToken CancellationToken);
-        Task<CommandResultBase> RemoveSubscriptionsCommand(IOpcUaSession opcUaSession, RemoveSubscriptionsCommand command, CancellationToken cancellationToken);
+        Task<RemoveSubscriptionsResponse> RemoveSubscriptionsCommand(IOpcUaSession opcUaSession, RemoveSubscriptionsCommand command, CancellationToken cancellationToken);
 
         Task<CommandResultBase> RemoveAllSubscriptions(IOpcUaSession opcUaSession, RemoveAllSubscriptionsCommand command, CancellationToken cancellationToken);
     }
@@ -139,9 +139,23 @@ namespace ApplicationV2.Services
             throw new NotImplementedException();
         }
 
-        public Task<CommandResultBase> RemoveSubscriptionsCommand(IOpcUaSession opcUaSession, RemoveSubscriptionsCommand command, CancellationToken cancellationToken)
+        public async Task<RemoveSubscriptionsResponse> RemoveSubscriptionsCommand(IOpcUaSession opcUaSession, RemoveSubscriptionsCommand command, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            subscriptionRepository?.DeleteMonitoredItems(command.EndpointUrl, command.NodeIds);
+
+            var response = await this.TryRemoveSubscriptionsFromSessionAsync(opcUaSession, command);
+            if (!response.Succeeded)
+            {
+                logger.LogError("Could not remove subscriptions from OPC UA session on Endpoint: [{endpointUrl}]", command.EndpointUrl);
+
+                response.Message = "Could not remove subscriptions from OPC UA session.";
+            }
+            else
+            {
+                logger.LogDebug("Removed monitored items from subscription(s) on Endpoint: [{endpointUrl}]", command.EndpointUrl);
+            }
+
+            return response;
         }
 
         #region [Privates]
@@ -199,7 +213,7 @@ namespace ApplicationV2.Services
                 .ToArray();
         }
 
-        private static MonitoriedItemResult GetMonitoriedItemResult(SubscriptionMonitoredItem item, Opc.Ua.Client.MonitoredItem monitoredItem)
+        private static MonitoriedItemResult GetMonitoriedItemResult(SubscriptionMonitoredItem item, MonitoredItem monitoredItem)
         {
             if (monitoredItem.Status.Error is null)
             {
@@ -221,6 +235,70 @@ namespace ApplicationV2.Services
             }
         }
 
+
+        private async Task<RemoveSubscriptionsResponse> TryRemoveSubscriptionsFromSessionAsync(IOpcUaSession opcUaSession, RemoveSubscriptionsCommand command)
+        {
+            var response = new RemoveSubscriptionsResponse();
+            response.Succeeded = true;
+
+            try
+            {
+                var activeSubscriptions = this.GetActiveMonitoredItems(opcUaSession, command);
+                var activeSubscription = opcUaSession.GetSubscriptions();
+                
+
+                foreach (var (subscription, items) in activeSubscriptions)
+                {
+                    var batchHandler = new BatchHandler<MonitoredItem>(opcUaConfiguration.SubscriptionBatchSize, UnsubscribeBatches(subscription, response));
+                    batchHandler.RunBatches(items);
+                    logger.LogDebug("{items} monitored items were removed from subscription [Id: {subscriptionId}]",
+                        items.Count, subscription.Id);
+
+                    if (!subscription.MonitoredItems.Any())
+                        await opcUaSession.RemoveSubscriptionAsync(subscription);
+
+                    response.NodesWithActiveSubscriptions.AddRange(subscription.MonitoredItems.Select(mi => mi.StartNodeId));
+                }
+            }
+            catch (Exception ex)
+            {
+                response.Succeeded = false;
+                logger.LogWarning(ex, $"Unable to remove subscriptions from OPC UA server session");
+            }
+            return response;
+        }
+
+        private List<(Subscription, List<MonitoredItem>)> GetActiveMonitoredItems(IOpcUaSession opcUaSession, RemoveSubscriptionsCommand command)
+        {
+            var nodeIds = new List<NodeId>();
+            foreach (var nodeId in command.NodeIds)
+                nodeIds.Add(new NodeId(nodeId));
+
+            return (from subscription in opcUaSession.GetSubscriptions()
+                    select (subscription, (from nodeId in nodeIds
+                                           join monitoredItem in subscription.MonitoredItems
+                                               on nodeId.ToString() equals monitoredItem.ResolvedNodeId.ToString()
+                                           select monitoredItem).ToList()
+                        )).ToList();
+        }
+
+        private Action<MonitoredItem[]> UnsubscribeBatches(Subscription subscription, RemoveSubscriptionsResponse removeSubscriptionsResponse)
+        {
+            return monitoredItems =>
+            {
+                try
+                {
+                    subscription.RemoveItems(monitoredItems);
+                    subscription.ApplyChanges();
+                    removeSubscriptionsResponse.NodesOfRemovedSubscriptions.AddRange(monitoredItems.Select(mi => mi.StartNodeId));
+                }
+                catch (ServiceResultException sre)
+                {
+                    logger.LogError(sre, "Failed to call ApplyChanges() for batch with {monitoredItems} items ", monitoredItems.Count());
+                    throw;
+                }
+            };
+        }
         #endregion
     }
 }

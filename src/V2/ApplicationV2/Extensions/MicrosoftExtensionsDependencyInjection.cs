@@ -21,6 +21,8 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceCollection AddOmpOpcUaClient(this IServiceCollection serviceCollection, IConfiguration configuration)
         {
             //Configuration
+            var connectorConfiguration = new ConnectorConfiguration();
+            configuration.Bind(connectorConfiguration);
             serviceCollection.Configure<ConnectorConfiguration>(configuration, options =>
             {
                 configuration.Bind(options);
@@ -36,7 +38,22 @@ namespace Microsoft.Extensions.DependencyInjection
             serviceCollection.AddTransient<IComplexTypeSystemFactory, ComplexTypeSystemFactory>();
 
             //Repositories
-            serviceCollection.AddSingleton<ISubscriptionRepository, SubscriptionRepositoryInMemory>();
+            if (connectorConfiguration.DisableSubscriptionRestoreService)
+            {
+                var subscriptionRepositories = serviceCollection
+                    .Where(descriptor => descriptor.ServiceType == typeof(ISubscriptionRepository))
+                    .ToList();
+
+                subscriptionRepositories.ForEach(repo =>
+                {
+                    serviceCollection.Remove(repo);
+                });
+            }
+            else
+            {
+                serviceCollection.AddSingleton<ISubscriptionRepository, SubscriptionRepositoryInMemory>();
+            }
+            
 
             //Validation
             serviceCollection.AddTransient<IValidator<SubscriptionMonitoredItem>, MonitoredItemValidator>(); 

@@ -19,7 +19,10 @@ namespace ApplicationV2.Sessions
 {
     public interface IOpcUaSession : IDisposable
     {
-        string GetBaseEndpointUrl();
+        #region [Misc]
+        string GetBaseEndpointUrl(); 
+        #endregion
+
         #region [Connection]
         Task ConnectAsync(string opcUaServerUrl);
         Task ConnectAsync(EndpointDescription endpointDescription);
@@ -43,6 +46,10 @@ namespace ApplicationV2.Sessions
         #region [Subscriptions]
         Subscription CreateOrUpdateSubscription(SubscriptionMonitoredItem monitoredItem, bool autoApplyChanges = false);
         void ActivatePublishingOnAllSubscriptions();
+
+        IEnumerable<Subscription> GetSubscriptions();
+
+        Task<bool> RemoveSubscriptionAsync(Subscription subscription);
         #endregion
     }
 
@@ -199,89 +206,17 @@ namespace ApplicationV2.Sessions
             }
         }
 
-        private Subscription? GetSubscription(SubscriptionMonitoredItem monitoredItem)
+        public IEnumerable<Subscription> GetSubscriptions()
         {
-            if (monitoredItem == default)
-                return null;
-
-            var subscriptions = session!.Subscriptions
-                .Where(x => x.MonitoredItems.Any(y => monitoredItem.NodeId.Equals(y.ResolvedNodeId.ToString())));
-
-            return subscriptions.FirstOrDefault();
+            CheckConnection();
+            return session!.Subscriptions;
         }
 
-        private Subscription CreateNewSubscription(SubscriptionMonitoredItem monitoredItem)
+        public Task<bool> RemoveSubscriptionAsync(Subscription subscription)
         {
-            var keepAliveCount = Convert.ToUInt32(monitoredItem.HeartbeatInterval);
-            var subscription = session!.Subscriptions.FirstOrDefault(x => monitoredItem.PublishingInterval.Equals(x.PublishingInterval));
-            if (subscription == default)
-            {
-                subscription = new Subscription
-                {
-                    PublishingInterval = monitoredItem.PublishingInterval,
-                    LifetimeCount = 100000,
-                    KeepAliveCount = keepAliveCount > 0 ? keepAliveCount : 100000,
-                    MaxNotificationsPerPublish = 1,
-                    Priority = 0,
-                    PublishingEnabled = false
-                };
-
-                session!.AddSubscription(subscription);
-                subscription.Create();
-            }
-            var item = this.CreateMonitoredItem(monitoredItem);
-            subscription.AddItem(item);
-            return subscription;
+            CheckConnection();
+            return session!.RemoveSubscriptionAsync(subscription);
         }
-
-        private Subscription ModifySubscription(Subscription opcUaSubscription, SubscriptionMonitoredItem monitoredItem)
-        {
-            var existingItems = opcUaSubscription
-                .MonitoredItems
-                .Where(x => monitoredItem.NodeId.Equals(x.ResolvedNodeId.ToString()))
-                .ToList();
-
-            if (SamplingIntervalsAreTheSame(monitoredItem, existingItems))
-                return opcUaSubscription;
-
-            opcUaSubscription.RemoveItems(existingItems);// Notification of intent
-            opcUaSubscription.ApplyChanges(); // enforces intent is executed
-            return this.CreateNewSubscription(monitoredItem); // now re-add the monitored item
-        }
-
-        private MonitoredItem CreateMonitoredItem(SubscriptionMonitoredItem subscriptionMonitoredItem)
-        {
-            try
-            {
-                var monitoredItem = new MonitoredItem
-                {
-                    StartNodeId = subscriptionMonitoredItem.NodeId,
-                    AttributeId = subscriptionMonitoredItem.AttributeId,
-                    MonitoringMode = subscriptionMonitoredItem.MonitoringMode,
-                    SamplingInterval = subscriptionMonitoredItem.SamplingInterval,
-                    QueueSize = subscriptionMonitoredItem.QueueSize,
-                    DiscardOldest = subscriptionMonitoredItem.DiscardOldest
-                };
-
-                foreach (var processor in monitoredItemMessageProcessors)
-                    monitoredItem.Notification += processor.ProcessMessage; //If processor throws error the application crashes
-
-                logger.LogTrace("Monitored item with NodeId: {nodeId}, Sampling Interval: [{samplingInterval}] has been created successfully"
-                    , subscriptionMonitoredItem.NodeId
-                    , monitoredItem.SamplingInterval);
-
-                return monitoredItem;
-            }
-            catch (Exception ex)
-            {
-                logger.LogWarning("Unable to create monitored item with NodeId: [{nodeId}] | Error: {error}", subscriptionMonitoredItem.NodeId, ex);
-                //TODO: subscribe to all items we can but let the error buble up as well
-                throw;
-            }
-        }
-
-        private static bool SamplingIntervalsAreTheSame(SubscriptionMonitoredItem monitoredItem, List<MonitoredItem> existingItems)
-            => existingItems.Any(m => m.SamplingInterval == monitoredItem.SamplingInterval);
 
         #endregion
 
@@ -509,6 +444,92 @@ namespace ApplicationV2.Sessions
                 errors.AddRange(batchErrors);
             };
         }
+
+        #region [Subscriptions]
+        private Subscription? GetSubscription(SubscriptionMonitoredItem monitoredItem)
+        {
+            if (monitoredItem == default)
+                return null;
+
+            var subscriptions = session!.Subscriptions
+                .Where(x => x.MonitoredItems.Any(y => monitoredItem.NodeId.Equals(y.ResolvedNodeId.ToString())));
+
+            return subscriptions.FirstOrDefault();
+        }
+
+        private Subscription CreateNewSubscription(SubscriptionMonitoredItem monitoredItem)
+        {
+            var keepAliveCount = Convert.ToUInt32(monitoredItem.HeartbeatInterval);
+            var subscription = session!.Subscriptions.FirstOrDefault(x => monitoredItem.PublishingInterval.Equals(x.PublishingInterval));
+            if (subscription == default)
+            {
+                subscription = new Subscription
+                {
+                    PublishingInterval = monitoredItem.PublishingInterval,
+                    LifetimeCount = 100000,
+                    KeepAliveCount = keepAliveCount > 0 ? keepAliveCount : 100000,
+                    MaxNotificationsPerPublish = 1,
+                    Priority = 0,
+                    PublishingEnabled = false
+                };
+
+                session!.AddSubscription(subscription);
+                subscription.Create();
+            }
+            var item = this.CreateMonitoredItem(monitoredItem);
+            subscription.AddItem(item);
+            return subscription;
+        }
+
+        private Subscription ModifySubscription(Subscription opcUaSubscription, SubscriptionMonitoredItem monitoredItem)
+        {
+            var existingItems = opcUaSubscription
+                .MonitoredItems
+                .Where(x => monitoredItem.NodeId.Equals(x.ResolvedNodeId.ToString()))
+                .ToList();
+
+            if (SamplingIntervalsAreTheSame(monitoredItem, existingItems))
+                return opcUaSubscription;
+
+            opcUaSubscription.RemoveItems(existingItems);// Notification of intent
+            opcUaSubscription.ApplyChanges(); // enforces intent is executed
+            return this.CreateNewSubscription(monitoredItem); // now re-add the monitored item
+        }
+
+        private MonitoredItem CreateMonitoredItem(SubscriptionMonitoredItem subscriptionMonitoredItem)
+        {
+            try
+            {
+                var monitoredItem = new MonitoredItem
+                {
+                    StartNodeId = subscriptionMonitoredItem.NodeId,
+                    AttributeId = subscriptionMonitoredItem.AttributeId,
+                    MonitoringMode = subscriptionMonitoredItem.MonitoringMode,
+                    SamplingInterval = subscriptionMonitoredItem.SamplingInterval,
+                    QueueSize = subscriptionMonitoredItem.QueueSize,
+                    DiscardOldest = subscriptionMonitoredItem.DiscardOldest
+                };
+
+                foreach (var processor in monitoredItemMessageProcessors)
+                    monitoredItem.Notification += processor.ProcessMessage; //If processor throws error the application crashes
+
+                logger.LogTrace("Monitored item with NodeId: {nodeId}, Sampling Interval: [{samplingInterval}] has been created successfully"
+                    , subscriptionMonitoredItem.NodeId
+                    , monitoredItem.SamplingInterval);
+
+                return monitoredItem;
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning("Unable to create monitored item with NodeId: [{nodeId}] | Error: {error}", subscriptionMonitoredItem.NodeId, ex);
+                //TODO: subscribe to all items we can but let the error buble up as well
+                throw;
+            }
+        }
+
+        private static bool SamplingIntervalsAreTheSame(SubscriptionMonitoredItem monitoredItem, List<MonitoredItem> existingItems)
+            => existingItems.Any(m => m.SamplingInterval == monitoredItem.SamplingInterval);
+        #endregion
         #endregion
     }
 }

@@ -1,6 +1,7 @@
 ﻿// SPDX-License-Identifier: MIT. 
 // Copyright Contributors to the Open Manufacturing Platform.
 
+using System.Diagnostics;
 using System.Threading;
 using ApplicationV2.Models;
 using ApplicationV2.Models.Browse;
@@ -73,7 +74,7 @@ namespace ApplicationV2
             catch (Exception ex)
             {
                 logger.LogError(ex, "An error occurred during the read command: {errorMessage}", ex.Message);
-                return ex;
+                return ex.Demystify();
             }
         }
 
@@ -89,8 +90,8 @@ namespace ApplicationV2
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "An error occurred during the read command: {errorMessage}", ex.Message);
-                return ex;
+                logger.LogError(ex, "An error occurred during the subscription creation: {errorMessage}", ex.Message);
+                return ex.Demystify();
             }
         }
 
@@ -99,9 +100,18 @@ namespace ApplicationV2
             throw new NotImplementedException();
         }
 
-        public Task<CommandResultBase> RemoveSubscriptionsCommand(RemoveSubscriptionsCommand command, CancellationToken cancellationToken)
+        public async Task<OneOf<RemoveSubscriptionsResponse, Exception>> RemoveSubscriptionsCommand(RemoveSubscriptionsCommand command, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var opcUaSession = await GetSession(command.EndpointUrl, cancellationToken);
+                return await subscriptionCommandsService.RemoveSubscriptionsCommand(opcUaSession, command, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "An error occurred during the subscription removal: {errorMessage}", ex.Message);
+                return ex.Demystify();
+            }
         }
         #endregion
 
@@ -116,7 +126,7 @@ namespace ApplicationV2
             catch (Exception ex)
             {
                 logger.LogError(ex, "An error occurred during the write command: {errorMessage}", ex.Message);
-                return ex;
+                return ex.Demystify();
             }
         } 
         #endregion

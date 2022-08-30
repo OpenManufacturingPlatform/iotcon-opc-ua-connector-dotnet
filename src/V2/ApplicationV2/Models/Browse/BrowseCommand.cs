@@ -7,6 +7,4 @@ namespace ApplicationV2.Models.Browse
     {
         public virtual string NodeId { get; set; } = string.Empty;
     }
-
-
 }

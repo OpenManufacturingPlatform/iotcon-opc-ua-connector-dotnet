@@ -8,6 +8,4 @@ namespace ApplicationV2.Models.Call
         public virtual string NodeId { get; set; } = string.Empty;
         public Dictionary<string, object> Arguments { get; set; } = new Dictionary<string, object>(); // Klaar requirement vir Object in input arguments
     }
-
-
 }

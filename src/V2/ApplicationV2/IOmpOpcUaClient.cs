@@ -25,7 +25,7 @@ namespace ApplicationV2
 
         Task<OneOf<CreateSubscriptionResponse, Exception>> CreateSubscriptions(CreateSubscriptionsCommand command, CancellationToken CancellationToken);
 
-        Task<CommandResultBase> RemoveSubscriptionsCommand(RemoveSubscriptionsCommand command, CancellationToken cancellationToken);
+        Task<OneOf<RemoveSubscriptionsResponse, Exception>> RemoveSubscriptionsCommand(RemoveSubscriptionsCommand command, CancellationToken cancellationToken);
 
         Task<CommandResultBase> RemoveAllSubscriptions(RemoveAllSubscriptionsCommand command, CancellationToken cancellationToken);
 

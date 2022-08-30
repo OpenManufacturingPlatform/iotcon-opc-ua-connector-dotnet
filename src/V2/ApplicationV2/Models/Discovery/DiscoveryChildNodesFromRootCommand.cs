@@ -7,6 +7,4 @@ namespace ApplicationV2.Models.Discovery
     {
         public string BrowseDepth { get; set; } = string.Empty;
     }
-
-
 }

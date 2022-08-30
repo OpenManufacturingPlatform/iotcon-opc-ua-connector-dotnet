@@ -4,6 +4,4 @@
 namespace ApplicationV2.Models.Call
 {
     public record CallOutputArguments(string Key, object Value, string DataType);
-
-
 }

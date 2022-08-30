@@ -31,16 +31,44 @@ namespace ApplicationV2.Repositories
                 MonitoredItems = monitoredItemsDict
             };
 
-            if(pairs.ContainsKey(endpointUrl))
+            if (pairs.ContainsKey(endpointUrl))
             {
                 var subscriptions = pairs[endpointUrl];
                 subscriptions.Add(newSubscriptionDto);
             }
 
-            if(pairs.TryAdd(endpointUrl, new List<SubscriptionDto> { newSubscriptionDto }))
+            if (pairs.TryAdd(endpointUrl, new List<SubscriptionDto> { newSubscriptionDto }))
                 return;
 
-            //TODO: raise some kin of error
+            //TODO: raise some kind of error
+        }
+
+        public void DeleteMonitoredItems(string endpointUrl, IEnumerable<string> nodeIds)
+        {
+            if (connectorConfiguration.DisableSubscriptionRestoreService)
+                return;
+
+            if (!pairs.ContainsKey(endpointUrl))
+                return;
+
+            var currentMonitoredItems = pairs[endpointUrl];
+            var nodeIdList = nodeIds.ToList();
+            foreach (var subscription in currentMonitoredItems)
+            {
+                var counter = 0;
+                while (counter < nodeIdList.Count)
+                {
+                    var nodeId = nodeIdList[counter];
+                    var removed = subscription
+                                    .MonitoredItems
+                                    .Remove(nodeId);
+
+                    if (removed)
+                        nodeIdList.Remove(nodeId);
+
+                    counter++;
+                }
+            }
         }
     }
 }

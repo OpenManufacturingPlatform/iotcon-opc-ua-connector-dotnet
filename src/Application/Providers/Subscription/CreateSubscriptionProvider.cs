@@ -35,7 +35,7 @@ namespace OMP.Connector.Application.Providers.Subscription
         private readonly AbstractValidator<SubscriptionMonitoredItem> _monitoredItemValidator;
         private readonly int _batchSize;
         private readonly IOpcMonitoredItemService _opcMonitoredItemService;
-        //private readonly Dictionary<string, List<string>> _groupedItemsNotCreated;
+        private readonly Dictionary<string, List<string>> _groupedItemsNotCreated;
 
         public CreateSubscriptionProvider(
             ISubscriptionRepository subscriptionRepository,
