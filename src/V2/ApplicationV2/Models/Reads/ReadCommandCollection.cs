@@ -3,5 +3,12 @@
 
 namespace ApplicationV2.Models.Reads
 {
-    public class ReadCommandCollection : List<ReadCommand> { public string EndpointUrl { get; set; } = string.Empty; }
+    public class ReadCommandCollection : List<ReadCommand>
+    {
+        public string EndpointUrl { get; set; } = string.Empty;
+        public ReadCommandCollection(string endpointUrl)
+        {
+            EndpointUrl = endpointUrl;
+        }
+    }
 }

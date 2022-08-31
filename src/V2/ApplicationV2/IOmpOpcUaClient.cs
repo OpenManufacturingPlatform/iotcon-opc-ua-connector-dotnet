@@ -27,7 +27,7 @@ namespace ApplicationV2
 
         Task<OneOf<RemoveSubscriptionsResponse, Exception>> RemoveSubscriptionsCommand(RemoveSubscriptionsCommand command, CancellationToken cancellationToken);
 
-        Task<CommandResultBase> RemoveAllSubscriptions(RemoveAllSubscriptionsCommand command, CancellationToken cancellationToken);
+        Task<OneOf<RemoveAllSubscriptionsResponse, Exception>> RemoveAllSubscriptions(RemoveAllSubscriptionsCommand command, CancellationToken cancellationToken);
 
         //Task<> DiscoveryChildNodes(DiscoveryChildNodesFromRootCommand command);
         //Task</*WHAT DO WE DO HERE? CommandResult?? */> DiscoveryChildNodes(DiscoveryChildNodesCommand command);

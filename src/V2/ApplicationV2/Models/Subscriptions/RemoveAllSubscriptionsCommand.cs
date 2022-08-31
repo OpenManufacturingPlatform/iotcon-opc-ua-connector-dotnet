@@ -3,7 +3,5 @@
 
 namespace ApplicationV2.Models.Subscriptions
 {
-    public record RemoveAllSubscriptionsCommand { }
-
-
+    public record RemoveAllSubscriptionsCommand(string EndpointUrl);
 }

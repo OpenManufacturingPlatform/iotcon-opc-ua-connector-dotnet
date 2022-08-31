@@ -70,5 +70,29 @@ namespace ApplicationV2.Repositories
                 }
             }
         }
+
+        public IEnumerable<SubscriptionDto> GetAllByEndpointUrl(string endpointUrl)
+        {
+            if (connectorConfiguration.DisableSubscriptionRestoreService)
+                return Array.Empty<SubscriptionDto>();
+
+            if (!pairs.ContainsKey(endpointUrl))
+                return pairs[endpointUrl];
+
+            return Array.Empty<SubscriptionDto>();
+        }
+
+        public bool Remove(SubscriptionDto subscription)
+        {
+            if (!pairs.ContainsKey(subscription.EndpointUrl))
+                return true;
+
+            var subscriptions = pairs[subscription.EndpointUrl];
+            subscriptions.Remove(subscription);
+
+            pairs[subscription.EndpointUrl] = subscriptions;
+
+            return true;
+        }
     }
 }

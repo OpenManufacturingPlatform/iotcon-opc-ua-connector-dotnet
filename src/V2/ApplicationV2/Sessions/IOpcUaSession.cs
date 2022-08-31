@@ -46,10 +46,9 @@ namespace ApplicationV2.Sessions
         #region [Subscriptions]
         Subscription CreateOrUpdateSubscription(SubscriptionMonitoredItem monitoredItem, bool autoApplyChanges = false);
         void ActivatePublishingOnAllSubscriptions();
-
         IEnumerable<Subscription> GetSubscriptions();
-
         Task<bool> RemoveSubscriptionAsync(Subscription subscription);
+        Task<bool> RemoveSubscriptionsAsync(IEnumerable<Subscription> subscriptions);
         #endregion
     }
 
@@ -216,6 +215,11 @@ namespace ApplicationV2.Sessions
         {
             CheckConnection();
             return session!.RemoveSubscriptionAsync(subscription);
+        }
+        public Task<bool> RemoveSubscriptionsAsync(IEnumerable<Subscription> subscriptions)
+        {
+            CheckConnection();
+            return session!.RemoveSubscriptionsAsync(subscriptions);
         }
 
         #endregion

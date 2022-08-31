@@ -30,8 +30,9 @@ namespace TestApplicationV2
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            await SubscribeToNodes(stoppingToken);
-            await UnSubscribeFromNodes(stoppingToken);
+            await RemoveAllSubscribeToNodes(stoppingToken);
+            //await SubscribeToNodes(stoppingToken);
+            //await UnSubscribeFromNodes(stoppingToken);
             //await PssReadTestAsync(stoppingToken);
             //await RunReadTest(stoppingToken);
             //await RunWriteTest(stoppingToken);
@@ -40,26 +41,19 @@ namespace TestApplicationV2
         private async Task PssReadTestAsync(CancellationToken stoppingToken)
         {
             //opc.tcp://160.52.61.130:4840
-            var commandCollection = new ReadCommandCollection();
-            commandCollection.EndpointUrl = "opc.tcp://160.52.61.130:4840";
-            commandCollection.Add(new ReadCommand
+            var commandCollection = new ReadCommandCollection("opc.tcp://160.52.61.130:4840")
             {
-                DoRegisteredRead = false,
-                NodeId = "ns=3;s=OrderNumber"
-            });
-            commandCollection.Add(new ReadCommand
-            {
-                DoRegisteredRead = true,
-                NodeId = "ns=3;i=5204"
-            });
+                new ReadCommand("ns=3;s=OrderNumber", doRegisteredRead: false),
+                new ReadCommand("ns=3;i=5204", doRegisteredRead: true)
+            };
 
             var resulst = await ompOpcUaClient.ReadValuesAsync(commandCollection, stoppingToken);
             resulst.Switch(
-                success =>
+                result =>
                 {
-                    logger.LogInformation("Read Succeeded: {results}", success.Select(s => (s.Succeeded, s.Response!.Value)));
+                    logger.LogInformation("Read Succeeded: {results}", result.Select(s => (s.Succeeded, s.Response!.Value)));
                 },
-                failure =>
+                exception =>
                 {
                     logger.LogCritical("Read failed");
                 });
@@ -67,26 +61,19 @@ namespace TestApplicationV2
 
         private async Task RunReadTest(CancellationToken stoppingToken)
         {
-            var commandCollection = new ReadCommandCollection();
-            commandCollection.EndpointUrl = EndPointUrl;
-            commandCollection.Add(new ReadCommand
+            var commandCollection = new ReadCommandCollection(EndPointUrl)
             {
-                DoRegisteredRead = false,
-                NodeId = "ns=2;i=1585"
-            });
-            commandCollection.Add(new ReadCommand
-            {
-                DoRegisteredRead = true,
-                NodeId = "ns=2;i=1587"
-            });
+                new ReadCommand("ns=2;i=1585", doRegisteredRead: false),
+                new ReadCommand("ns=2;i=1587", doRegisteredRead: true)
+            };
 
             var resulst = await ompOpcUaClient.ReadValuesAsync(commandCollection, stoppingToken);
             resulst.Switch(
-                success =>
+                result =>
                 {
-                    logger.LogInformation("Read Succeeded: {results}", success.Select(s => (s.Succeeded, s.Response!.Value)));
+                    logger.LogInformation("Read Succeeded: {results}", result.Select(s => (s.Succeeded, s.Response!.Value)));
                 },
-                failure =>
+                exception =>
                 {
                     logger.LogCritical("Read failed");
                 });
@@ -94,29 +81,27 @@ namespace TestApplicationV2
 
         private async Task RunWriteTest(CancellationToken stoppingToken)
         {
-            var commandCollection = new WriteCommandCollection();
-            commandCollection.EndpointUrl = EndPointUrl;
-            commandCollection.Add(new WriteCommand
+            var commandCollection = new WriteCommandCollection(EndPointUrl)
             {
-                DoRegisteredWrite = false,
-                Value = new Opc.Ua.WriteValue
+                new WriteCommand(new WriteValue
                 {
                     NodeId = "ns=2;i=920",
                     AttributeId = Attributes.Value,
-                    Value= new DataValue
+                    Value = new DataValue
                     {
                         Value = $"This is comming from the new OpcUA Code {DateTime.Now}"
-                    } 
-                }
-            });
+                    }
+                },
+                DoRegisteredWrite: false)
+            };
 
             var resulst = await ompOpcUaClient.WriteAsync(commandCollection, stoppingToken);
             resulst.Switch(
-               success =>
+               result =>
                {
-                   logger.LogInformation("Write Succeeded: : {results}", success.Select(s => (s.Succeeded, s.Response!.Code)));
+                   logger.LogInformation("Write Succeeded: : {results}", result.Select(s => (s.Succeeded, s.Response!.Code)));
                },
-               failure =>
+               exception =>
                {
                    logger.LogCritical("Write failed");
                });
@@ -124,8 +109,7 @@ namespace TestApplicationV2
 
         private async Task SubscribeToNodes(CancellationToken stoppingToken)
         {
-            var commandCollection = new CreateSubscriptionsCommand();
-            commandCollection.EndpointUrl = EndPointUrl;
+            var commandCollection = new CreateSubscriptionsCommand(EndPointUrl);
             commandCollection.MonitoredItems.Add(new SubscriptionMonitoredItem
             {
                 NodeId = "ns=2;i=1587"
@@ -133,11 +117,11 @@ namespace TestApplicationV2
 
             var resulst = await ompOpcUaClient.CreateSubscriptions(commandCollection, stoppingToken);
             resulst.Switch(
-               success =>
+               result =>
                {
-                   logger.LogInformation("Create Subscriptions Succeeded: : {results}", success.Succeeded);
+                   logger.LogInformation("Create Subscriptions Succeeded: : {results}", result.Succeeded);
                },
-               failure =>
+               exception =>
                {
                    logger.LogCritical("Create Subscriptions failed");
                });
@@ -146,19 +130,54 @@ namespace TestApplicationV2
         private async Task UnSubscribeFromNodes(CancellationToken stoppingToken)
         {
             await Task.Delay(TimeSpan.FromSeconds(55));
-            var commandCollection = new RemoveSubscriptionsCommand();
-            commandCollection.EndpointUrl = EndPointUrl;
-            commandCollection.NodeIds.Add("ns=2;i=1587");
+            var commandCollection = new RemoveSubscriptionsCommand(EndPointUrl, new List<string> { "ns=2;i=1587" });
 
             var resulst = await ompOpcUaClient.RemoveSubscriptionsCommand(commandCollection, stoppingToken);
             resulst.Switch(
-               success =>
+               result =>
                {
-                   logger.LogInformation("Remove Subscriptions Succeeded: : {results}", success.Succeeded);
+                   logger.LogInformation("Remove Subscriptions Succeeded: : {results}", result.Succeeded);
                },
-               failure =>
+               exception =>
                {
                    logger.LogCritical("Remove Subscriptions failed");
+               });
+        }
+
+        private async Task RemoveAllSubscribeToNodes(CancellationToken stoppingToken)
+        {
+            var commandCollection = new CreateSubscriptionsCommand(EndPointUrl, new List<SubscriptionMonitoredItem>
+            {
+                new SubscriptionMonitoredItem { NodeId = "ns=2;i=1580", },
+                new SubscriptionMonitoredItem { NodeId = "ns=2;i=1582", },
+                new SubscriptionMonitoredItem { NodeId = "ns=2;i=1600", },
+                new SubscriptionMonitoredItem { NodeId = "ns=2;i=1599", }
+            });
+
+            var createSubscriptionResult = await ompOpcUaClient.CreateSubscriptions(commandCollection, stoppingToken);
+            createSubscriptionResult.Switch(
+               result =>
+               {
+                   logger.LogInformation("Create Subscriptions Succeeded: : {results}", result.Succeeded);
+               },
+               exception =>
+               {
+                   logger.LogCritical("Create Subscriptions failed");
+               });
+
+            await Task.Delay(TimeSpan.FromSeconds(5));
+
+            var removeAllCommand = new RemoveAllSubscriptionsCommand(EndPointUrl);
+            var removeAllResult = await ompOpcUaClient.RemoveAllSubscriptions(removeAllCommand, stoppingToken);
+
+            removeAllResult.Switch(
+               result =>
+               {
+                   logger.LogInformation("All Subscriptions Removed: : {results}", result.Succeeded);
+               },
+               exception =>
+               {
+                   logger.LogCritical("Remove All Subscriptions failed");
                });
         }
     }

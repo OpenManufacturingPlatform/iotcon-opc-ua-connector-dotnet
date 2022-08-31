@@ -11,5 +11,4 @@ namespace ApplicationV2.Models.Subscriptions
             this.Message = errorMessage;
         }
     }
-
 }

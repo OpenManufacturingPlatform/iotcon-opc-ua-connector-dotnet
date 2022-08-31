@@ -1,12 +1,8 @@
 ﻿// SPDX-License-Identifier: MIT. 
 // Copyright Contributors to the Open Manufacturing Platform.
 
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Reflection.Metadata;
-using System.Text;
 using ApplicationV2.Configuration;
-using ApplicationV2.Models;
 using ApplicationV2.Models.Subscriptions;
 using ApplicationV2.Repositories;
 using ApplicationV2.Sessions;
@@ -45,8 +41,7 @@ namespace ApplicationV2.Services
     {
         Task<CreateSubscriptionResponse> CreateSubscriptions(IOpcUaSession opcUaSession, CreateSubscriptionsCommand command, CancellationToken CancellationToken);
         Task<RemoveSubscriptionsResponse> RemoveSubscriptionsCommand(IOpcUaSession opcUaSession, RemoveSubscriptionsCommand command, CancellationToken cancellationToken);
-
-        Task<CommandResultBase> RemoveAllSubscriptions(IOpcUaSession opcUaSession, RemoveAllSubscriptionsCommand command, CancellationToken cancellationToken);
+        Task<RemoveAllSubscriptionsResponse> RemoveAllSubscriptions(IOpcUaSession opcUaSession, RemoveAllSubscriptionsCommand command, CancellationToken cancellationToken);
     }
 
     internal class SubscriptionCommandService : ISubscriptionCommandService
@@ -134,20 +129,46 @@ namespace ApplicationV2.Services
             return response;
         }
 
-        public Task<CommandResultBase> RemoveAllSubscriptions(IOpcUaSession opcUaSession, RemoveAllSubscriptionsCommand command, CancellationToken cancellationToken)
+        public async Task<RemoveAllSubscriptionsResponse> RemoveAllSubscriptions(IOpcUaSession opcUaSession, RemoveAllSubscriptionsCommand command, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            var response = new RemoveAllSubscriptionsResponse
+            {
+                Succeeded = true,
+                Command = command
+            };
+
+            try
+            {
+                RemoveAllSubscriptionsFromRepository(command.EndpointUrl);
+
+                var activeSubscriptions = opcUaSession.GetSubscriptions().ToArray();
+                foreach (var subscription in activeSubscriptions)
+                {
+                    subscription.SetPublishingMode(false);
+                    logger.LogTrace("Disabled publishing for subscription [Id: {subscriptionId}]", subscription.Id);
+                }
+
+                await opcUaSession.RemoveSubscriptionsAsync(activeSubscriptions);
+            }
+            catch (Exception ex)
+            {
+                var error = ex.Demystify();
+                response.Succeeded = false;
+                response.Message = error.Message;
+                logger.LogWarning(error, "Unable to remove all subscriptions from OPC UA server session: {error}", error.Message);
+            }
+
+            return response;
         }
 
         public async Task<RemoveSubscriptionsResponse> RemoveSubscriptionsCommand(IOpcUaSession opcUaSession, RemoveSubscriptionsCommand command, CancellationToken cancellationToken)
         {
             subscriptionRepository?.DeleteMonitoredItems(command.EndpointUrl, command.NodeIds);
 
-            var response = await this.TryRemoveSubscriptionsFromSessionAsync(opcUaSession, command);
+            var response = await RemoveSubscriptionsFromSessionAsync(opcUaSession, command);
             if (!response.Succeeded)
             {
                 logger.LogError("Could not remove subscriptions from OPC UA session on Endpoint: [{endpointUrl}]", command.EndpointUrl);
-
                 response.Message = "Could not remove subscriptions from OPC UA session.";
             }
             else
@@ -236,16 +257,18 @@ namespace ApplicationV2.Services
         }
 
 
-        private async Task<RemoveSubscriptionsResponse> TryRemoveSubscriptionsFromSessionAsync(IOpcUaSession opcUaSession, RemoveSubscriptionsCommand command)
+        private async Task<RemoveSubscriptionsResponse> RemoveSubscriptionsFromSessionAsync(IOpcUaSession opcUaSession, RemoveSubscriptionsCommand command)
         {
-            var response = new RemoveSubscriptionsResponse();
-            response.Succeeded = true;
+            var response = new RemoveSubscriptionsResponse
+            {
+                Succeeded = true
+            };
 
             try
             {
-                var activeSubscriptions = this.GetActiveMonitoredItems(opcUaSession, command);
+                var activeSubscriptions = GetActiveMonitoredItems(opcUaSession, command);
                 var activeSubscription = opcUaSession.GetSubscriptions();
-                
+
 
                 foreach (var (subscription, items) in activeSubscriptions)
                 {
@@ -299,6 +322,31 @@ namespace ApplicationV2.Services
                 }
             };
         }
+
+        private bool RemoveAllSubscriptionsFromRepository(string endpointUrl)
+        {
+            if (subscriptionRepository is null)
+                return true;
+
+            var isSuccess = true;
+            try
+            {
+                var subscriptions = subscriptionRepository.GetAllByEndpointUrl(endpointUrl);
+                if (subscriptions is null || !subscriptions.Any())
+                    return true;
+
+                foreach (var subscription in subscriptions)
+                    isSuccess = subscriptionRepository.Remove(subscription) && isSuccess;
+            }
+            catch (Exception ex)
+            {
+                isSuccess = false;
+                logger.LogWarning(ex, "Unable to remove all subscriptions from the subscription repository.");
+            }
+
+            return isSuccess;
+        }
+
         #endregion
     }
 }

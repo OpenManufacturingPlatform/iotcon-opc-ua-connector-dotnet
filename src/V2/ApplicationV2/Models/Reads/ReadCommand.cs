@@ -5,7 +5,13 @@ namespace ApplicationV2.Models.Reads
 {
     public record ReadCommand
     {
-        public bool DoRegisteredRead { get; set; } = false;
-        public virtual string NodeId { get; set; } = string.Empty;
+        public string NodeId { get; set; }
+        public bool DoRegisteredRead { get; set; }
+
+        public ReadCommand(string nodeId, bool doRegisteredRead = false)
+        {
+            this.NodeId = nodeId;
+            this.DoRegisteredRead = doRegisteredRead;
+        }
     }
 }

@@ -3,9 +3,5 @@
 
 namespace ApplicationV2.Models.Subscriptions
 {
-    public record RemoveSubscriptionsCommand
-    {
-        public string EndpointUrl { get; set; } = string.Empty;
-        public List<string> NodeIds { get; set; } = new List<string>();
-    }
+    public record RemoveSubscriptionsCommand(string EndpointUrl, List<string> NodeIds);
 }

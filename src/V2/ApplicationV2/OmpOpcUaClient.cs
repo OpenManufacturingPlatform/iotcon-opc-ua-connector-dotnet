@@ -95,9 +95,18 @@ namespace ApplicationV2
             }
         }
 
-        public Task<CommandResultBase> RemoveAllSubscriptions(RemoveAllSubscriptionsCommand command, CancellationToken cancellationToken)
+        public async Task<OneOf<RemoveAllSubscriptionsResponse, Exception>> RemoveAllSubscriptions(RemoveAllSubscriptionsCommand command, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var opcUaSession = await GetSession(command.EndpointUrl, cancellationToken);
+                return await subscriptionCommandsService.RemoveAllSubscriptions(opcUaSession, command, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "An error occurred while removing allsubscriptions: {errorMessage}", ex.Message);
+                return ex.Demystify();
+            }
         }
 
         public async Task<OneOf<RemoveSubscriptionsResponse, Exception>> RemoveSubscriptionsCommand(RemoveSubscriptionsCommand command, CancellationToken cancellationToken)

@@ -5,9 +5,5 @@ using Opc.Ua;
 
 namespace ApplicationV2.Models.Writes
 {
-    public record WriteCommand
-    {
-        public bool DoRegisteredWrite { get; set; } = false;
-        public WriteValue? Value { get; set; }
-    }
+    public record WriteCommand(WriteValue? Value, bool DoRegisteredWrite = false);
 }
