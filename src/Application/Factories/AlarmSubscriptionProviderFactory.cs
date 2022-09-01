@@ -21,20 +21,20 @@ namespace OMP.Connector.Application.Factories
         private readonly IAlarmSubscriptionRepository _subscriptionRepository;
         private readonly ILoggerFactory _loggerFactory;
         private readonly IOptions<ConnectorConfiguration> _connectorConfiguration;
-        private readonly IOpcAlarmMonitoredItemService _alarmMonitoredItemService;
+        private readonly IOpcAlarmMonitoredItemServiceFactory _alarmMonitoredItemServiceFactory;
         private readonly AbstractValidator<AlarmSubscriptionMonitoredItem> _alarmMonitoredItemValidator;
 
         public AlarmSubscriptionProviderFactory(
             IAlarmSubscriptionRepository dataManagementService,
             ILoggerFactory loggerFactory,
             IOptions<ConnectorConfiguration> connectorConfiguration,
-            IOpcAlarmMonitoredItemService alarmMonitoredItemService,
+            IOpcAlarmMonitoredItemServiceFactory alarmMonitoredItemServiceFactory,
             AbstractValidator<AlarmSubscriptionMonitoredItem> alarmMonitoredItemValidator)
         {
             this._subscriptionRepository = dataManagementService;
             this._loggerFactory = loggerFactory;
             this._connectorConfiguration = connectorConfiguration;
-            this._alarmMonitoredItemService = alarmMonitoredItemService;
+            this._alarmMonitoredItemServiceFactory = alarmMonitoredItemServiceFactory;
             this._alarmMonitoredItemValidator = alarmMonitoredItemValidator;
         }
 
@@ -53,7 +53,7 @@ namespace OMP.Connector.Application.Factories
                                 this._subscriptionRepository,
                                 this._loggerFactory.CreateLogger<CreateAlarmSubscriptionProvider>(),
                                 this._connectorConfiguration,
-                                this._alarmMonitoredItemService,
+                                this._alarmMonitoredItemServiceFactory,
                                 createCommand,
                                 telemetryMessageMetadata,
                                 this._alarmMonitoredItemValidator);
