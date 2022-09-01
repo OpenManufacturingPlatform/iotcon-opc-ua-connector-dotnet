@@ -24,7 +24,7 @@ namespace ApplicationV2.Services
             response.AddRange(
                 commands.Zip(values.Zip(errors))
                 .Select(r => new CommandResult<ReadValueCommand, ReadValueResponse>
-                            (r.First, new ReadResponse(r.Second.First, r.Second.Second)))
+                            (r.First, new ReadValueResponse(r.Second.First, r.Second.Second)))
                 .ToList());
 
             return Task.FromResult(response);
