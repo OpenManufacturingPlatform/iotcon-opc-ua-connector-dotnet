@@ -26,6 +26,7 @@ namespace ApplicationV2
         private readonly IWriteCommandService writeCommandService;
         private readonly IReadCommandService readCommandService;
         private readonly ISubscriptionCommandService subscriptionCommandsService;
+        private readonly ICallCommandService callCommandService;
         private readonly ILogger<OmpOpcUaClient> logger; 
         #endregion
 
@@ -35,6 +36,7 @@ namespace ApplicationV2
             IWriteCommandService writeCommandService,
             IReadCommandService readCommandService,
             ISubscriptionCommandService subscriptionCommandsService,
+            ICallCommandService callCommandService,
             ILogger<OmpOpcUaClient> logger
             )
         {
@@ -42,6 +44,7 @@ namespace ApplicationV2
             this.writeCommandService = writeCommandService;
             this.readCommandService = readCommandService;
             this.subscriptionCommandsService = subscriptionCommandsService;
+            this.callCommandService = callCommandService;
             this.logger = logger;
         }
         #endregion
@@ -55,9 +58,18 @@ namespace ApplicationV2
 
         #region [Call]
 
-        public Task<IEnumerable<CommandResult<CallCommand, IEnumerable<CallOutputArguments>>>> CallNodes(IEnumerable<CallCommand> commands, CancellationToken cancellationToken)
+        public async Task<OneOf<CallCommandCollectionResponse, Exception>> CallNodesAsync(CallCommandCollection commands, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var opcUaSession = await GetSession(commands.EndpointUrl, cancellationToken);
+                return await callCommandService.CallNodesAsync(opcUaSession, commands, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "An error occurred during the Call command: {errorMessage}", ex.Message);
+                return ex.Demystify();
+            }
         }
 
         #endregion

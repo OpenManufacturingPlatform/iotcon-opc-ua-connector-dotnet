@@ -29,7 +29,7 @@ namespace Microsoft.Extensions.DependencyInjection
             });
             serviceCollection.Configure<OmpOpcUaConfiguration>(configuration.GetSection("OpcUa"));
             serviceCollection.Configure<OpcUaClientSettings>(configuration.GetSection("OpcUa"));
-            
+
             //OpcUaConfiguration
 
             //Factories
@@ -53,16 +53,18 @@ namespace Microsoft.Extensions.DependencyInjection
             {
                 serviceCollection.AddSingleton<ISubscriptionRepository, SubscriptionRepositoryInMemory>();
             }
-            
+
 
             //Validation
-            serviceCollection.AddTransient<IValidator<SubscriptionMonitoredItem>, MonitoredItemValidator>(); 
+            serviceCollection.AddTransient<IValidator<SubscriptionMonitoredItem>, MonitoredItemValidator>();
+            //TODO: Should we not introduce more validators - 1 per method on the IOmpOpcUaClient
 
             //Services
+            serviceCollection.AddTransient<ICallCommandService, CallCommandService>();
             serviceCollection.AddTransient<IReadCommandService, ReadCommandService>();
             serviceCollection.AddTransient<IWriteCommandService, WriteCommandService>();
             serviceCollection.AddTransient<ISubscriptionCommandService, SubscriptionCommandService>();
-            serviceCollection.AddTransient<IMonitoredItemMessageProcessor, LoggingMonitoredItemMessageProcessor>(); 
+            serviceCollection.AddTransient<IMonitoredItemMessageProcessor, LoggingMonitoredItemMessageProcessor>();
             serviceCollection.AddSingleton<ISessionPoolStateManager, SessionPoolStateManager>();
             serviceCollection.AddSingleton<IUserIdentityProvider, UserIdentityProvider>();
             serviceCollection.AddSingleton<IOmpOpcUaClient, OmpOpcUaClient>();
@@ -73,7 +75,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 var builder = provider.GetService<IAppConfigBuilder>();
                 return builder!.Build();
             });
-            
+
             //IOptions<OpcUaConfiguration> opcUaConfiguration
 
             return serviceCollection;

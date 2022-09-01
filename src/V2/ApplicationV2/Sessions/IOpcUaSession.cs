@@ -1,31 +1,44 @@
 ﻿// SPDX-License-Identifier: MIT. 
 // Copyright Contributors to the Open Manufacturing Platform.
 
+using System.Collections;
+using System.Reflection;
 using ApplicationV2.Configuration;
 using ApplicationV2.Extensions;
+using ApplicationV2.Models.Call;
 using ApplicationV2.Models.Subscriptions;
 using ApplicationV2.Services;
 using ApplicationV2.Sessions.Auth;
 using ApplicationV2.Sessions.Reconnect;
 using ApplicationV2.Sessions.RegisteredNodes;
 using ApplicationV2.Sessions.Types;
+using ApplicationV2.Validation;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Opc.Ua;
 using Opc.Ua.Client;
 using EndpointConfiguration = Opc.Ua.EndpointConfiguration;
+using TypeInfo = Opc.Ua.TypeInfo;
 
 namespace ApplicationV2.Sessions
 {
     public interface IOpcUaSession : IDisposable
     {
         #region [Misc]
-        string GetBaseEndpointUrl(); 
+        string GetBaseEndpointUrl();
         #endregion
 
         #region [Connection]
         Task ConnectAsync(string opcUaServerUrl);
         Task ConnectAsync(EndpointDescription endpointDescription);
+        #endregion
+
+        #region [Call]
+        Task<IEnumerable<NodeMethodDescribeResponse>> GetMethodInfoListAsync(IEnumerable<NodeId> nodeIds, CancellationToken cancellationToken);
+        Task<NodeMethodDescribeResponse> GetNodeMethodArgumentsAsync(NodeMethodDescribeCommand command, CancellationToken cancellationToken);
+        Task<NodeMethodDescribeResponse> GetNodeMethodArgumentsAsync(NodeId nodeId, CancellationToken cancellationToken);
+        Task<CallResponse> CallAsync(IEnumerable<CallMethodRequest> callMethodRequests, CancellationToken? cancellationToken = null);
+        Task<CallResponse> CallAsync(CallMethodRequestCollection callMethodRequestCollection, CancellationToken? cancellationToken = null);
         #endregion
 
         #region [Write]
@@ -126,6 +139,116 @@ namespace ApplicationV2.Sessions
         {
             var identity = identityProvider.GetUserIdentity(endpointDescription);
             await ConnectAsync(endpointDescription, identity);
+        }
+        #endregion
+
+        #region [Call]
+
+        public async Task<IEnumerable<NodeMethodDescribeResponse>> GetMethodInfoListAsync(IEnumerable<NodeId> nodeIds, CancellationToken cancellationToken)
+        {
+            CheckConnection();
+
+            var listMethodInfo = new List<NodeMethodDescribeResponse>();
+            foreach (var nodeId in nodeIds)
+            {
+                var response = await GetNodeMethodArgumentsAsync(nodeId, cancellationToken);
+                listMethodInfo.Add(response);
+            }
+
+            return listMethodInfo;
+        }
+
+        public Task<NodeMethodDescribeResponse> GetNodeMethodArgumentsAsync(NodeMethodDescribeCommand command, CancellationToken cancellationToken)
+            => GetNodeMethodArgumentsAsync(command.NodeId, cancellationToken);
+
+        public async Task<NodeMethodDescribeResponse> GetNodeMethodArgumentsAsync(NodeId nodeId, CancellationToken cancellationToken)
+        {
+            CheckConnection();
+            var response = new NodeMethodDescribeResponse { MethodId = nodeId };
+            try
+            {
+                var inputArguments = new List<Argument>();
+                var outArguments = new List<Argument>();
+                var browseDescription = new BrowseDescription
+                {
+                    NodeId = nodeId,
+                    BrowseDirection = BrowseDirection.Forward,
+                    ReferenceTypeId = ReferenceTypeIds.HasProperty,
+                    IncludeSubtypes = true,
+                    NodeClassMask = (uint)NodeClass.Variable,
+                    ResultMask = (uint)BrowseResultMask.BrowseName
+                };
+
+                var methodReferences = Browse(session!, browseDescription, logger);
+
+                var readValuesIds = (from reference in methodReferences
+                                     where !reference.NodeId.IsAbsolute
+                                     where reference.BrowseName == BrowseNames.InputArguments
+                                           || reference.BrowseName == BrowseNames.OutputArguments
+                                     select new ReadValueId { NodeId = (NodeId)reference.NodeId, AttributeId = Attributes.Value, Handle = reference }
+                                    )
+                                    .ToList();
+
+                if (!readValuesIds.Any())
+                    return response;
+
+                var readValueIdCollection = new ReadValueIdCollection(readValuesIds);
+
+                var readNodeResult = await session!.ReadAsync(default, 0, TimestampsToReturn.Neither, readValueIdCollection, cancellationToken);
+
+                ValidateResponseDiagnostics(readValueIdCollection, readNodeResult.Results, readNodeResult.DiagnosticInfos);
+
+                var combinedValueTuples = readValuesIds.Zip(readNodeResult.Results);
+
+                foreach (var (readValue, dataValue) in combinedValueTuples)
+                {
+                    if (!StatusCode.IsGood(dataValue.StatusCode)) continue;
+
+                    var reference = (ReferenceDescription)readValue.Handle;
+
+                    if (reference.BrowseName == BrowseNames.InputArguments)
+                        inputArguments.AddRange((Argument[])ExtensionObject.ToArray(dataValue.GetValue<ExtensionObject[]>(null), typeof(Argument)));
+
+
+                    if (reference.BrowseName == BrowseNames.OutputArguments)
+                        outArguments.AddRange((Argument[])ExtensionObject.ToArray(dataValue.GetValue<ExtensionObject[]>(null), typeof(Argument)));
+                }
+
+                foreach (var inputArgument in inputArguments)
+                    inputArgument.Value = TypeInfo.GetDefaultValue(inputArgument.DataType, inputArgument.ValueRank, session.TypeTree);
+
+                response = new NodeMethodDescribeResponse
+                {
+                    MethodId = nodeId,
+                    InputArguments = inputArguments,
+                    OutArguments = outArguments
+                };
+
+                return response;
+
+            }
+            finally
+            {
+                var node = session!.NodeCache.Find(nodeId, ReferenceTypes.HasComponent, true, false).FirstOrDefault();
+                if (node is not null)
+                    response.ObjectId = ExpandedNodeId.ToNodeId(node.NodeId, session.NodeCache.NamespaceUris);
+            }
+        }
+
+        public Task<CallResponse> CallAsync(IEnumerable<CallMethodRequest> callMethodRequests, CancellationToken? cancellationToken = null)
+        {
+            var callMethodRequestCollection = new CallMethodRequestCollection(callMethodRequests);
+            return CallAsync(callMethodRequestCollection, cancellationToken);
+        }
+
+        public Task<CallResponse> CallAsync(CallMethodRequestCollection callMethodRequestCollection, CancellationToken? cancellationToken = null)
+        {
+            if (!callMethodRequestCollection.Any())
+                return Task.FromResult(new CallResponse()); //TODO: Validate if this is the right behaviour
+
+            CheckConnection();
+            var stoppingToken = cancellationToken ?? CancellationToken.None;
+            return session!.CallAsync(default, callMethodRequestCollection, stoppingToken);
         }
         #endregion
 
@@ -534,6 +657,66 @@ namespace ApplicationV2.Sessions
         private static bool SamplingIntervalsAreTheSame(SubscriptionMonitoredItem monitoredItem, List<MonitoredItem> existingItems)
             => existingItems.Any(m => m.SamplingInterval == monitoredItem.SamplingInterval);
         #endregion
+
+        #region [Call]
+        private static void ValidateResponseDiagnostics(IList request, IList response, DiagnosticInfoCollection diagnosticInfoCollection)
+        {
+            ClientBase.ValidateResponse(response, request);
+            ClientBase.ValidateDiagnosticInfos(diagnosticInfoCollection, request);
+        }
+
+        public static ReferenceDescriptionCollection Browse(Session session, BrowseDescription browseDescription, ILogger logger)
+        {
+            var browseDescriptionCollection = new BrowseDescriptionCollection { browseDescription };
+
+            session.Browse(default,
+                default,
+                200u,
+                browseDescriptionCollection,
+                out var results,
+                out var diagnosticInfo);
+
+            ValidateResponseDiagnostics(browseDescriptionCollection, results, diagnosticInfo);
+
+            var comparer = new ReferenceDescriptionEqualityComparer();
+            var continuationPoint = results[0].ContinuationPoint;
+            var references = results[0].References.Distinct(comparer).ToList();
+
+            logger.LogTrace("Browsed NodeId: {nodeId} and found [{referencesCount}] references!", browseDescription.NodeId, references.Count);
+
+            while (continuationPoint != null)
+            {
+                logger.LogTrace($"NodeId: {browseDescription.NodeId} has continuationPoint .....");
+                var additionalReferences = BrowseNext(session, ref continuationPoint).Distinct(comparer).ToList();
+
+                if (additionalReferences.Any())
+                    references.AddRange(additionalReferences);
+
+                logger.LogTrace($"Browsed continuationPoint,  NodeId: {browseDescription.NodeId} and found [{additionalReferences.Count}] references!");
+            }
+            return new ReferenceDescriptionCollection(references);
+        }
+
+        private static ReferenceDescriptionCollection BrowseNext(SessionClient session, ref byte[] continuationPoint)
+        {
+            var continuationPoints = new ByteStringCollection { continuationPoint };
+
+            session.BrowseNext(
+                null,
+                false,
+                continuationPoints,
+                out var results,
+                out var diagnosticInfo);
+
+            ClientBase.ValidateResponse(results, continuationPoints);
+            ClientBase.ValidateDiagnosticInfos(diagnosticInfo, continuationPoints);
+
+            continuationPoint = results[0].ContinuationPoint;
+            return results[0].References;
+        }
+
+        #endregion
+
         #endregion
     }
 }

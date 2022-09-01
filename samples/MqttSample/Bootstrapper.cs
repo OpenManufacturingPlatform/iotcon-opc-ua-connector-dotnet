@@ -44,6 +44,7 @@ namespace OMP.Connector.EdgeModule
             });
 
             serviceCollection.AddSingleton<ISubscriptionServiceStateManager, SubscriptionServiceStateManager>();
+            serviceCollection.AddSingleton<IOpcMonitoredItemServiceFactory, OpcMonitoredItemServiceFactory>();
             serviceCollection.AddSingleton<ISubscriptionProviderFactory, SubscriptionProviderFactory>();
 
             serviceCollection.AddSingleton<ISessionPoolStateManager, SessionPoolStateManager>();

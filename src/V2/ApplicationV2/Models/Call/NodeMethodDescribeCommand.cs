@@ -5,9 +5,9 @@ using Opc.Ua;
 
 namespace ApplicationV2.Models.Call
 {
-    public record CallCommand
+    public record NodeMethodDescribeCommand
     {
+        public string EndpointUrl { get; set; } = string.Empty;
         public virtual NodeId NodeId { get; set; } = string.Empty;
-        public Dictionary<string, object> Arguments { get; set; } = new Dictionary<string, object>(); // Klaar requirement vir Object in input arguments
     }
 }

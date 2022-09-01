@@ -18,7 +18,7 @@ namespace ApplicationV2.Services
             var response = new ReadValueResponseCollection();
             //TODO: Talk about error handling -> NULL NodeId            
             var commandsWithRegisteredNodeIds = GetCommandsWithRegisterdNodeIds(opcSession, commands);
-            var nodeIds = commands.Select(x => NodeId.Parse(x.NodeId)).ToList();
+            var nodeIds = commands.Select(x => x.NodeId).ToList();
             var values = opcSession.ReadNodes(nodeIds, 10, out var errors);
 
             response.AddRange(
@@ -35,12 +35,12 @@ namespace ApplicationV2.Services
             var results = commands.ToList();
 
             var registerdReadNodes = commands
-                                    .Where(c => c.DoRegisteredRead && !string.IsNullOrWhiteSpace(c.NodeId))
+                                    .Where(c => c.DoRegisteredRead && !string.IsNullOrWhiteSpace(c.NodeId.ToString()))//TODO: Change the ToString().
                                     .ToList();
 
             if (registerdReadNodes.Any())
             {
-                var registeredNodeIds = opcSession.GetRegisteredNodeIds(registerdReadNodes.Select(c => c.NodeId));
+                var registeredNodeIds = opcSession.GetRegisteredNodeIds(registerdReadNodes.Select(c => c.NodeId.ToString()));//TODO: Change the ToString().
 
                 foreach (var rn in registerdReadNodes)
                 {

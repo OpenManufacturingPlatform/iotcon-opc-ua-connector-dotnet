@@ -6,7 +6,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using ApplicationV2;
+using ApplicationV2.Models.Call;
 using ApplicationV2.Models.Reads;
 using ApplicationV2.Models.Subscriptions;
 using ApplicationV2.Models.Writes;
@@ -30,7 +32,8 @@ namespace TestApplicationV2
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            await RemoveAllSubscribeToNodes(stoppingToken);
+            //await RemoveAllSubscribeToNodes(stoppingToken);
+            await CallNodesWithoutArguments(stoppingToken);
             //await SubscribeToNodes(stoppingToken);
             //await UnSubscribeFromNodes(stoppingToken);
             //await PssReadTestAsync(stoppingToken);
@@ -179,6 +182,45 @@ namespace TestApplicationV2
                {
                    logger.LogCritical("Remove All Subscriptions failed");
                });
+        }
+
+        private async Task CallNodesWithoutArguments(CancellationToken stoppingToken)
+        {
+            var command = new CallCommandCollection();
+            command.EndpointUrl = EndPointUrl;
+
+            var actionLoop = new List<(string Name, string MethodId)>
+            {
+                ("Start", "ns=5;i=33"),
+                ("Suspend", "ns=5;i=34"),
+                ("Resume", "ns=5;i=35"),
+                ("Halt", "ns=5;i=36"),
+                ("Reset", "ns=5;i=37"),
+            };
+
+            foreach (var selectedAction in actionLoop)
+            {
+                command.Add(new CallCommand
+                {
+                    NodeId = selectedAction.MethodId
+                });
+
+                logger.LogInformation("Attempting to {action} Simmulation", selectedAction.Name);
+
+                var callResult = await ompOpcUaClient.CallNodesAsync(command, stoppingToken);
+                callResult.Switch(
+                   result =>
+                   {
+                       logger.LogInformation("Call: {action}={results} [methodId]", selectedAction.Name, result.Succeeded, selectedAction.MethodId);
+                   },
+                   exception =>
+                   {
+                       logger.LogCritical("Remove All Subscriptions failed");
+                   });
+
+                await Task.Delay(2500);
+                command.Clear();
+            }
         }
     }
 }
