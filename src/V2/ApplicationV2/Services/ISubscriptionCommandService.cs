@@ -200,7 +200,7 @@ namespace ApplicationV2.Services
         {
             return (monitoredItems) =>
             {
-                var subscriptionList = new HashSet<Opc.Ua.Client.Subscription>();
+                var subscriptionList = new HashSet<Subscription>();
                 foreach (var monitoredItem in monitoredItems)
                 {
                     var subscription = opcUaSession.CreateOrUpdateSubscription(monitoredItem, DoNotAutoApplyChangesOnCreatedOrModify);

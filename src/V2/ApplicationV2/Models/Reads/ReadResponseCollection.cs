@@ -3,5 +3,5 @@
 
 namespace ApplicationV2.Models.Reads
 {
-    public class ReadResponseCollection : List<CommandResult<ReadCommand, ReadResponse>> { }
+    public class ReadValueResponseCollection : List<CommandResult<ReadValueCommand, ReadValueResponse>> { }
 }

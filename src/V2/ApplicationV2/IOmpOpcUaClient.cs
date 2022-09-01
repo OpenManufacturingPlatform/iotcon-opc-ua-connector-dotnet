@@ -15,7 +15,7 @@ namespace ApplicationV2
 {
     public interface IOmpOpcUaClient
     {
-        Task<OneOf<ReadResponseCollection, Exception>> ReadValuesAsync(ReadCommandCollection commands, CancellationToken cancellationToken);
+        Task<OneOf<ReadValueResponseCollection, Exception>> ReadValuesAsync(ReadValueCommandCollection commands, CancellationToken cancellationToken);
 
         Task<IEnumerable<CommandResult<BrowseCommand, Node>>> BrowseNodes(IEnumerable<BrowseCommand> commands, CancellationToken cancellationToken);
 

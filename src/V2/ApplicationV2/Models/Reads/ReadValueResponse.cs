@@ -5,5 +5,5 @@ using Opc.Ua;
 
 namespace ApplicationV2.Models.Reads
 {
-    public record ReadResponse(object Value, ServiceResult ServiceResult);
+    public record ReadValueResponse(object Value, ServiceResult ServiceResult);
 }

@@ -8,6 +8,6 @@ namespace ApplicationV2.Services
 {
     public interface IReadCommandService
     {
-        Task<ReadResponseCollection> ReadValuesAsync(IOpcUaSession opcUaSession,ReadCommandCollection commands, CancellationToken cancellationToken);
+        Task<ReadValueResponseCollection> ReadValuesAsync(IOpcUaSession opcUaSession,ReadValueCommandCollection commands, CancellationToken cancellationToken);
     }
 }

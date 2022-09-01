@@ -64,7 +64,7 @@ namespace ApplicationV2
 
         #region [Read]
 
-        public async Task<OneOf<ReadResponseCollection, Exception>> ReadValuesAsync(ReadCommandCollection commands, CancellationToken cancellationToken)
+        public async Task<OneOf<ReadValueResponseCollection, Exception>> ReadValuesAsync(ReadValueCommandCollection commands, CancellationToken cancellationToken)
         {
             try
             {

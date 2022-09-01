@@ -5,17 +5,17 @@ using ApplicationV2.Models;
 using ApplicationV2.Models.Reads;
 using ApplicationV2.Sessions;
 using Opc.Ua;
-using ReadResponse = ApplicationV2.Models.Reads.ReadResponse;
+using ReadValueResponse = ApplicationV2.Models.Reads.ReadValueResponse;
 
 namespace ApplicationV2.Services
 {
     public class ReadCommandService : IReadCommandService
     {
-        public Task<ReadResponseCollection> ReadValuesAsync(IOpcUaSession opcSession, ReadCommandCollection commands, CancellationToken cancellationToken)
+        public Task<ReadValueResponseCollection> ReadValuesAsync(IOpcUaSession opcSession, ReadValueCommandCollection commands, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var response = new ReadResponseCollection();
+            var response = new ReadValueResponseCollection();
             //TODO: Talk about error handling -> NULL NodeId            
             var commandsWithRegisteredNodeIds = GetCommandsWithRegisterdNodeIds(opcSession, commands);
             var nodeIds = commands.Select(x => NodeId.Parse(x.NodeId)).ToList();
@@ -23,14 +23,14 @@ namespace ApplicationV2.Services
 
             response.AddRange(
                 commands.Zip(values.Zip(errors))
-                .Select(r => new CommandResult<ReadCommand, ReadResponse>
+                .Select(r => new CommandResult<ReadValueCommand, ReadValueResponse>
                             (r.First, new ReadResponse(r.Second.First, r.Second.Second)))
                 .ToList());
 
             return Task.FromResult(response);
         }
 
-        private static IEnumerable<ReadCommand> GetCommandsWithRegisterdNodeIds(IOpcUaSession opcSession, ReadCommandCollection commands)
+        private static IEnumerable<ReadValueCommand> GetCommandsWithRegisterdNodeIds(IOpcUaSession opcSession, ReadValueCommandCollection commands)
         {
             var results = commands.ToList();
 

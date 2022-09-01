@@ -41,10 +41,10 @@ namespace TestApplicationV2
         private async Task PssReadTestAsync(CancellationToken stoppingToken)
         {
             //opc.tcp://160.52.61.130:4840
-            var commandCollection = new ReadCommandCollection("opc.tcp://160.52.61.130:4840")
+            var commandCollection = new ReadValueCommandCollection("opc.tcp://160.52.61.130:4840")
             {
-                new ReadCommand("ns=3;s=OrderNumber", doRegisteredRead: false),
-                new ReadCommand("ns=3;i=5204", doRegisteredRead: true)
+                new ReadValueCommand("ns=3;s=OrderNumber", doRegisteredRead: false),
+                new ReadValueCommand("ns=3;i=5204", doRegisteredRead: true)
             };
 
             var resulst = await ompOpcUaClient.ReadValuesAsync(commandCollection, stoppingToken);
@@ -61,10 +61,10 @@ namespace TestApplicationV2
 
         private async Task RunReadTest(CancellationToken stoppingToken)
         {
-            var commandCollection = new ReadCommandCollection(EndPointUrl)
+            var commandCollection = new ReadValueCommandCollection(EndPointUrl)
             {
-                new ReadCommand("ns=2;i=1585", doRegisteredRead: false),
-                new ReadCommand("ns=2;i=1587", doRegisteredRead: true)
+                new ReadValueCommand("ns=2;i=1585", doRegisteredRead: false),
+                new ReadValueCommand("ns=2;i=1587", doRegisteredRead: true)
             };
 
             var resulst = await ompOpcUaClient.ReadValuesAsync(commandCollection, stoppingToken);

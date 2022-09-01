@@ -3,12 +3,12 @@
 
 namespace ApplicationV2.Models.Reads
 {
-    public record ReadCommand
+    public record ReadValueCommand
     {
         public string NodeId { get; set; }
         public bool DoRegisteredRead { get; set; }
 
-        public ReadCommand(string nodeId, bool doRegisteredRead = false)
+        public ReadValueCommand(string nodeId, bool doRegisteredRead = false)
         {
             this.NodeId = nodeId;
             this.DoRegisteredRead = doRegisteredRead;
