@@ -31,6 +31,7 @@ namespace OMP.Connector.Application.Providers.Subscription
     public class CreateSubscriptionProvider : SubscriptionProvider<CreateSubscriptionsRequest, CreateSubscriptionsResponse>
     {
         private readonly ISubscriptionRepository _subscriptionRepository;
+        private readonly IOpcMonitoredItemServiceFactory opcMonitoredItemServiceFactory;
         private readonly TelemetryMessageMetadata _messageMetadata;
         private readonly AbstractValidator<SubscriptionMonitoredItem> _monitoredItemValidator;
         private readonly int _batchSize;
@@ -41,13 +42,13 @@ namespace OMP.Connector.Application.Providers.Subscription
             ISubscriptionRepository subscriptionRepository,
             ILogger<CreateSubscriptionProvider> logger,
             IOptions<ConnectorConfiguration> connectorConfiguration,
-            IOpcMonitoredItemService opcMonitoredItemService,
+            IOpcMonitoredItemServiceFactory opcMonitoredItemServiceFactory,
             CreateSubscriptionsRequest command,
             TelemetryMessageMetadata messageMetadata,
             AbstractValidator<SubscriptionMonitoredItem> monitoredItemValidator) : base(command, connectorConfiguration, logger)
         {
             this._subscriptionRepository = subscriptionRepository;
-            this._opcMonitoredItemService = opcMonitoredItemService;
+            this.opcMonitoredItemServiceFactory = opcMonitoredItemServiceFactory;
             this._messageMetadata = messageMetadata;
             this._monitoredItemValidator = monitoredItemValidator;
             this._batchSize = this.Settings.OpcUa.SubscriptionBatchSize;
@@ -268,8 +269,8 @@ namespace OMP.Connector.Application.Providers.Subscription
 
         private MonitoredItem InitializeMonitoredItem(SubscriptionMonitoredItem monitoredItem, IComplexTypeSystem complexTypeSystem, TelemetryMessageMetadata telemetryMessageMetadata)
         {
-            this._opcMonitoredItemService.Initialize(monitoredItem, complexTypeSystem, telemetryMessageMetadata);
-            return this._opcMonitoredItemService as MonitoredItem;
+            var newMonitoredItem = opcMonitoredItemServiceFactory.Create(monitoredItem, complexTypeSystem, telemetryMessageMetadata);
+            return newMonitoredItem as MonitoredItem;
         }
     }
 }

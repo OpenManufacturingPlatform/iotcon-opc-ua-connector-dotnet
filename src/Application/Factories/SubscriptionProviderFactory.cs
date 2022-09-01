@@ -21,20 +21,20 @@ namespace OMP.Connector.Application.Factories
         private readonly ISubscriptionRepository _subscriptionRepository;
         private readonly ILoggerFactory _loggerFactory;
         private readonly IOptions<ConnectorConfiguration> _connectorConfiguration;
-        private readonly IOpcMonitoredItemService _monitoredItemService;
+        private readonly IOpcMonitoredItemServiceFactory _monitoredItemServiceFactory;
         private readonly AbstractValidator<SubscriptionMonitoredItem> _monitoredItemValidator;
 
         public SubscriptionProviderFactory(
             ISubscriptionRepository dataManagementService,
             ILoggerFactory loggerFactory,
             IOptions<ConnectorConfiguration> connectorConfiguration,
-            IOpcMonitoredItemService opcMonitoredItemService,
+            IOpcMonitoredItemServiceFactory opcMonitoredItemServiceFactory,
             AbstractValidator<SubscriptionMonitoredItem> monitoredItemValidator)
         {
             this._subscriptionRepository = dataManagementService;
             this._loggerFactory = loggerFactory;
             this._connectorConfiguration = connectorConfiguration;
-            this._monitoredItemService = opcMonitoredItemService;
+            this._monitoredItemServiceFactory = opcMonitoredItemServiceFactory;
             this._monitoredItemValidator = monitoredItemValidator;
         }
 
@@ -52,7 +52,7 @@ namespace OMP.Connector.Application.Factories
                                 this._subscriptionRepository,
                                 this._loggerFactory.CreateLogger<CreateSubscriptionProvider>(),
                                 this._connectorConfiguration,
-                                this._monitoredItemService,
+                                this._monitoredItemServiceFactory,
                                 createCommand,
                                 telemetryMessageMetadata,
                                 this._monitoredItemValidator);
