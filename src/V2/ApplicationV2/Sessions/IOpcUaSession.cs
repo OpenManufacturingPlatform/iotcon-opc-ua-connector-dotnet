@@ -46,7 +46,8 @@ namespace ApplicationV2.Sessions
         #endregion
 
         #region [Read]
-        List<object> ReadNodes(List<NodeId> nodeIds, int batchSize, out List<ServiceResult> errors);
+        Node? ReadNode(NodeId nodeId);
+        List<object> ReadNodeValues(List<NodeId> nodeIds, int batchSize, out List<ServiceResult> errors);
         #endregion
 
         #region [Registered Nodes]
@@ -274,7 +275,14 @@ namespace ApplicationV2.Sessions
         #endregion
 
         #region [Read]
-        public List<object> ReadNodes(List<NodeId> nodeIds, int batchSize, out List<ServiceResult> errors)
+
+        public Node? ReadNode(NodeId nodeId)
+        {
+            CheckConnection();
+            return session!.ReadNode(nodeId);
+        }
+
+        public List<object> ReadNodeValues(List<NodeId> nodeIds, int batchSize, out List<ServiceResult> errors)
         {
             CheckConnection();
 
@@ -282,7 +290,7 @@ namespace ApplicationV2.Sessions
             var values = new List<object>();
             errors = new List<ServiceResult>();
 
-            var batchHandler = new BatchHandler<NodeId>(batchSize, ReadBatch(session!, values, errors, omitExpectedTypes!));
+            var batchHandler = new BatchHandler<NodeId>(batchSize, ReadValuesInBatch(session!, values, errors, omitExpectedTypes!));
             batchHandler.RunBatches(nodeIds.ToList());
 
             logger.LogDebug("Executed Read commands. Endpoint: [{endpointUrl}]", session!.Endpoint.EndpointUrl);
@@ -556,7 +564,7 @@ namespace ApplicationV2.Sessions
             }
         }
 
-        private Action<NodeId[]> ReadBatch(Session session, List<object> values, List<ServiceResult> errors, List<Type> omitExpectedTypes)
+        private Action<NodeId[]> ReadValuesInBatch(Session session, List<object> values, List<ServiceResult> errors, List<Type> omitExpectedTypes)
         {
             return (items) =>
             {

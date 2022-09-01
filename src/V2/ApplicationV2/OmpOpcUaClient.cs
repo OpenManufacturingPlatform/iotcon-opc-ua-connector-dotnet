@@ -2,8 +2,6 @@
 // Copyright Contributors to the Open Manufacturing Platform.
 
 using System.Diagnostics;
-using System.Threading;
-using ApplicationV2.Models;
 using ApplicationV2.Models.Browse;
 using ApplicationV2.Models.Call;
 using ApplicationV2.Models.Reads;
@@ -14,7 +12,6 @@ using ApplicationV2.Sessions;
 using ApplicationV2.Sessions.SessionManagement;
 using Microsoft.Extensions.Logging;
 using OneOf;
-using Opc.Ua;
 using CreateSubscriptionResponse = ApplicationV2.Models.Subscriptions.CreateSubscriptionResponse;
 
 namespace ApplicationV2
@@ -50,9 +47,12 @@ namespace ApplicationV2
         #endregion
 
         #region [Browse]
-        public Task<IEnumerable<CommandResult<BrowseCommand, Node>>> BrowseNodes(IEnumerable<BrowseCommand> commands, CancellationToken cancellationToken)
+        [Obsolete("Please use ReadNodesAsync")]
+        public Task<OneOf<ReadNodeCommandResponseCollection, Exception>> BrowseNodesAsync(BrowseCommandCollection commands, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            var commandCollection = new ReadNodeCommandCollection(commands.EndpointUrl);
+            commandCollection.AddRange(commands);
+            return ReadNodesAsync(commandCollection, cancellationToken);
         } 
         #endregion
 
@@ -75,6 +75,19 @@ namespace ApplicationV2
         #endregion
 
         #region [Read]
+        public async Task<OneOf<ReadNodeCommandResponseCollection, Exception>> ReadNodesAsync(ReadNodeCommandCollection commands, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var opcUaSession = await GetSession(commands.EndpointUrl, cancellationToken);
+                return await readCommandService.ReadNodesAsync(opcUaSession, commands, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "An error occurred during the reading of nodes command: {errorMessage}", ex.Message);
+                return ex.Demystify();
+            }
+        }
 
         public async Task<OneOf<ReadValueResponseCollection, Exception>> ReadValuesAsync(ReadValueCommandCollection commands, CancellationToken cancellationToken)
         {
@@ -85,7 +98,7 @@ namespace ApplicationV2
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "An error occurred during the read command: {errorMessage}", ex.Message);
+                logger.LogError(ex, "An error occurred during the reading of values command: {errorMessage}", ex.Message);
                 return ex.Demystify();
             }
         }

@@ -34,10 +34,11 @@ namespace TestApplicationV2
         {
             //await RemoveAllSubscribeToNodes(stoppingToken);
             await CallNodesWithoutArguments(stoppingToken);
+            await RunReadNodesTest(stoppingToken);
             //await SubscribeToNodes(stoppingToken);
             //await UnSubscribeFromNodes(stoppingToken);
             //await PssReadTestAsync(stoppingToken);
-            //await RunReadTest(stoppingToken);
+            //await RunReadValuesTest(stoppingToken);
             //await RunWriteTest(stoppingToken);
         }
 
@@ -62,7 +63,7 @@ namespace TestApplicationV2
                 });
         }
 
-        private async Task RunReadTest(CancellationToken stoppingToken)
+        private async Task RunReadValuesTest(CancellationToken stoppingToken)
         {
             var commandCollection = new ReadValueCommandCollection(EndPointUrl)
             {
@@ -74,11 +75,31 @@ namespace TestApplicationV2
             resulst.Switch(
                 result =>
                 {
-                    logger.LogInformation("Read Succeeded: {results}", result.Select(s => (s.Succeeded, s.Response!.Value)));
+                    logger.LogInformation("ReadValues Succeeded: {results}", result.Select(s => (s.Succeeded, s.Response!.Value)));
                 },
                 exception =>
                 {
-                    logger.LogCritical("Read failed");
+                    logger.LogCritical("ReadValues failed");
+                });
+        }
+
+        private async Task RunReadNodesTest(CancellationToken stoppingToken)
+        {
+            var commandCollection = new ReadNodeCommandCollection(EndPointUrl)
+            {
+                new ReadNodeCommand("ns=5;i=3"),
+                new ReadNodeCommand("ns=5;i=6")
+            };
+
+            var resulst = await ompOpcUaClient.ReadNodesAsync(commandCollection, stoppingToken);
+            resulst.Switch(
+                result =>
+                {
+                    logger.LogInformation("ReadNodes Succeeded: {results}", result.Select(s => (s.Succeeded, s.Response!.DisplayName)));
+                },
+                exception =>
+                {
+                    logger.LogCritical("ReadNodes failed");
                 });
         }
 

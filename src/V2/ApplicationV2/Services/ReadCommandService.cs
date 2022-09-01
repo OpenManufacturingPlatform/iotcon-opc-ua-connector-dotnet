@@ -1,6 +1,7 @@
 ﻿// SPDX-License-Identifier: MIT. 
 // Copyright Contributors to the Open Manufacturing Platform.
 
+using System.Diagnostics;
 using ApplicationV2.Models;
 using ApplicationV2.Models.Reads;
 using ApplicationV2.Sessions;
@@ -11,6 +12,30 @@ namespace ApplicationV2.Services
 {
     public class ReadCommandService : IReadCommandService
     {
+        public  Task<ReadNodeCommandResponseCollection> ReadNodesAsync(IOpcUaSession opcUaSession, ReadNodeCommandCollection commands, CancellationToken cancellationToken)
+        {
+            var response = new ReadNodeCommandResponseCollection();
+            foreach (var command in commands)
+            {
+                try
+                {
+                    var node = opcUaSession.ReadNode(command.NodeId);
+                    response.Add(new CommandResult<ReadNodeCommand, Node?>(command, node));
+                }
+                catch (Exception ex)
+                {
+                    response.Add(new CommandResult<ReadNodeCommand, Node?>
+                    {
+                        Command = command,
+                        Succeeded = false,
+                        Message = ex.Demystify().Message
+                    });
+                }
+            }
+
+            return Task.FromResult(response);
+        }
+
         public Task<ReadValueResponseCollection> ReadValuesAsync(IOpcUaSession opcSession, ReadValueCommandCollection commands, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -19,7 +44,7 @@ namespace ApplicationV2.Services
             //TODO: Talk about error handling -> NULL NodeId            
             var commandsWithRegisteredNodeIds = GetCommandsWithRegisterdNodeIds(opcSession, commands);
             var nodeIds = commands.Select(x => x.NodeId).ToList();
-            var values = opcSession.ReadNodes(nodeIds, 10, out var errors);
+            var values = opcSession.ReadNodeValues(nodeIds, 10, out var errors);
 
             response.AddRange(
                 commands.Zip(values.Zip(errors))
