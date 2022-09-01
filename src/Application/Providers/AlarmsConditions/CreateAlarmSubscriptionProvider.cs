@@ -32,20 +32,20 @@ namespace OMP.Connector.Application.Providers.AlarmSubscription
         private readonly TelemetryMessageMetadata _messageMetadata;
         private readonly AbstractValidator<AlarmSubscriptionMonitoredItem> _alarmMonitoredItemValidator;
         private readonly int _batchSize;
-        private readonly IOpcAlarmMonitoredItemService _opcAlarmMonitoredItemService;
+        private readonly IOpcAlarmMonitoredItemServiceFactory _opcAlarmMonitoredItemServiceFactory;
         private readonly Dictionary<string, List<string>> _groupedItemsNotCreated;
 
         public CreateAlarmSubscriptionProvider(
             IAlarmSubscriptionRepository subscriptionRepository,
             ILogger<CreateAlarmSubscriptionProvider> logger,
             IOptions<ConnectorConfiguration> connectorConfiguration,
-            IOpcAlarmMonitoredItemService opcAlarmMonitoredItemService,
+            IOpcAlarmMonitoredItemServiceFactory opcAlarmMonitoredItemServiceFactory,
             CreateAlarmSubscriptionsRequest command,
             TelemetryMessageMetadata messageMetadata,
             AbstractValidator<AlarmSubscriptionMonitoredItem> alarmMonitoredItemValidator) : base(command, connectorConfiguration, logger)
         {
             this._subscriptionRepository = subscriptionRepository;
-            this._opcAlarmMonitoredItemService = opcAlarmMonitoredItemService;
+            this._opcAlarmMonitoredItemServiceFactory = opcAlarmMonitoredItemServiceFactory;
             this._messageMetadata = messageMetadata;
             this._alarmMonitoredItemValidator = alarmMonitoredItemValidator;
             this._batchSize = this.Settings.OpcUa.AlarmSubscriptionBatchSize;
@@ -261,10 +261,10 @@ namespace OMP.Connector.Application.Providers.AlarmSubscription
             return monitoredItem;
         }
 
-        private MonitoredItem InitializeAlarmMonitoredItem(AlarmSubscriptionMonitoredItem monitoredItem, TelemetryMessageMetadata telemetryMessageMetadata)
+        private MonitoredItem InitializeAlarmMonitoredItem(AlarmSubscriptionMonitoredItem alarmmonitoredItem, TelemetryMessageMetadata telemetryMessageMetadata)
         {
-            this._opcAlarmMonitoredItemService.Initialize(monitoredItem, telemetryMessageMetadata, this.OpcSession);
-            return this._opcAlarmMonitoredItemService as MonitoredItem;
+            var newAlarmMonitoredItem = _opcAlarmMonitoredItemServiceFactory.Create(alarmmonitoredItem, telemetryMessageMetadata, this.OpcSession);
+            return newAlarmMonitoredItem as MonitoredItem;
         }
     }
 }
