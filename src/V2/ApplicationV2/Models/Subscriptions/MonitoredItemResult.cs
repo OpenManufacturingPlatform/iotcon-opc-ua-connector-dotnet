@@ -5,6 +5,6 @@ using Opc.Ua;
 
 namespace ApplicationV2.Models.Subscriptions
 {
-    public record MonitoriedItemResult(SubscriptionMonitoredItem MonitoredItem, StatusCode StatusCode, string Message);
+    public record MonitoredItemResult(SubscriptionMonitoredItem MonitoredItem, StatusCode StatusCode, string Message);
 
 }

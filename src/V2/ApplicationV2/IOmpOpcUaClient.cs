@@ -30,6 +30,8 @@ namespace ApplicationV2
 
         Task<OneOf<RemoveAllSubscriptionsResponse, Exception>> RemoveAllSubscriptions(RemoveAllSubscriptionsCommand command, CancellationToken cancellationToken);
 
+        Task Disconnect(CancellationToken cancellationToken);
+
         //Task<> DiscoveryChildNodes(DiscoveryChildNodesFromRootCommand command);
         //Task</*WHAT DO WE DO HERE? CommandResult?? */> DiscoveryChildNodes(DiscoveryChildNodesCommand command);
 

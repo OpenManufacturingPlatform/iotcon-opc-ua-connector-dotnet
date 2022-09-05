@@ -79,12 +79,12 @@ namespace ApplicationV2.Services
                     "Validation of {monitoredItems} was not successful. Errors: {errors}"
                     , nameof(CreateSubscriptionsCommand.MonitoredItems), string.Join(" | ", errorMessages));
 
-                var results = new CreateSubscriptionResult(errorMessages);
-                var responses = new CreateSubscriptionResponse(command, results, false);
+                var errorResults = new CreateSubscriptionResult(errorMessages);
+                var responses = new CreateSubscriptionResponse(command, errorResults, false);
                 return responses;
             }
 
-            var globalResults = new List<MonitoriedItemResult>();
+            var globalResults = new List<MonitoredItemResult>();
 
             try
             {
@@ -106,10 +106,10 @@ namespace ApplicationV2.Services
             catch (Exception ex)
             {
                 var error = ex.Demystify();
-                var results = new CreateSubscriptionResult(errorMessages);
+                var errorResults = new CreateSubscriptionResult(errorMessages);
                 return new CreateSubscriptionResponse(
                        command,
-                       results,
+                       errorResults,
                        false,
                         $"Could not create / update subscriptions. {error.Message}");
             }
@@ -124,8 +124,8 @@ namespace ApplicationV2.Services
             else
                 logger.LogError("Errors occred during subscriptions Create/update on Endpoint: [{endpointUrl}]", command.EndpointUrl);
 
-            var resulst = new CreateSubscriptionResult(globalResults);
-            var response = new CreateSubscriptionResponse(command, resulst, allSucceeded);
+            var results = new CreateSubscriptionResult(globalResults);
+            var response = new CreateSubscriptionResponse(command, results, allSucceeded);
             return response;
         }
 
@@ -180,9 +180,9 @@ namespace ApplicationV2.Services
         }
 
         #region [Privates]
-        private async Task<List<MonitoriedItemResult>> AddValidationErrorsAsync(CreateSubscriptionsCommand command)
+        private async Task<List<MonitoredItemResult>> AddValidationErrorsAsync(CreateSubscriptionsCommand command)
         {
-            var errorMessages = new List<MonitoriedItemResult>();
+            var errorMessages = new List<MonitoredItemResult>();
             for (var itemIndex = 0; itemIndex < command.MonitoredItems.Count; itemIndex++)
             {
                 var monitoredItem = command.MonitoredItems[itemIndex];
@@ -191,12 +191,12 @@ namespace ApplicationV2.Services
                     continue;
 
                 var validationMessages = $"{nameof(CreateSubscriptionsCommand.MonitoredItems)}[{itemIndex}]: {results.ToString(";")}.";
-                errorMessages.Add(new MonitoriedItemResult(monitoredItem, StatusCodes.Bad, validationMessages));
+                errorMessages.Add(new MonitoredItemResult(monitoredItem, StatusCodes.Bad, validationMessages));
             }
             return errorMessages;
         }
 
-        private Action<SubscriptionMonitoredItem[]> SubscribeInBatchAndInsertResults(IOpcUaSession opcUaSession, List<MonitoriedItemResult> results)
+        private Action<SubscriptionMonitoredItem[]> SubscribeInBatchAndInsertResults(IOpcUaSession opcUaSession, List<MonitoredItemResult> results)
         {
             return (monitoredItems) =>
             {
@@ -224,7 +224,7 @@ namespace ApplicationV2.Services
             };
         }
 
-        private static IEnumerable<MonitoriedItemResult> GetResults(SubscriptionMonitoredItem[] items, Subscription subscription)
+        private static IEnumerable<MonitoredItemResult> GetResults(SubscriptionMonitoredItem[] items, Subscription subscription)
         {
             var allMonotoredItemsInterestedIn = subscription.MonitoredItems
                                                             .Where(mi => items.Any(i => i.NodeId == mi.StartNodeId))
@@ -234,18 +234,18 @@ namespace ApplicationV2.Services
                 .ToArray();
         }
 
-        private static MonitoriedItemResult GetMonitoriedItemResult(SubscriptionMonitoredItem item, MonitoredItem monitoredItem)
+        private static MonitoredItemResult GetMonitoriedItemResult(SubscriptionMonitoredItem item, MonitoredItem monitoredItem)
         {
             if (monitoredItem.Status.Error is null)
             {
                 if (monitoredItem.Created)
-                    return new MonitoriedItemResult(item, StatusCodes.Good, nameof(StatusCodes.Good));
+                    return new MonitoredItemResult(item, StatusCodes.Good, nameof(StatusCodes.Good));
 
-                return new MonitoriedItemResult(item, StatusCodes.Uncertain, $"{StatusCodes.Uncertain} of status but no error was detected");
+                return new MonitoredItemResult(item, StatusCodes.Uncertain, $"{StatusCodes.Uncertain} of status but no error was detected");
             }
 
 
-            return new MonitoriedItemResult(item, monitoredItem.Status.Error.StatusCode, monitoredItem.Status.Error.AdditionalInfo);
+            return new MonitoredItemResult(item, monitoredItem.Status.Error.StatusCode, monitoredItem.Status.Error.AdditionalInfo);
         }
         private void ValidateMonitoredItemMessageProcessors()
         {

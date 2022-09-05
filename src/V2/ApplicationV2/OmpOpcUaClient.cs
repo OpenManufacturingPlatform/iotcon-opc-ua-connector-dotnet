@@ -162,7 +162,21 @@ namespace ApplicationV2
                 logger.LogError(ex, "An error occurred during the write command: {errorMessage}", ex.Message);
                 return ex.Demystify();
             }
-        } 
+        }
+        #endregion
+
+        #region [Disconnect]
+        public async Task Disconnect(CancellationToken cancellationToken)
+        {
+            try
+            {
+                await sessionPoolStateManager.CloseAllSessionsAsync(cancellationToken);
+            }
+            catch(Exception ex)
+            {
+                logger.LogWarning(ex, $"Error(s) occurred while trying to close session(s): {ex.Message}");
+            }
+        }
         #endregion
 
         protected virtual Task<IOpcUaSession> GetSession(string endpointUrl, CancellationToken cancellationToken)

@@ -11,6 +11,7 @@ using ApplicationV2.Sessions.RegisteredNodes;
 using ApplicationV2.Sessions.Types;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using OneOf;
 using Opc.Ua;
 
 namespace ApplicationV2.Sessions.SessionManagement
@@ -74,6 +75,32 @@ namespace ApplicationV2.Sessions.SessionManagement
                 await AddSessionToDictionaryAsync(opcUaServerUrl, session, cancellationToken);
 
                 return session;
+            }
+            finally
+            {
+                semaphoreSlim.Release();
+            }
+        }
+
+        public async Task CloseAllSessionsAsync(CancellationToken cancellationToken)
+        {
+            try
+            {
+                await semaphoreSlim.WaitAsync(cancellationToken).ConfigureAwait(false);
+                sessionPool.Values.ToList().ForEach(async opcsession => await opcsession.DisconnectAsync(cancellationToken));
+            }
+            finally
+            {
+                semaphoreSlim.Release();
+            }
+        }
+
+        public async Task CloseSessionAsync(string opcUaServerUrl, CancellationToken cancellationToken)
+        {
+            try
+            {
+                await semaphoreSlim.WaitAsync(cancellationToken).ConfigureAwait(false);
+                await sessionPool[opcUaServerUrl.ToValidBaseEndpointUrl()].DisconnectAsync(cancellationToken);
             }
             finally
             {

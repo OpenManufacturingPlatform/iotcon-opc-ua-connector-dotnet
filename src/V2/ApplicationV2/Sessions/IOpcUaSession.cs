@@ -2,7 +2,7 @@
 // Copyright Contributors to the Open Manufacturing Platform.
 
 using System.Collections;
-using System.Reflection;
+using System.Diagnostics;
 using ApplicationV2.Configuration;
 using ApplicationV2.Extensions;
 using ApplicationV2.Models.Call;
@@ -31,6 +31,8 @@ namespace ApplicationV2.Sessions
         #region [Connection]
         Task ConnectAsync(string opcUaServerUrl);
         Task ConnectAsync(EndpointDescription endpointDescription);
+
+        Task DisconnectAsync(CancellationToken stoppingToken);
         #endregion
 
         #region [Call]
@@ -140,6 +142,19 @@ namespace ApplicationV2.Sessions
         {
             var identity = identityProvider.GetUserIdentity(endpointDescription);
             await ConnectAsync(endpointDescription, identity);
+        }
+
+        public async Task DisconnectAsync(CancellationToken stoppingToken)
+        {
+            try
+            {
+                session!.KeepAlive -= SessionOnKeepAlive;
+                await session.CloseSessionAsync(null, true, stoppingToken);
+            }
+            catch(Exception ex)
+            {
+                throw ex.Demystify();
+            }
         }
         #endregion
 

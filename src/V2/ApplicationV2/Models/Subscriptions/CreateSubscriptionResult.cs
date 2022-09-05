@@ -3,11 +3,11 @@
 
 namespace ApplicationV2.Models.Subscriptions
 {
-    public class CreateSubscriptionResult : List<MonitoriedItemResult>
+    public class CreateSubscriptionResult : List<MonitoredItemResult>
     {
-        public CreateSubscriptionResult(List<MonitoriedItemResult> monitoriedItems)
+        public CreateSubscriptionResult(List<MonitoredItemResult> monitoredItems)
         {
-            base.AddRange(monitoriedItems);
+            base.AddRange(monitoredItems);
         }
     }
 }

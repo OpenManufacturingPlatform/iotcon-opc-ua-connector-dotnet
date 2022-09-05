@@ -1,12 +1,6 @@
 ﻿// SPDX-License-Identifier: MIT. 
 // Copyright Contributors to the Open Manufacturing Platform.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 using ApplicationV2;
 using ApplicationV2.Models.Call;
 using ApplicationV2.Models.Reads;
@@ -20,14 +14,21 @@ namespace TestApplicationV2
 {
     internal class CommandRunner : BackgroundService
     {
-        const string EndPointUrl = "opc.tcp://bw09861291:52210/UA/SampleServer";
+        const string EndPointUrl = "opc.tcp://bw09861291:52210/UA/SampleServer"; // Ivan
+        //const string EndPointUrl = "opc.tcp://bw09937414:62544/Quickstarts/AlarmConditionServer"; //Hermo
+        //const string EndPointUrl = "opc.tcp://bw09937414:52210"; //Hermo
         private readonly IOmpOpcUaClient ompOpcUaClient;
         private readonly ILogger<CommandRunner> logger;
+        private readonly IHostApplicationLifetime applicationLifetime;
 
-        public CommandRunner(IOmpOpcUaClient ompOpcUaClient, ILogger<CommandRunner> logger)
+        public CommandRunner(
+            IOmpOpcUaClient ompOpcUaClient,
+            ILogger<CommandRunner> logger,
+            IHostApplicationLifetime applicationLifetime)
         {
             this.ompOpcUaClient = ompOpcUaClient;
             this.logger = logger;
+            this.applicationLifetime = applicationLifetime;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -35,7 +36,10 @@ namespace TestApplicationV2
             //await RemoveAllSubscribeToNodes(stoppingToken);
             await CallNodesWithoutArguments(stoppingToken);
             await RunReadNodesTest(stoppingToken);
+
             //await SubscribeToNodes(stoppingToken);
+            //await CallMethodNodeWithArguments(stoppingToken); // This test depends on existence of a valid subscription so that subscription id can be passed in input args.
+
             //await UnSubscribeFromNodes(stoppingToken);
             //await PssReadTestAsync(stoppingToken);
             //await RunReadValuesTest(stoppingToken);
@@ -51,8 +55,8 @@ namespace TestApplicationV2
                 new ReadValueCommand("ns=3;i=5204", doRegisteredRead: true)
             };
 
-            var resulst = await ompOpcUaClient.ReadValuesAsync(commandCollection, stoppingToken);
-            resulst.Switch(
+            var results = await ompOpcUaClient.ReadValuesAsync(commandCollection, stoppingToken);
+            results.Switch(
                 result =>
                 {
                     logger.LogInformation("Read Succeeded: {results}", result.Select(s => (s.Succeeded, s.Response!.Value)));
@@ -71,8 +75,8 @@ namespace TestApplicationV2
                 new ReadValueCommand("ns=2;i=1587", doRegisteredRead: true)
             };
 
-            var resulst = await ompOpcUaClient.ReadValuesAsync(commandCollection, stoppingToken);
-            resulst.Switch(
+            var results = await ompOpcUaClient.ReadValuesAsync(commandCollection, stoppingToken);
+            results.Switch(
                 result =>
                 {
                     logger.LogInformation("ReadValues Succeeded: {results}", result.Select(s => (s.Succeeded, s.Response!.Value)));
@@ -91,8 +95,8 @@ namespace TestApplicationV2
                 new ReadNodeCommand("ns=5;i=6")
             };
 
-            var resulst = await ompOpcUaClient.ReadNodesAsync(commandCollection, stoppingToken);
-            resulst.Switch(
+            var results = await ompOpcUaClient.ReadNodesAsync(commandCollection, stoppingToken);
+            results.Switch(
                 result =>
                 {
                     logger.LogInformation("ReadNodes Succeeded: {results}", result.Select(s => (s.Succeeded, s.Response!.DisplayName)));
@@ -119,8 +123,8 @@ namespace TestApplicationV2
                 DoRegisteredWrite: false)
             };
 
-            var resulst = await ompOpcUaClient.WriteAsync(commandCollection, stoppingToken);
-            resulst.Switch(
+            var results = await ompOpcUaClient.WriteAsync(commandCollection, stoppingToken);
+            results.Switch(
                result =>
                {
                    logger.LogInformation("Write Succeeded: : {results}", result.Select(s => (s.Succeeded, s.Response!.Code)));
@@ -136,11 +140,11 @@ namespace TestApplicationV2
             var commandCollection = new CreateSubscriptionsCommand(EndPointUrl);
             commandCollection.MonitoredItems.Add(new SubscriptionMonitoredItem
             {
-                NodeId = "ns=2;i=1587"
+                NodeId = "i=2257"
             });
 
-            var resulst = await ompOpcUaClient.CreateSubscriptions(commandCollection, stoppingToken);
-            resulst.Switch(
+            var results = await ompOpcUaClient.CreateSubscriptions(commandCollection, stoppingToken);
+            results.Switch(
                result =>
                {
                    logger.LogInformation("Create Subscriptions Succeeded: : {results}", result.Succeeded);
@@ -156,8 +160,8 @@ namespace TestApplicationV2
             await Task.Delay(TimeSpan.FromSeconds(55));
             var commandCollection = new RemoveSubscriptionsCommand(EndPointUrl, new List<string> { "ns=2;i=1587" });
 
-            var resulst = await ompOpcUaClient.RemoveSubscriptionsCommand(commandCollection, stoppingToken);
-            resulst.Switch(
+            var results = await ompOpcUaClient.RemoveSubscriptionsCommand(commandCollection, stoppingToken);
+            results.Switch(
                result =>
                {
                    logger.LogInformation("Remove Subscriptions Succeeded: : {results}", result.Succeeded);
@@ -191,6 +195,11 @@ namespace TestApplicationV2
 
             await Task.Delay(TimeSpan.FromSeconds(5));
 
+            await RemoveAllSubscriptions(stoppingToken);
+        }
+
+        private async Task RemoveAllSubscriptions(CancellationToken stoppingToken)
+        {
             var removeAllCommand = new RemoveAllSubscriptionsCommand(EndPointUrl);
             var removeAllResult = await ompOpcUaClient.RemoveAllSubscriptions(removeAllCommand, stoppingToken);
 
@@ -232,16 +241,64 @@ namespace TestApplicationV2
                 callResult.Switch(
                    result =>
                    {
-                       logger.LogInformation("Call: {action}={results} [methodId]", selectedAction.Name, result.Succeeded, selectedAction.MethodId);
+                       logger.LogInformation("Call: {action}={results} {methodId}", selectedAction.Name, result.Succeeded, selectedAction.MethodId);
                    },
                    exception =>
                    {
-                       logger.LogCritical("Remove All Subscriptions failed");
+                       logger.LogCritical("Call failed");
                    });
 
                 await Task.Delay(2500);
                 command.Clear();
             }
+        }
+
+        private async Task CallMethodNodeWithArguments(CancellationToken stoppingToken)
+        {
+            var methodName = "GetMonitoredItems";
+            var methodId = "i=11492";
+
+            var command = new CallCommandCollection();
+            command.EndpointUrl = EndPointUrl;
+            
+            command.Add(new CallCommand
+            {
+                NodeId = methodId,
+                Arguments = new Dictionary<string, object>()
+                {
+                    { "SubscriptionId", 1 }
+                }
+            });
+
+            logger.LogInformation($"Attempting to call {methodName}");
+
+            var callResult = await ompOpcUaClient.CallNodesAsync(command, stoppingToken);
+            callResult.Switch(
+                result =>
+                {
+                    logger.LogInformation($"Call: {methodName}={result.Succeeded} {methodId}");
+                    result.Response?.Results.First().OutputArguments.ForEach(arg => logger.LogInformation($"Output Argument: {arg.Value}"));
+                },
+                exception =>
+                {
+                    logger.LogCritical($"Call to {methodName} failed");
+                });
+
+            await Task.Delay(2500);
+            command.Clear();
+        }
+
+        public override Task StartAsync(CancellationToken cancellationToken)
+        {
+            // Good practice to clean up OPC UA sessions when stopping the application
+            applicationLifetime.ApplicationStopping.Register(async () => await OnStoppingAsync(cancellationToken));
+
+            return base.StartAsync(cancellationToken);
+        }
+
+        private async Task OnStoppingAsync(CancellationToken cancellationToken)
+        {
+            await ompOpcUaClient.Disconnect(cancellationToken);
         }
     }
 }

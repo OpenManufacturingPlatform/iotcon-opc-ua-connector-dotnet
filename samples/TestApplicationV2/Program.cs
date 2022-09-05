@@ -26,7 +26,3 @@ var host = Host.CreateDefaultBuilder()
                 });
 
 host.Build().Run();
-
-
-Console.WriteLine("All Running");
-Console.ReadLine();
