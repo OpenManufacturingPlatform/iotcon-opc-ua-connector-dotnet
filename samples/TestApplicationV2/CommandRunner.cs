@@ -3,6 +3,7 @@
 
 using ApplicationV2;
 using ApplicationV2.Models.Call;
+using ApplicationV2.Models.Discovery;
 using ApplicationV2.Models.Reads;
 using ApplicationV2.Models.Subscriptions;
 using ApplicationV2.Models.Writes;
@@ -15,6 +16,12 @@ namespace TestApplicationV2
     internal class CommandRunner : BackgroundService
     {
         const string EndPointUrl = "opc.tcp://bw09861291:52210/UA/SampleServer"; // Ivan
+        private const uint NodeMask = (uint)NodeClass.Object |
+                                          (uint)NodeClass.Variable |
+                                          (uint)NodeClass.Method |
+                                          (uint)NodeClass.VariableType |
+                                          (uint)NodeClass.ReferenceType |
+                                          (uint)NodeClass.Unspecified;
         //const string EndPointUrl = "opc.tcp://bw09937414:62544/Quickstarts/AlarmConditionServer"; //Hermo
         //const string EndPointUrl = "opc.tcp://bw09937414:52210"; //Hermo
         private readonly IOmpOpcUaClient ompOpcUaClient;
@@ -33,9 +40,11 @@ namespace TestApplicationV2
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            await BrowseServerNodesTest(stoppingToken);
+            await BrowseChildNodesTest(stoppingToken);
             //await RemoveAllSubscribeToNodes(stoppingToken);
-            await CallNodesWithoutArguments(stoppingToken);
-            await RunReadNodesTest(stoppingToken);
+            //await CallNodesWithoutArguments(stoppingToken);
+            //await RunReadNodesTest(stoppingToken);
 
             //await SubscribeToNodes(stoppingToken);
             //await CallMethodNodeWithArguments(stoppingToken); // This test depends on existence of a valid subscription so that subscription id can be passed in input args.
@@ -44,6 +53,65 @@ namespace TestApplicationV2
             //await PssReadTestAsync(stoppingToken);
             //await RunReadValuesTest(stoppingToken);
             //await RunWriteTest(stoppingToken);
+        }
+
+        private async Task BrowseNodesTest(CancellationToken stoppingToken)
+        {
+            var commandCollection = new ReadNodeCommandCollection(EndPointUrl)
+            {
+                new ReadNodeCommand("ns=5;i=3"),
+                new ReadNodeCommand("ns=5;i=6")
+            };
+
+            var results = await ompOpcUaClient.ReadNodesAsync(commandCollection, stoppingToken);
+            results.Switch(
+                result =>
+                {
+                    logger.LogInformation("ReadNodes Succeeded: {results}", result.Select(s => (s.Succeeded, s.Response!.DisplayName)));
+                },
+                exception =>
+                {
+                    logger.LogCritical("ReadNodes failed");
+                });
+        }
+
+        private async Task BrowseServerNodesTest(CancellationToken stoppingToken)
+        {
+            var results = await ompOpcUaClient.BrowseNodes(EndPointUrl, 2, stoppingToken);
+            results.Switch(
+                result =>
+                {
+                    logger.LogInformation("ReadNodes Succeeded: {succeeded} | {node}", result.Succeeded, result.Response);
+                },
+                exception =>
+                {
+                    logger.LogCritical("ReadNodes failed");
+                });
+        }
+
+        private async Task BrowseChildNodesTest(CancellationToken stoppingToken)
+        {
+            var brwoseDescription = new BrowseDescription
+            {
+                NodeId = "ns=5;i=1",
+                BrowseDirection = BrowseDirection.Forward,
+                ReferenceTypeId = ReferenceTypeIds.HierarchicalReferences,
+                IncludeSubtypes = true,
+                NodeClassMask = NodeMask,
+                ResultMask = (uint)BrowseResultMask.All
+            };
+            var command = new BrowseChildNodesCommand(EndPointUrl, brwoseDescription, 2);
+
+            var results = await ompOpcUaClient.BrowseChildNodes(command, stoppingToken);
+            results.Switch(
+                result =>
+                {
+                    logger.LogInformation("ReadNodes Succeeded: {succeeded} | {node}", result.Succeeded, result.Response);
+                },
+                exception =>
+                {
+                    logger.LogCritical("ReadNodes failed");
+                });
         }
 
         private async Task PssReadTestAsync(CancellationToken stoppingToken)
@@ -260,7 +328,7 @@ namespace TestApplicationV2
 
             var command = new CallCommandCollection();
             command.EndpointUrl = EndPointUrl;
-            
+
             command.Add(new CallCommand
             {
                 NodeId = methodId,
@@ -288,17 +356,16 @@ namespace TestApplicationV2
             command.Clear();
         }
 
-        public override Task StartAsync(CancellationToken cancellationToken)
+        public override async Task StartAsync(CancellationToken cancellationToken)
         {
             // Good practice to clean up OPC UA sessions when stopping the application
             applicationLifetime.ApplicationStopping.Register(async () => await OnStoppingAsync(cancellationToken));
 
-            return base.StartAsync(cancellationToken);
+            await ompOpcUaClient.OpenSessionAsync(EndPointUrl, cancellationToken);
+            await base.StartAsync(cancellationToken);
         }
 
-        private async Task OnStoppingAsync(CancellationToken cancellationToken)
-        {
-            await ompOpcUaClient.Disconnect(cancellationToken);
-        }
+        private Task OnStoppingAsync(CancellationToken cancellationToken)
+            => ompOpcUaClient.CloseAllActiveSessionsAsync(cancellationToken);
     }
 }

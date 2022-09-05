@@ -61,6 +61,7 @@ namespace Microsoft.Extensions.DependencyInjection
             //TODO: Should we not introduce more validators - 1 per method on the IOmpOpcUaClient
 
             //Services
+            serviceCollection.AddSingleton<IBrowseService, BrowseService>();
             serviceCollection.AddTransient<ICallCommandService, CallCommandService>();
             serviceCollection.AddTransient<IReadCommandService, ReadCommandService>();
             serviceCollection.AddTransient<IWriteCommandService, WriteCommandService>();
@@ -69,7 +70,7 @@ namespace Microsoft.Extensions.DependencyInjection
             serviceCollection.AddSingleton<ISessionPoolStateManager, SessionPoolStateManager>();
             serviceCollection.AddSingleton<IUserIdentityProvider, UserIdentityProvider>();
             serviceCollection.AddSingleton<IOmpOpcUaClient, OmpOpcUaClient>();
-
+            
             serviceCollection.AddSingleton<IAppConfigBuilder, AppConfigBuilder>();
             serviceCollection.AddSingleton(provider =>
             {

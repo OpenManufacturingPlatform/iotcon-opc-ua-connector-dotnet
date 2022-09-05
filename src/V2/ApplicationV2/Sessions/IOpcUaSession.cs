@@ -26,6 +26,7 @@ namespace ApplicationV2.Sessions
     {
         #region [Misc]
         string GetBaseEndpointUrl();
+        NamespaceTable? GetNamespaceUris();
         #endregion
 
         #region [Connection]
@@ -43,6 +44,12 @@ namespace ApplicationV2.Sessions
         Task<CallResponse> CallAsync(CallMethodRequestCollection callMethodRequestCollection, CancellationToken? cancellationToken = null);
         #endregion
 
+        #region [Browse]
+        Task<ReferenceDescriptionCollection> BrowseAsync(BrowseDescription browseDescription);
+        ReferenceDescriptionCollection Browse(BrowseDescription browseDescription);
+
+        #endregion
+
         #region [Write]
         ResponseHeader WriteNodes(WriteValueCollection writeValues, out StatusCodeCollection statusCodeCollection);
         #endregion
@@ -50,6 +57,8 @@ namespace ApplicationV2.Sessions
         #region [Read]
         Node? ReadNode(NodeId nodeId);
         List<object> ReadNodeValues(List<NodeId> nodeIds, int batchSize, out List<ServiceResult> errors);
+
+        string GetNodeFriendlyDataType(NodeId dataTypeNodeId, int valueRank);
         #endregion
 
         #region [Registered Nodes]
@@ -151,11 +160,20 @@ namespace ApplicationV2.Sessions
                 session!.KeepAlive -= SessionOnKeepAlive;
                 await session.CloseSessionAsync(null, true, stoppingToken);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw ex.Demystify();
             }
         }
+        #endregion
+
+        #region [Browse]
+        public Task<ReferenceDescriptionCollection> BrowseAsync(BrowseDescription browseDescription)
+            => Task.FromResult(Browse(session!, browseDescription, logger));
+
+        public ReferenceDescriptionCollection Browse(BrowseDescription browseDescription)
+            => Browse(session!, browseDescription, logger);
+
         #endregion
 
         #region [Call]
@@ -294,7 +312,7 @@ namespace ApplicationV2.Sessions
         public Node? ReadNode(NodeId nodeId)
         {
             CheckConnection();
-            return session!.ReadNode(nodeId);
+            return session!.NodeCache.FetchNode(nodeId) ?? session!.ReadNode(nodeId);
         }
 
         public List<object> ReadNodeValues(List<NodeId> nodeIds, int batchSize, out List<ServiceResult> errors)
@@ -311,6 +329,12 @@ namespace ApplicationV2.Sessions
             logger.LogDebug("Executed Read commands. Endpoint: [{endpointUrl}]", session!.Endpoint.EndpointUrl);
 
             return values.ToList();//TODO: Test and Check with Hermo if this is valid and working
+        }
+
+        public string GetNodeFriendlyDataType(NodeId dataTypeNodeId, int valueRank)
+        {
+            CheckConnection();
+            return GetNodeFriendlyDataType(session!, dataTypeNodeId, valueRank);
         }
         #endregion
 
@@ -381,6 +405,9 @@ namespace ApplicationV2.Sessions
         #region [Misc]
         public string GetBaseEndpointUrl()
             => session?.GetBaseEndpointUrl() ?? string.Empty;
+
+        public NamespaceTable? GetNamespaceUris()
+            => session?.NamespaceUris;
         #endregion
 
         #region [Protected]
@@ -688,10 +715,10 @@ namespace ApplicationV2.Sessions
             ClientBase.ValidateDiagnosticInfos(diagnosticInfoCollection, request);
         }
 
-        public static ReferenceDescriptionCollection Browse(Session session, BrowseDescription browseDescription, ILogger logger)
+        private static ReferenceDescriptionCollection Browse(Session session, BrowseDescription browseDescription, ILogger logger)
         {
             var browseDescriptionCollection = new BrowseDescriptionCollection { browseDescription };
-
+            //TODO: Change to BrowseAsync
             session.Browse(default,
                 default,
                 200u,
@@ -740,6 +767,14 @@ namespace ApplicationV2.Sessions
 
         #endregion
 
+        #region [Read]
+        public static string GetNodeFriendlyDataType(Session session, NodeId dataTypeNodeId, int valueRank)
+        {
+            var dataType = session.NodeCache.Find(dataTypeNodeId);
+            var dataTypeDisplayName = dataType?.DisplayName?.Text.ToLower() ?? "Unknown";
+            return valueRank >= ValueRanks.OneOrMoreDimensions ? $"{dataTypeDisplayName}[]" : dataTypeDisplayName;
+        }
+        #endregion
         #endregion
     }
 }

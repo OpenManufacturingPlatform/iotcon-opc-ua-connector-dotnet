@@ -4,6 +4,7 @@
 using System.Diagnostics;
 using ApplicationV2.Models.Browse;
 using ApplicationV2.Models.Call;
+using ApplicationV2.Models.Discovery;
 using ApplicationV2.Models.Reads;
 using ApplicationV2.Models.Subscriptions;
 using ApplicationV2.Models.Writes;
@@ -24,6 +25,7 @@ namespace ApplicationV2
         private readonly IReadCommandService readCommandService;
         private readonly ISubscriptionCommandService subscriptionCommandsService;
         private readonly ICallCommandService callCommandService;
+        private readonly IBrowseService browseService;
         private readonly ILogger<OmpOpcUaClient> logger; 
         #endregion
 
@@ -34,6 +36,7 @@ namespace ApplicationV2
             IReadCommandService readCommandService,
             ISubscriptionCommandService subscriptionCommandsService,
             ICallCommandService callCommandService,
+            IBrowseService browseService,
             ILogger<OmpOpcUaClient> logger
             )
         {
@@ -42,11 +45,45 @@ namespace ApplicationV2
             this.readCommandService = readCommandService;
             this.subscriptionCommandsService = subscriptionCommandsService;
             this.callCommandService = callCommandService;
+            this.browseService = browseService;
             this.logger = logger;
         }
         #endregion
 
         #region [Browse]
+        public async Task<OneOf<BrowseChildNodesResponseCollection, Exception>> BrowseNodes(string endpointUrl, int browseDepth, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var opcUaSession = await GetSession(endpointUrl, cancellationToken);
+                var result =  await browseService.BrowseNodes(opcUaSession, cancellationToken, browseDepth);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "An error occurred during the Call command: {errorMessage}", ex.Message);
+                return ex.Demystify();
+            }
+        }
+
+        public async Task<OneOf<BrowseChildNodesResponse, Exception>> BrowseChildNodes(BrowseChildNodesCommand command, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var opcUaSession = await GetSession(command.EndpointUrl, cancellationToken);
+                return await browseService.BrowseChildNodes(opcUaSession, command, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "An error occurred during the Call command: {errorMessage}", ex.Message);
+                return ex.Demystify();
+            }
+        }
+
+        [Obsolete("Please use BrowseChildNodes")]
+        public Task<OneOf<BrowseChildNodesResponse, Exception>> DiscoverChildNodes(DiscoveryChildNodesCommand command, CancellationToken cancellationToken)
+            => BrowseChildNodes(command, cancellationToken);
+
         [Obsolete("Please use ReadNodesAsync")]
         public Task<OneOf<ReadNodeCommandResponseCollection, Exception>> BrowseNodesAsync(BrowseCommandCollection commands, CancellationToken cancellationToken)
         {
@@ -165,8 +202,20 @@ namespace ApplicationV2
         }
         #endregion
 
-        #region [Disconnect]
-        public async Task Disconnect(CancellationToken cancellationToken)
+        #region [Sessions]
+        public async Task OpenSessionAsync(string endpointUrl, CancellationToken cancellationToken)
+        {
+            try
+            {
+                await GetSession(endpointUrl, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(ex, "Error(s) occurred while trying to open an session on {server}: {error}", endpointUrl, ex.Message);
+            }
+        }
+
+        public async Task CloseAllActiveSessionsAsync(CancellationToken cancellationToken)
         {
             try
             {
@@ -174,13 +223,27 @@ namespace ApplicationV2
             }
             catch(Exception ex)
             {
-                logger.LogWarning(ex, $"Error(s) occurred while trying to close session(s): {ex.Message}");
+                logger.LogWarning(ex, "Error(s) occurred while trying to close session(s): {error}", ex.Message);
             }
         }
+
+       
+
+        public async Task CloseSessionAsync(string endpointUrl, CancellationToken cancellationToken)
+        {
+            try
+            {
+                await sessionPoolStateManager.CloseSessionAsync(endpointUrl, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(ex, "Error(s) occurred while trying to close the session on {server}: {error}", endpointUrl, ex.Message);
+            }
+        }
+
         #endregion
 
         protected virtual Task<IOpcUaSession> GetSession(string endpointUrl, CancellationToken cancellationToken)
             => sessionPoolStateManager.GetSessionAsync(endpointUrl, cancellationToken);
-        
     }
 }
