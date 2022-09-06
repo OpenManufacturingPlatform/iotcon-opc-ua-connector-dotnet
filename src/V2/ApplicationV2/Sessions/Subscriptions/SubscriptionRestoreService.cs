@@ -1,11 +1,11 @@
 ﻿// SPDX-License-Identifier: MIT. 
 // Copyright Contributors to the Open Manufacturing Platform.
 
-using ApplicationV2.Configuration;
+using OMP.PlantConnectivity.OpcUA.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace ApplicationV2.Sessions.Subscriptions
+namespace OMP.PlantConnectivity.OpcUA.Sessions.Subscriptions
 {
     internal class FakeSubscriptionRestoreService : ISubscriptionRestoreService
     {

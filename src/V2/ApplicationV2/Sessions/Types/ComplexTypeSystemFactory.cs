@@ -4,7 +4,7 @@
 using Opc.Ua.Client;
 
 
-namespace ApplicationV2.Sessions.Types
+namespace OMP.PlantConnectivity.OpcUA.Sessions.Types
 {
     internal class ComplexTypeSystemFactory : IComplexTypeSystemFactory
     {

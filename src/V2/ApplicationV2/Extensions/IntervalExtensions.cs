@@ -3,7 +3,7 @@
 
 using System;
 
-namespace ApplicationV2.Extensions
+namespace OMP.PlantConnectivity.OpcUA.Extensions
 {
     public static class IntervalExtensions
     {

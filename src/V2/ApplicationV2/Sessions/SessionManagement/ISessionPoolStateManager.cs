@@ -3,7 +3,7 @@
 
 using Opc.Ua;
 
-namespace ApplicationV2.Sessions.SessionManagement
+namespace OMP.PlantConnectivity.OpcUA.Sessions.SessionManagement
 {
     public interface ISessionPoolStateManager : IDisposable
     {

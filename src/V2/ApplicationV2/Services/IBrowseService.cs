@@ -6,14 +6,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ApplicationV2.Models.Discovery;
-using ApplicationV2.Sessions;
+using OMP.PlantConnectivity.OpcUA.Models.Discovery;
+using OMP.PlantConnectivity.OpcUA.Sessions;
 using Microsoft.Extensions.Logging;
 using OneOf;
 using Opc.Ua;
 using Org.BouncyCastle.Asn1.Ocsp;
 
-namespace ApplicationV2.Services
+namespace OMP.PlantConnectivity.OpcUA.Services
 {
     public interface IBrowseService
     {

@@ -1,9 +1,9 @@
 ﻿// SPDX-License-Identifier: MIT. 
 // Copyright Contributors to the Open Manufacturing Platform.
 
-using ApplicationV2.Sessions.Subscriptions;
+using OMP.PlantConnectivity.OpcUA.Sessions.Subscriptions;
 
-namespace ApplicationV2.Sessions.Reconnect
+namespace OMP.PlantConnectivity.OpcUA.Sessions.Reconnect
 {
     internal class OpcUaSessionReconnectHandlerFactory : IOpcUaSessionReconnectHandlerFactory
     {

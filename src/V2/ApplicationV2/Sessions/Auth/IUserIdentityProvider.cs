@@ -3,7 +3,7 @@
 
 using Opc.Ua;
 
-namespace ApplicationV2.Sessions.Auth
+namespace OMP.PlantConnectivity.OpcUA.Sessions.Auth
 {
     public interface IUserIdentityProvider
     {

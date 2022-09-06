@@ -3,7 +3,7 @@
 
 using Opc.Ua;
 
-namespace ApplicationV2.Configuration
+namespace OMP.PlantConnectivity.OpcUA.Configuration
 {
     public interface IAppConfigBuilder
     {

@@ -3,7 +3,7 @@
 
 using Opc.Ua.Client;
 
-namespace ApplicationV2.Sessions.Reconnect
+namespace OMP.PlantConnectivity.OpcUA.Sessions.Reconnect
 {
     public interface IOpcUaSessionReconnectHandler : IDisposable
     {

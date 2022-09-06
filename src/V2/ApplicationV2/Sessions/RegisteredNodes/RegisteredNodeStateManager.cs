@@ -5,7 +5,7 @@ using System.Collections.Concurrent;
 using Microsoft.Extensions.Logging;
 using Opc.Ua;
 
-namespace ApplicationV2.Sessions.RegisteredNodes
+namespace OMP.PlantConnectivity.OpcUA.Sessions.RegisteredNodes
 {
     internal class RegisteredNodeStateManager : IRegisteredNodeStateManager
     {

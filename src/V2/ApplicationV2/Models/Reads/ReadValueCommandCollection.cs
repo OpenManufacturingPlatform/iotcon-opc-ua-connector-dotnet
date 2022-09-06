@@ -1,7 +1,7 @@
 ﻿// SPDX-License-Identifier: MIT. 
 // Copyright Contributors to the Open Manufacturing Platform.
 
-namespace ApplicationV2.Models.Reads
+namespace OMP.PlantConnectivity.OpcUA.Models.Reads
 {
     public class ReadValueCommandCollection : List<ReadValueCommand>
     {

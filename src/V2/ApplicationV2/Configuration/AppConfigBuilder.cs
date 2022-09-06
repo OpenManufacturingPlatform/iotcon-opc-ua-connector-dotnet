@@ -1,13 +1,14 @@
 ﻿// SPDX-License-Identifier: MIT. 
 // Copyright Contributors to the Open Manufacturing Platform.
 
-using ApplicationV2.Extensions;
+using OMP.PlantConnectivity.OpcUA.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Security.Cryptography.X509Certificates;
 using Opc.Ua;
+using OMP.PlantConnectivity.OpcUA.Configuration;
 
-namespace ApplicationV2.Configuration
+namespace OMP.PlantConnectivity.OpcUA.Configuration
 {
     public class AppConfigBuilder : IAppConfigBuilder
     {
@@ -27,15 +28,15 @@ namespace ApplicationV2.Configuration
             var appConfig = new ApplicationConfiguration
             {
                 ApplicationType = ApplicationType.ClientAndServer,
-                ApplicationName = this.opcUaSettings.ApplicationName,
-                ApplicationUri = this.opcUaSettings.ApplicationUri,
-                ProductUri = this.opcUaSettings.ProductUri,
-                TraceConfiguration = this.GetTraceConfiguration(),
-                TransportQuotas = this.GetTransportQuotas(),
-                ServerConfiguration = this.GetServerConfiguration(),
+                ApplicationName = opcUaSettings.ApplicationName,
+                ApplicationUri = opcUaSettings.ApplicationUri,
+                ProductUri = opcUaSettings.ProductUri,
+                TraceConfiguration = GetTraceConfiguration(),
+                TransportQuotas = GetTransportQuotas(),
+                ServerConfiguration = GetServerConfiguration(),
                 ClientConfiguration = new ClientConfiguration(),
-                SecurityConfiguration = this.GetSecurityConfiguration(),
-                CertificateValidator = this.GetCertificateValidator()
+                SecurityConfiguration = GetSecurityConfiguration(),
+                CertificateValidator = GetCertificateValidator()
 
             };
 
@@ -48,7 +49,7 @@ namespace ApplicationV2.Configuration
         {
             var traceConfiguration = new TraceConfiguration
             {
-                TraceMasks = this.opcUaSettings.OpcStackTraceMask
+                TraceMasks = opcUaSettings.OpcStackTraceMask
             };
             traceConfiguration.ApplySettings();
 
@@ -59,9 +60,9 @@ namespace ApplicationV2.Configuration
         {
             return new TransportQuotas
             {
-                MaxStringLength = this.opcUaSettings.MaxStringLength,
-                MaxMessageSize = this.opcUaSettings.MaxMessageSize,
-                OperationTimeout = this.opcUaConfiguration.OperationTimeoutInSeconds.ToMilliseconds()
+                MaxStringLength = opcUaSettings.MaxStringLength,
+                MaxMessageSize = opcUaSettings.MaxMessageSize,
+                OperationTimeout = opcUaConfiguration.OperationTimeoutInSeconds.ToMilliseconds()
             };
         }
 
@@ -69,9 +70,9 @@ namespace ApplicationV2.Configuration
         {
             var serverConfiguration = new ServerConfiguration
             {
-                MaxRegistrationInterval = this.opcUaSettings.LdsRegistrationInterval
+                MaxRegistrationInterval = opcUaSettings.LdsRegistrationInterval
             };
-            serverConfiguration.BaseAddresses.Add(this.opcUaSettings.ServerBaseAddress);
+            serverConfiguration.BaseAddresses.Add(opcUaSettings.ServerBaseAddress);
             serverConfiguration.SecurityPolicies.Add(new ServerSecurityPolicy
             {
                 SecurityMode = MessageSecurityMode.SignAndEncrypt,
@@ -84,10 +85,10 @@ namespace ApplicationV2.Configuration
         {
             var securityConfiguration = new SecurityConfiguration
             {
-                TrustedIssuerCertificates = this.GetTrustedIssuerCertificates(),
-                TrustedPeerCertificates = this.GetTrustedPeerCertificates(),
-                RejectedCertificateStore = this.GetRejectedCertificateStore(),
-                ApplicationCertificate = this.GetApplicationCertificate(),
+                TrustedIssuerCertificates = GetTrustedIssuerCertificates(),
+                TrustedPeerCertificates = GetTrustedPeerCertificates(),
+                RejectedCertificateStore = GetRejectedCertificateStore(),
+                ApplicationCertificate = GetApplicationCertificate(),
                 AutoAcceptUntrustedCertificates = true,
                 RejectSHA1SignedCertificates = false,
                 MinimumCertificateKeySize = 1024
@@ -100,8 +101,8 @@ namespace ApplicationV2.Configuration
         {
             return new CertificateTrustList
             {
-                StoreType = this.opcUaSettings.CertificateStoreTypeName,
-                StorePath = this.opcUaSettings.IssuerCertStorePath
+                StoreType = opcUaSettings.CertificateStoreTypeName,
+                StorePath = opcUaSettings.IssuerCertStorePath
             };
         }
 
@@ -109,8 +110,8 @@ namespace ApplicationV2.Configuration
         {
             return new CertificateTrustList
             {
-                StoreType = this.opcUaSettings.CertificateStoreTypeName,
-                StorePath = this.opcUaSettings.TrustedCertStorePath
+                StoreType = opcUaSettings.CertificateStoreTypeName,
+                StorePath = opcUaSettings.TrustedCertStorePath
             };
         }
 
@@ -118,8 +119,8 @@ namespace ApplicationV2.Configuration
         {
             return new CertificateTrustList
             {
-                StoreType = this.opcUaSettings.CertificateStoreTypeName,
-                StorePath = this.opcUaSettings.RejectedCertStorePath
+                StoreType = opcUaSettings.CertificateStoreTypeName,
+                StorePath = opcUaSettings.RejectedCertStorePath
             };
         }
 
@@ -128,11 +129,11 @@ namespace ApplicationV2.Configuration
             var certificateIdentifier = new CertificateIdentifier
             {
                 StoreType = CertificateStoreType.X509Store,
-                StorePath = this.opcUaSettings.OwnCertStorePath,
-                SubjectName = this.opcUaSettings.ApplicationName
+                StorePath = opcUaSettings.OwnCertStorePath,
+                SubjectName = opcUaSettings.ApplicationName
             };
 
-            certificateIdentifier.Certificate = this.GenerateCertificate(certificateIdentifier);
+            certificateIdentifier.Certificate = GenerateCertificate(certificateIdentifier);
 
             return certificateIdentifier;
         }
@@ -153,9 +154,9 @@ namespace ApplicationV2.Configuration
         private X509Certificate2 GenerateCertificate(CertificateIdentifier identifier)
         {
             var certificateBuilder = CertificateFactory.CreateCertificate(
-                this.opcUaSettings.ApplicationUri,
-                this.opcUaSettings.ApplicationName,
-                this.opcUaSettings.ApplicationName,
+                opcUaSettings.ApplicationUri,
+                opcUaSettings.ApplicationName,
+                opcUaSettings.ApplicationName,
                 default
             );
             certificateBuilder.SetLifeTime(CertificateFactory.DefaultLifeTime);
@@ -167,7 +168,7 @@ namespace ApplicationV2.Configuration
                 certificate = identifier.LoadPrivateKey(default).GetAwaiter().GetResult();
 
             var certificateSigningRequest = CertificateFactory.CreateSigningRequest(certificate);
-            File.WriteAllBytes($"{this.opcUaSettings.ApplicationName}.csr", certificateSigningRequest);
+            File.WriteAllBytes($"{opcUaSettings.ApplicationName}.csr", certificateSigningRequest);
 
             return certificate;
         }

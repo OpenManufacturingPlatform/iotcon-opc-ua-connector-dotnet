@@ -1,7 +1,7 @@
 ﻿// SPDX-License-Identifier: MIT. 
 // Copyright Contributors to the Open Manufacturing Platform.
 
-namespace ApplicationV2.Models.Call
+namespace OMP.PlantConnectivity.OpcUA.Models.Call
 {
     public class CallCommandCollection:List<CallCommand>
     {

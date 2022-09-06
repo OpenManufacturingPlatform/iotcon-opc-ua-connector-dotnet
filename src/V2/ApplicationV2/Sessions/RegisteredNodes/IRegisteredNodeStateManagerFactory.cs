@@ -1,7 +1,7 @@
 ﻿// SPDX-License-Identifier: MIT. 
 // Copyright Contributors to the Open Manufacturing Platform.
 
-namespace ApplicationV2.Sessions.RegisteredNodes
+namespace OMP.PlantConnectivity.OpcUA.Sessions.RegisteredNodes
 {
     public interface IRegisteredNodeStateManagerFactory
     {

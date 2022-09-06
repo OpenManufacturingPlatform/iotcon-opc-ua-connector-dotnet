@@ -2,19 +2,19 @@
 // Copyright Contributors to the Open Manufacturing Platform.
 
 using System.Collections.Concurrent;
-using ApplicationV2.Configuration;
-using ApplicationV2.Extensions;
-using ApplicationV2.Services;
-using ApplicationV2.Sessions.Auth;
-using ApplicationV2.Sessions.Reconnect;
-using ApplicationV2.Sessions.RegisteredNodes;
-using ApplicationV2.Sessions.Types;
+using OMP.PlantConnectivity.OpcUA.Configuration;
+using OMP.PlantConnectivity.OpcUA.Extensions;
+using OMP.PlantConnectivity.OpcUA.Services;
+using OMP.PlantConnectivity.OpcUA.Sessions.Auth;
+using OMP.PlantConnectivity.OpcUA.Sessions.Reconnect;
+using OMP.PlantConnectivity.OpcUA.Sessions.RegisteredNodes;
+using OMP.PlantConnectivity.OpcUA.Sessions.Types;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OneOf;
 using Opc.Ua;
 
-namespace ApplicationV2.Sessions.SessionManagement
+namespace OMP.PlantConnectivity.OpcUA.Sessions.SessionManagement
 {
     internal class SessionPoolStateManager : ISessionPoolStateManager
     {
@@ -30,6 +30,7 @@ namespace ApplicationV2.Sessions.SessionManagement
         private readonly IComplexTypeSystemFactory complexTypeSystemFactory;
         private readonly IEnumerable<IMonitoredItemMessageProcessor> monitoredItemMessageProcessors;
         private readonly ILoggerFactory loggerFactory;
+        private readonly ILogger<SessionPoolStateManager> logger;
 
         public SessionPoolStateManager(
             IOptions<OmpOpcUaConfiguration> opcUaConfiguration,
@@ -51,6 +52,7 @@ namespace ApplicationV2.Sessions.SessionManagement
             this.complexTypeSystemFactory = complexTypeSystemFactory;
             this.monitoredItemMessageProcessors = monitoredItemMessageProcessors;
             this.loggerFactory = loggerFactory;
+            this.logger = loggerFactory.CreateLogger<SessionPoolStateManager>();
         }
 
         public Task CleanupStaleSessionsAsync()
@@ -87,7 +89,13 @@ namespace ApplicationV2.Sessions.SessionManagement
             try
             {
                 await semaphoreSlim.WaitAsync(cancellationToken).ConfigureAwait(false);
-                sessionPool.Values.ToList().ForEach(async opcsession => await opcsession.DisconnectAsync(cancellationToken));
+                logger.LogInformation("Starting to close all active sessions");
+                sessionPool.Values.ToList().ForEach(async opcsession =>
+                {
+                    var endpoint = opcsession.GetBaseEndpointUrl();
+                    await opcsession.DisconnectAsync(cancellationToken);
+                    logger.LogInformation("Sessions for {endpoin} closed", endpoint);
+                });
             }
             finally
             {
@@ -100,7 +108,10 @@ namespace ApplicationV2.Sessions.SessionManagement
             try
             {
                 await semaphoreSlim.WaitAsync(cancellationToken).ConfigureAwait(false);
-                await sessionPool[opcUaServerUrl.ToValidBaseEndpointUrl()].DisconnectAsync(cancellationToken);
+                sessionPool.Remove(opcUaServerUrl.ToValidBaseEndpointUrl(), out var session);
+                await session.DisconnectAsync(cancellationToken);
+                
+                logger.LogInformation("Sessions for {endpoin} closed", opcUaServerUrl);
             }
             finally
             {
@@ -147,6 +158,7 @@ namespace ApplicationV2.Sessions.SessionManagement
                 if (disposing)
                 {
                     // TODO: dispose managed state (managed objects)
+                    CloseAllSessionsAsync(CancellationToken.None).Wait();
                 }
 
                 // TODO: free unmanaged resources (unmanaged objects) and override finalizer

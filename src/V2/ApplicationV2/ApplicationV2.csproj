@@ -1,9 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <TargetFramework>net6.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>OMP.PlantConnectivity.OpcUA</AssemblyName>
+    <RootNamespace>OMP.PlantConnectivity.OpcUA</RootNamespace>
+    <VersionPrefix>2.0.0.1</VersionPrefix>
+    <RepositoryUrl>https://github.com/OpenManufacturingPlatform/iotcon-opc-ua-connector-dotnet</RepositoryUrl>
+    <Authors>OMP</Authors>
+    <PackageProjectUrl>https://github.com/OpenManufacturingPlatform/iotcon-opc-ua-connector-dotnet</PackageProjectUrl>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
   </PropertyGroup>
 
 

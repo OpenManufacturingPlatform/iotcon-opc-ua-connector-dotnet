@@ -1,10 +1,10 @@
 ﻿// SPDX-License-Identifier: MIT. 
 // Copyright Contributors to the Open Manufacturing Platform.
 
-using ApplicationV2.Models.Reads;
+using OMP.PlantConnectivity.OpcUA.Models.Reads;
 using Opc.Ua;
 
-namespace ApplicationV2.Models.Browse
+namespace OMP.PlantConnectivity.OpcUA.Models.Browse
 {
     [Obsolete]
     public record BrowseCommand : ReadNodeCommand

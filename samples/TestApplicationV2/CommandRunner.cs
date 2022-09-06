@@ -1,14 +1,14 @@
 ﻿// SPDX-License-Identifier: MIT. 
 // Copyright Contributors to the Open Manufacturing Platform.
 
-using ApplicationV2;
-using ApplicationV2.Models.Call;
-using ApplicationV2.Models.Discovery;
-using ApplicationV2.Models.Reads;
-using ApplicationV2.Models.Subscriptions;
-using ApplicationV2.Models.Writes;
+using OMP.PlantConnectivity.OpcUA;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using OMP.PlantConnectivity.OpcUA.Models.Call;
+using OMP.PlantConnectivity.OpcUA.Models.Discovery;
+using OMP.PlantConnectivity.OpcUA.Models.Reads;
+using OMP.PlantConnectivity.OpcUA.Models.Subscriptions;
+using OMP.PlantConnectivity.OpcUA.Models.Writes;
 using Opc.Ua;
 
 namespace TestApplicationV2

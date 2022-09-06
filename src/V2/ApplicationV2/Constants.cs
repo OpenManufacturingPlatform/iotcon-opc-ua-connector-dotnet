@@ -1,7 +1,7 @@
 ﻿// SPDX-License-Identifier: MIT. 
 // Copyright Contributors to the Open Manufacturing Platform.
 
-namespace ApplicationV2
+namespace OMP.PlantConnectivity.OpcUA
 {
     public class Constants
     {

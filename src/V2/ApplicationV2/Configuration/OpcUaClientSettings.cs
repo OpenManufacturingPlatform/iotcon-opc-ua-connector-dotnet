@@ -4,7 +4,7 @@
 using System.ComponentModel.DataAnnotations;
 using Opc.Ua;
 
-namespace ApplicationV2.Configuration
+namespace OMP.PlantConnectivity.OpcUA.Configuration
 {
     public record OpcUaClientSettings
     {

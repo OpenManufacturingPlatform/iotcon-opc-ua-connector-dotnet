@@ -3,16 +3,16 @@
 
 using System.Collections;
 using System.Diagnostics;
-using ApplicationV2.Configuration;
-using ApplicationV2.Extensions;
-using ApplicationV2.Models.Call;
-using ApplicationV2.Models.Subscriptions;
-using ApplicationV2.Services;
-using ApplicationV2.Sessions.Auth;
-using ApplicationV2.Sessions.Reconnect;
-using ApplicationV2.Sessions.RegisteredNodes;
-using ApplicationV2.Sessions.Types;
-using ApplicationV2.Validation;
+using OMP.PlantConnectivity.OpcUA.Configuration;
+using OMP.PlantConnectivity.OpcUA.Extensions;
+using OMP.PlantConnectivity.OpcUA.Models.Call;
+using OMP.PlantConnectivity.OpcUA.Models.Subscriptions;
+using OMP.PlantConnectivity.OpcUA.Services;
+using OMP.PlantConnectivity.OpcUA.Sessions.Auth;
+using OMP.PlantConnectivity.OpcUA.Sessions.Reconnect;
+using OMP.PlantConnectivity.OpcUA.Sessions.RegisteredNodes;
+using OMP.PlantConnectivity.OpcUA.Sessions.Types;
+using OMP.PlantConnectivity.OpcUA.Validation;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Opc.Ua;
@@ -20,7 +20,7 @@ using Opc.Ua.Client;
 using EndpointConfiguration = Opc.Ua.EndpointConfiguration;
 using TypeInfo = Opc.Ua.TypeInfo;
 
-namespace ApplicationV2.Sessions
+namespace OMP.PlantConnectivity.OpcUA.Sessions
 {
     public interface IOpcUaSession : IDisposable
     {

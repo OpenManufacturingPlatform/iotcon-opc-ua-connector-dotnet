@@ -2,13 +2,13 @@
 // Copyright Contributors to the Open Manufacturing Platform.
 
 using System.Diagnostics;
-using ApplicationV2.Models;
-using ApplicationV2.Models.Reads;
-using ApplicationV2.Sessions;
+using OMP.PlantConnectivity.OpcUA.Models;
+using OMP.PlantConnectivity.OpcUA.Models.Reads;
+using OMP.PlantConnectivity.OpcUA.Sessions;
 using Opc.Ua;
-using ReadValueResponse = ApplicationV2.Models.Reads.ReadValueResponse;
+using ReadValueResponse = OMP.PlantConnectivity.OpcUA.Models.Reads.ReadValueResponse;
 
-namespace ApplicationV2.Services
+namespace OMP.PlantConnectivity.OpcUA.Services
 {
     public class ReadCommandService : IReadCommandService
     {

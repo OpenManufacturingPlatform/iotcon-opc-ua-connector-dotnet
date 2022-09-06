@@ -1,19 +1,19 @@
 ﻿// SPDX-License-Identifier: MIT. 
 // Copyright Contributors to the Open Manufacturing Platform.
 
-using ApplicationV2.Models.Subscriptions;
+using OMP.PlantConnectivity.OpcUA.Models.Subscriptions;
 using Microsoft.Extensions.Options;
-using ApplicationV2.Configuration;
+using OMP.PlantConnectivity.OpcUA.Configuration;
 using System.Collections.Concurrent;
 
-namespace ApplicationV2.Repositories
+namespace OMP.PlantConnectivity.OpcUA.Repositories
 {
     public class SubscriptionRepositoryInMemory : ISubscriptionRepository
     {
-        private ConnectorConfiguration connectorConfiguration;
+        private OmpOpcUaConfiguration connectorConfiguration;
         private ConcurrentDictionary<string, List<SubscriptionDto>> pairs = new ConcurrentDictionary<string, List<SubscriptionDto>>();
 
-        public SubscriptionRepositoryInMemory(IOptions<ConnectorConfiguration> options)
+        public SubscriptionRepositoryInMemory(IOptions<OmpOpcUaConfiguration> options)
         {
             connectorConfiguration = options.Value;
         }

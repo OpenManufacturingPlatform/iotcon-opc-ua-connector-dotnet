@@ -3,9 +3,9 @@
 
 using Opc.Ua;
 
-namespace ApplicationV2.Configuration
+namespace OMP.PlantConnectivity.OpcUA.Configuration
 {
-    public sealed class OmpOpcUaConfiguration
+    public record OmpOpcUaConfiguration
     {
         public int SubscriptionBatchSize { get; set; } = 100;
         public int AlarmSubscriptionBatchSize { get; set; } = 100;
@@ -15,6 +15,7 @@ namespace ApplicationV2.Configuration
         public int OperationTimeoutInSeconds { get; set; } = 120;
         public int ReconnectIntervalInSeconds { get; set; } = 10;
         public int KeepAliveIntervalInSeconds { get; set; } = 5;
+        public bool DisableSubscriptionRestoreService { get; set; } = false;
 
         public uint NodeMask => (uint)NodeClass.Object |
                                           (uint)NodeClass.Variable |

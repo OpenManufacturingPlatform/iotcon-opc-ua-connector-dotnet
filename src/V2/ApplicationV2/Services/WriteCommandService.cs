@@ -1,12 +1,12 @@
 ﻿// SPDX-License-Identifier: MIT. 
 // Copyright Contributors to the Open Manufacturing Platform.
 
-using ApplicationV2.Models;
-using ApplicationV2.Models.Writes;
-using ApplicationV2.Sessions;
+using OMP.PlantConnectivity.OpcUA.Models;
+using OMP.PlantConnectivity.OpcUA.Models.Writes;
+using OMP.PlantConnectivity.OpcUA.Sessions;
 using Opc.Ua;
 
-namespace ApplicationV2.Services
+namespace OMP.PlantConnectivity.OpcUA.Services
 {
     public class WriteCommandService : IWriteCommandService
     {

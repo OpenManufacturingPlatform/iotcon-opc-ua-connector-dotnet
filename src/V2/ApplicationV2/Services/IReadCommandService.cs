@@ -1,10 +1,10 @@
 ﻿// SPDX-License-Identifier: MIT. 
 // Copyright Contributors to the Open Manufacturing Platform.
 
-using ApplicationV2.Models.Reads;
-using ApplicationV2.Sessions;
+using OMP.PlantConnectivity.OpcUA.Models.Reads;
+using OMP.PlantConnectivity.OpcUA.Sessions;
 
-namespace ApplicationV2.Services
+namespace OMP.PlantConnectivity.OpcUA.Services
 {
     public interface IReadCommandService
     {

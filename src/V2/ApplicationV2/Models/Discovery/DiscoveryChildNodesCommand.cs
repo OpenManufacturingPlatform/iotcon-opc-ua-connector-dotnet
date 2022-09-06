@@ -3,7 +3,7 @@
 
 using Opc.Ua;
 
-namespace ApplicationV2.Models.Discovery
+namespace OMP.PlantConnectivity.OpcUA.Models.Discovery
 {
     public record BrowseChildNodesCommand
     {

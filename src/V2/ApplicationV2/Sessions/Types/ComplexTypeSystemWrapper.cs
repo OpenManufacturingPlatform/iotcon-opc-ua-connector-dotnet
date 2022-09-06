@@ -5,7 +5,7 @@ using Opc.Ua.Client;
 using Opc.Ua.Client.ComplexTypes;
 
 
-namespace ApplicationV2.Sessions.Types
+namespace OMP.PlantConnectivity.OpcUA.Sessions.Types
 {
     internal class ComplexTypeSystemWrapper : ComplexTypeSystem, IComplexTypeSystem
     {

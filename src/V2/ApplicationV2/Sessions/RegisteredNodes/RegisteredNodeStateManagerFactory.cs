@@ -3,7 +3,7 @@
 
 using Microsoft.Extensions.Logging;
 
-namespace ApplicationV2.Sessions.RegisteredNodes
+namespace OMP.PlantConnectivity.OpcUA.Sessions.RegisteredNodes
 {
     internal class RegisteredNodeStateManagerFactory : IRegisteredNodeStateManagerFactory
     {

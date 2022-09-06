@@ -1,32 +1,41 @@
 ﻿// SPDX-License-Identifier: MIT. 
 // Copyright Contributors to the Open Manufacturing Platform.
 
-using ApplicationV2;
-using ApplicationV2.Configuration;
-using ApplicationV2.Models.Subscriptions;
-using ApplicationV2.Repositories;
-using ApplicationV2.Services;
-using ApplicationV2.Sessions.Auth;
-using ApplicationV2.Sessions.Reconnect;
-using ApplicationV2.Sessions.RegisteredNodes;
-using ApplicationV2.Sessions.SessionManagement;
-using ApplicationV2.Sessions.Types;
-using ApplicationV2.Validation;
 using FluentValidation;
 using Microsoft.Extensions.Configuration;
+using OMP.PlantConnectivity.OpcUA;
+using OMP.PlantConnectivity.OpcUA.Configuration;
+using OMP.PlantConnectivity.OpcUA.Models.Subscriptions;
+using OMP.PlantConnectivity.OpcUA.Repositories;
+using OMP.PlantConnectivity.OpcUA.Services;
+using OMP.PlantConnectivity.OpcUA.Sessions.Auth;
+using OMP.PlantConnectivity.OpcUA.Sessions.Reconnect;
+using OMP.PlantConnectivity.OpcUA.Sessions.RegisteredNodes;
+using OMP.PlantConnectivity.OpcUA.Sessions.SessionManagement;
+using OMP.PlantConnectivity.OpcUA.Sessions.Types;
+using OMP.PlantConnectivity.OpcUA.Validation;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
     public static class MicrosoftExtensionsDependencyInjection
     {
+
         public static IServiceCollection AddOmpOpcUaClient(this IServiceCollection serviceCollection, IConfiguration configuration)
         {
+            serviceCollection.AddOmpOpcUaClient<LoggingMonitoredItemMessageProcessor, SubscriptionRepositoryInMemory>(configuration);
+            return serviceCollection;
+        }
+
+        public static IServiceCollection AddOmpOpcUaClient<TProcessor, TSubscriptionRepo>(this IServiceCollection serviceCollection, IConfiguration configuration)
+            where TProcessor : class, IMonitoredItemMessageProcessor
+            where TSubscriptionRepo : class, ISubscriptionRepository
+        {
             //Configuration
-            var connectorConfiguration = new ConnectorConfiguration();
+            var connectorConfiguration = new OmpOpcUaConfiguration();
             configuration.Bind(connectorConfiguration);
-            serviceCollection.Configure<ConnectorConfiguration>(configuration, options =>
+            serviceCollection.Configure<OmpOpcUaConfiguration>(configuration.GetSection("OpcUa"), options =>
             {
-                configuration.Bind(options);
+                configuration.GetSection("OpcUa").Bind(options);
             });
             serviceCollection.Configure<OmpOpcUaConfiguration>(configuration.GetSection("OpcUa"));
             serviceCollection.Configure<OpcUaClientSettings>(configuration.GetSection("OpcUa"));
@@ -52,7 +61,7 @@ namespace Microsoft.Extensions.DependencyInjection
             }
             else
             {
-                serviceCollection.AddSingleton<ISubscriptionRepository, SubscriptionRepositoryInMemory>();
+                serviceCollection.AddSingleton<ISubscriptionRepository, TSubscriptionRepo>();
             }
 
 
@@ -66,11 +75,10 @@ namespace Microsoft.Extensions.DependencyInjection
             serviceCollection.AddTransient<IReadCommandService, ReadCommandService>();
             serviceCollection.AddTransient<IWriteCommandService, WriteCommandService>();
             serviceCollection.AddTransient<ISubscriptionCommandService, SubscriptionCommandService>();
-            serviceCollection.AddTransient<IMonitoredItemMessageProcessor, LoggingMonitoredItemMessageProcessor>();
             serviceCollection.AddSingleton<ISessionPoolStateManager, SessionPoolStateManager>();
             serviceCollection.AddSingleton<IUserIdentityProvider, UserIdentityProvider>();
             serviceCollection.AddSingleton<IOmpOpcUaClient, OmpOpcUaClient>();
-            
+
             serviceCollection.AddSingleton<IAppConfigBuilder, AppConfigBuilder>();
             serviceCollection.AddSingleton(provider =>
             {
@@ -78,7 +86,8 @@ namespace Microsoft.Extensions.DependencyInjection
                 return builder!.Build();
             });
 
-            //IOptions<OpcUaConfiguration> opcUaConfiguration
+            // Monitored Item Notifaction Processor
+            serviceCollection.AddTransient<IMonitoredItemMessageProcessor, TProcessor>();
 
             return serviceCollection;
         }

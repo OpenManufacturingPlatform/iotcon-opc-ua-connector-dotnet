@@ -3,7 +3,7 @@
 
 using Opc.Ua;
 
-namespace ApplicationV2.Models.Call
+namespace OMP.PlantConnectivity.OpcUA.Models.Call
 {
     public record CallCommandCollectionResponse : CommandResult<CallCommandCollection, CallResponse>
     {
