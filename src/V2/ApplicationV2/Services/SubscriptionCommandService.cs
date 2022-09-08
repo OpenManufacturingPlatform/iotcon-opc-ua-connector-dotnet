@@ -282,7 +282,7 @@ namespace OMP.PlantConnectivity.OpcUA.Services
                 {
                     subscription.RemoveItems(monitoredItems);
                     subscription.ApplyChanges();
-                    removeSubscriptionsResponse.NodesOfRemovedSubscriptions.AddRange(monitoredItems.Select(mi => mi.StartNodeId));
+                    removeSubscriptionsResponse.NodesRemovedFromSubscriptions.AddRange(monitoredItems.Select(mi => mi.StartNodeId));
                 }
                 catch (ServiceResultException sre)
                 {
