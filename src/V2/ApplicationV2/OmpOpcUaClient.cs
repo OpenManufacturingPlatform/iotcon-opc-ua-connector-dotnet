@@ -14,6 +14,7 @@ using OMP.PlantConnectivity.OpcUA.Sessions.SessionManagement;
 using Microsoft.Extensions.Logging;
 using OneOf;
 using CreateSubscriptionResponse = OMP.PlantConnectivity.OpcUA.Models.Subscriptions.CreateSubscriptionResponse;
+using System.Data;
 
 namespace OMP.PlantConnectivity.OpcUA
 {
@@ -212,6 +213,7 @@ namespace OMP.PlantConnectivity.OpcUA
             catch (Exception ex)
             {
                 logger.LogWarning(ex, "Error(s) occurred while trying to open an session on {server}: {error}", endpointUrl, ex.Message);
+                throw ex.Demystify();
             }
         }
 
