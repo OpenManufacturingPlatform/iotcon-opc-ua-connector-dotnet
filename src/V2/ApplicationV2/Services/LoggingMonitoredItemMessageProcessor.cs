@@ -16,7 +16,7 @@ namespace OMP.PlantConnectivity.OpcUA.Services
         }
 
         public string Identifier { get; } = nameof(LoggingMonitoredItemMessageProcessor);
-        public void ProcessMessage(MonitoredItem monitoredItem, MonitoredItemNotificationEventArgs eventArguments)
+        public virtual void ProcessMessage(MonitoredItem monitoredItem, MonitoredItemNotificationEventArgs eventArguments)
         {
             logger.LogInformation("Message Received: NodeId: {nodeId} | Value: {value}", monitoredItem.StartNodeId, eventArguments.NotificationValue);
         }

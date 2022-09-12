@@ -8,7 +8,7 @@ using System.Collections.Concurrent;
 
 namespace OMP.PlantConnectivity.OpcUA.Repositories
 {
-    public class SubscriptionRepositoryInMemory : ISubscriptionRepository
+    internal class SubscriptionRepositoryInMemory : ISubscriptionRepository
     {
         private OmpOpcUaConfiguration connectorConfiguration;
         private ConcurrentDictionary<string, List<SubscriptionDto>> pairs = new ConcurrentDictionary<string, List<SubscriptionDto>>();
