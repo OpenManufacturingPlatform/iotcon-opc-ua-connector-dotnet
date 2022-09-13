@@ -28,8 +28,11 @@ namespace OMP.PlantConnectivity.OpcUA.Services
                 }
 
                 var callResponse = await opcUaSession.CallAsync(callMethodRequests, cancellationToken);
-
-                return CallCommandCollectionResponse.Success(commands, callResponse);
+                
+                if(callResponse.Results.All(callResponse => StatusCode.IsGood(callResponse.StatusCode)))
+                    return CallCommandCollectionResponse.Success(commands, callResponse);
+                
+                return CallCommandCollectionResponse.Failed(commands, callResponse);
             }
             catch (Exception ex)
             {

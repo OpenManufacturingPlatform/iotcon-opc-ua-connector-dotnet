@@ -22,5 +22,8 @@ namespace OMP.PlantConnectivity.OpcUA.Models.Call
 
         public static CallCommandCollectionResponse Failed(CallCommandCollection command, Exception exception)
             => new CallCommandCollectionResponse(command, exception);
+
+        public static CallCommandCollectionResponse Failed(CallCommandCollection command, CallResponse response)
+            => new CallCommandCollectionResponse(command, response, false);
     }
 }
