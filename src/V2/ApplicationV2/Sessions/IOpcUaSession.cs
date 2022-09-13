@@ -13,6 +13,7 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions
         #region [Misc]
         string GetBaseEndpointUrl();
         NamespaceTable? GetNamespaceUris();
+        IServiceMessageContext? GetServiceMessageContext();
         #endregion
 
         #region [Connection]

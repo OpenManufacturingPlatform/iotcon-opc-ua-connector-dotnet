@@ -353,6 +353,9 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions
 
         public NamespaceTable? GetNamespaceUris()
             => session?.NamespaceUris;
+
+        public IServiceMessageContext? GetServiceMessageContext()
+            => session?.MessageContext;
         #endregion
 
         #region [Protected]
