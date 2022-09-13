@@ -6,7 +6,7 @@ using Opc.Ua.Client;
 
 namespace OMP.PlantConnectivity.OpcUA.Sessions.Types
 {
-    internal class ComplexTypeSystemFactory : IComplexTypeSystemFactory
+    internal sealed class ComplexTypeSystemFactory : IComplexTypeSystemFactory
     {
         public IComplexTypeSystem Create(Session session)
            => new ComplexTypeSystemWrapper(session!);

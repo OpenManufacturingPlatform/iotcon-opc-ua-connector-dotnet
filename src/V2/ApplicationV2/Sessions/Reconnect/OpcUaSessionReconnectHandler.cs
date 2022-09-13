@@ -6,7 +6,7 @@ using Opc.Ua.Client;
 
 namespace OMP.PlantConnectivity.OpcUA.Sessions.Reconnect
 {
-    internal class OpcUaSessionReconnectHandler : IOpcUaSessionReconnectHandler
+    internal sealed class OpcUaSessionReconnectHandler : IOpcUaSessionReconnectHandler
     {
         private SessionReconnectHandler? reconnectHandler;
         private EventHandler? callback;

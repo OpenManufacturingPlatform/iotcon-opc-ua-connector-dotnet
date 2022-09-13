@@ -5,7 +5,7 @@ using OMP.PlantConnectivity.OpcUA.Sessions.Subscriptions;
 
 namespace OMP.PlantConnectivity.OpcUA.Sessions.Reconnect
 {
-    internal class OpcUaSessionReconnectHandlerFactory : IOpcUaSessionReconnectHandlerFactory
+    internal sealed class OpcUaSessionReconnectHandlerFactory : IOpcUaSessionReconnectHandlerFactory
     {
         public IOpcUaSessionReconnectHandler Create()
             => new OpcUaSessionReconnectHandler();

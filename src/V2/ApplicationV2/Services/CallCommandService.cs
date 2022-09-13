@@ -7,7 +7,7 @@ using Opc.Ua;
 
 namespace OMP.PlantConnectivity.OpcUA.Services
 {
-    internal class CallCommandService : ICallCommandService
+    internal sealed class CallCommandService : ICallCommandService
     {
         public Task<NodeMethodDescribeResponse> GetNodeMethodArgumentsAsync(IOpcUaSession opcUaSession, NodeMethodDescribeCommand command, CancellationToken cancellationToken)
             => opcUaSession.GetNodeMethodArgumentsAsync(command, cancellationToken);

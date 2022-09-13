@@ -7,7 +7,7 @@ using Opc.Ua.Client.ComplexTypes;
 
 namespace OMP.PlantConnectivity.OpcUA.Sessions.Types
 {
-    internal class ComplexTypeSystemWrapper : ComplexTypeSystem, IComplexTypeSystem
+    internal sealed class ComplexTypeSystemWrapper : ComplexTypeSystem, IComplexTypeSystem
     {
         public ComplexTypeSystemWrapper(Session session)
             : base(session)

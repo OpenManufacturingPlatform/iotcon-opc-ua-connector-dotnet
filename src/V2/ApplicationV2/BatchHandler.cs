@@ -5,7 +5,7 @@ using System.Threading.Tasks.Dataflow;
 
 namespace OMP.PlantConnectivity.OpcUA
 {
-    public class BatchHandler<T>
+    public sealed class BatchHandler<T>
     {
         private readonly BatchBlock<T> batchBlock;
         private readonly ActionBlock<T[]> actionBlock;

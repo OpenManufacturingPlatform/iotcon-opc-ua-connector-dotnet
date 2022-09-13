@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 
 namespace OMP.PlantConnectivity.OpcUA.Sessions.RegisteredNodes
 {
-    internal class RegisteredNodeStateManagerFactory : IRegisteredNodeStateManagerFactory
+    internal sealed class RegisteredNodeStateManagerFactory : IRegisteredNodeStateManagerFactory
     {
         private readonly ILoggerFactory loggerFactory;
 

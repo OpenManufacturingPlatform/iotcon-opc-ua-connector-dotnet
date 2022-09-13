@@ -7,7 +7,7 @@ using Opc.Ua;
 
 namespace OMP.PlantConnectivity.OpcUA.Sessions.RegisteredNodes
 {
-    internal class RegisteredNodeStateManager : IRegisteredNodeStateManager
+    internal sealed class RegisteredNodeStateManager : IRegisteredNodeStateManager
     {
         private readonly ConcurrentDictionary<string, NodeId> registeredNodes = new ConcurrentDictionary<string, NodeId>();
         private readonly IOpcUaSession opcUaSession;

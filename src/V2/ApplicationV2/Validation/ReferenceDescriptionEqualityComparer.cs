@@ -5,11 +5,11 @@ using Opc.Ua;
 
 namespace OMP.PlantConnectivity.OpcUA.Validation
 {
-    internal class ReferenceDescriptionEqualityComparer : IEqualityComparer<ReferenceDescription>
+    internal sealed class ReferenceDescriptionEqualityComparer : IEqualityComparer<ReferenceDescription>
     {
-        public bool Equals(ReferenceDescription x, ReferenceDescription y)
+        public bool Equals(ReferenceDescription? x, ReferenceDescription? y)
         {
-            return x.NodeId == y.NodeId;
+            return x?.NodeId == y?.NodeId;
         }
 
         public int GetHashCode(ReferenceDescription obj)

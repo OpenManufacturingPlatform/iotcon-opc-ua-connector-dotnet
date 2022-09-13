@@ -8,7 +8,7 @@ using Opc.Ua;
 
 namespace OMP.PlantConnectivity.OpcUA.Services
 {
-    internal class BrowseService : IBrowseService
+    internal sealed class BrowseService : IBrowseService
     {
         private readonly ILogger<BrowseService> logger;
 

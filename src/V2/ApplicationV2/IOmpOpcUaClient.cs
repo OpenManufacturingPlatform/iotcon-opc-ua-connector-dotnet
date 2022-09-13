@@ -7,6 +7,7 @@ using OMP.PlantConnectivity.OpcUA.Models.Discovery;
 using OMP.PlantConnectivity.OpcUA.Models.Reads;
 using OMP.PlantConnectivity.OpcUA.Models.Subscriptions;
 using OMP.PlantConnectivity.OpcUA.Models.Writes;
+using OMP.PlantConnectivity.OpcUA.Serialization;
 using OneOf;
 using CreateSubscriptionResponse = OMP.PlantConnectivity.OpcUA.Models.Subscriptions.CreateSubscriptionResponse;
 
@@ -99,7 +100,11 @@ namespace OMP.PlantConnectivity.OpcUA
         /// </summary>
         /// <param name="cancellationToken">Token to signal cancellation of the process</param>
         /// <returns>Task</returns>
-        Task CloseAllActiveSessionsAsync(CancellationToken cancellationToken); 
+        Task CloseAllActiveSessionsAsync(CancellationToken cancellationToken);
+        #endregion
+
+        #region [Serializer]
+        Task<OneOf<IOmpOpcUaSerializer, Exception>> GetOmpOpcUaSerializer(string endpointUrl, CancellationToken cancellationToken, bool useReversibleEncoding = true, bool useGenericEncoderOnError = true);
         #endregion
     }
 }

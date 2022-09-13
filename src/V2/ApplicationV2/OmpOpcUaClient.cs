@@ -2,23 +2,23 @@
 // Copyright Contributors to the Open Manufacturing Platform.
 
 using System.Diagnostics;
+using Microsoft.Extensions.Logging;
 using OMP.PlantConnectivity.OpcUA.Models.Browse;
 using OMP.PlantConnectivity.OpcUA.Models.Call;
 using OMP.PlantConnectivity.OpcUA.Models.Discovery;
 using OMP.PlantConnectivity.OpcUA.Models.Reads;
 using OMP.PlantConnectivity.OpcUA.Models.Subscriptions;
 using OMP.PlantConnectivity.OpcUA.Models.Writes;
+using OMP.PlantConnectivity.OpcUA.Serialization;
 using OMP.PlantConnectivity.OpcUA.Services;
 using OMP.PlantConnectivity.OpcUA.Sessions;
 using OMP.PlantConnectivity.OpcUA.Sessions.SessionManagement;
-using Microsoft.Extensions.Logging;
 using OneOf;
 using CreateSubscriptionResponse = OMP.PlantConnectivity.OpcUA.Models.Subscriptions.CreateSubscriptionResponse;
-using System.Data;
 
 namespace OMP.PlantConnectivity.OpcUA
 {
-    public class OmpOpcUaClient : IOmpOpcUaClient
+    public sealed class OmpOpcUaClient : IOmpOpcUaClient
     {
         #region [Fields]
         private readonly ISessionPoolStateManager sessionPoolStateManager;
@@ -27,7 +27,8 @@ namespace OMP.PlantConnectivity.OpcUA
         private readonly ISubscriptionCommandService subscriptionCommandsService;
         private readonly ICallCommandService callCommandService;
         private readonly IBrowseService browseService;
-        private readonly ILogger<OmpOpcUaClient> logger; 
+        private readonly IOmpOpcUaSerializerFactory ompOpcUaSerializerFactory;
+        private readonly ILogger<OmpOpcUaClient> logger;
         #endregion
 
         #region [Ctor]
@@ -38,6 +39,7 @@ namespace OMP.PlantConnectivity.OpcUA
             ISubscriptionCommandService subscriptionCommandsService,
             ICallCommandService callCommandService,
             IBrowseService browseService,
+            IOmpOpcUaSerializerFactory ompOpcUaSerializerFactory,
             ILogger<OmpOpcUaClient> logger
             )
         {
@@ -47,6 +49,7 @@ namespace OMP.PlantConnectivity.OpcUA
             this.subscriptionCommandsService = subscriptionCommandsService;
             this.callCommandService = callCommandService;
             this.browseService = browseService;
+            this.ompOpcUaSerializerFactory = ompOpcUaSerializerFactory;
             this.logger = logger;
         }
         #endregion
@@ -57,7 +60,7 @@ namespace OMP.PlantConnectivity.OpcUA
             try
             {
                 var opcUaSession = await GetSession(endpointUrl, cancellationToken);
-                var result =  await browseService.BrowseNodes(opcUaSession, cancellationToken, browseDepth);
+                var result = await browseService.BrowseNodes(opcUaSession, cancellationToken, browseDepth);
                 return result;
             }
             catch (Exception ex)
@@ -91,7 +94,7 @@ namespace OMP.PlantConnectivity.OpcUA
             var commandCollection = new ReadNodeCommandCollection(commands.EndpointUrl);
             commandCollection.AddRange(commands);
             return ReadNodesAsync(commandCollection, cancellationToken);
-        } 
+        }
         #endregion
 
         #region [Call]
@@ -223,13 +226,13 @@ namespace OMP.PlantConnectivity.OpcUA
             {
                 await sessionPoolStateManager.CloseAllSessionsAsync(cancellationToken);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 logger.LogWarning(ex, "Error(s) occurred while trying to close session(s): {error}", ex.Message);
             }
         }
 
-       
+
 
         public async Task CloseSessionAsync(string endpointUrl, CancellationToken cancellationToken)
         {
@@ -245,7 +248,25 @@ namespace OMP.PlantConnectivity.OpcUA
 
         #endregion
 
-        protected virtual Task<IOpcUaSession> GetSession(string endpointUrl, CancellationToken cancellationToken)
+        #region [Serializer]
+        public async Task<OneOf<IOmpOpcUaSerializer, Exception>> GetOmpOpcUaSerializer(string endpointUrl, CancellationToken cancellationToken, bool useReversibleEncoding = true, bool useGenericEncoderOnError = true)
+        {
+            try
+            {
+                var opcUaSession = await GetSession(endpointUrl, cancellationToken);
+                var toreturn = ompOpcUaSerializerFactory.Create(opcUaSession, useReversibleEncoding, useGenericEncoderOnError);
+                return OneOf<IOmpOpcUaSerializer, Exception>.FromT0(toreturn);
+                //return toreturn;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Unable to get {type}: {errorMessage}", nameof(IOmpOpcUaSerializer), ex.Message);
+                return ex.Demystify();
+            }
+        }
+        #endregion
+
+        protected Task<IOpcUaSession> GetSession(string endpointUrl, CancellationToken cancellationToken)
             => sessionPoolStateManager.GetSessionAsync(endpointUrl, cancellationToken);
     }
 }

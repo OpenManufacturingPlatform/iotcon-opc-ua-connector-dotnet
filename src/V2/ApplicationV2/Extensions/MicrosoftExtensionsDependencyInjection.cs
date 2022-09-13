@@ -7,6 +7,7 @@ using OMP.PlantConnectivity.OpcUA;
 using OMP.PlantConnectivity.OpcUA.Configuration;
 using OMP.PlantConnectivity.OpcUA.Models.Subscriptions;
 using OMP.PlantConnectivity.OpcUA.Repositories;
+using OMP.PlantConnectivity.OpcUA.Serialization;
 using OMP.PlantConnectivity.OpcUA.Services;
 using OMP.PlantConnectivity.OpcUA.Sessions.Auth;
 using OMP.PlantConnectivity.OpcUA.Sessions.Reconnect;
@@ -46,6 +47,7 @@ namespace Microsoft.Extensions.DependencyInjection
             serviceCollection.AddSingleton<IRegisteredNodeStateManagerFactory, RegisteredNodeStateManagerFactory>();
             serviceCollection.AddTransient<IOpcUaSessionReconnectHandlerFactory, OpcUaSessionReconnectHandlerFactory>();
             serviceCollection.AddTransient<IComplexTypeSystemFactory, ComplexTypeSystemFactory>();
+            serviceCollection.AddTransient<IOmpOpcUaSerializerFactory, OpcUaNewtonSofSerializerFactory>();
 
             //Repositories
             if (connectorConfiguration.DisableSubscriptionRestoreService)

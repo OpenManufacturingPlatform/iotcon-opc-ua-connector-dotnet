@@ -2,6 +2,8 @@
 // Copyright Contributors to the Open Manufacturing Platform.
 
 using System.Collections.Concurrent;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using OMP.PlantConnectivity.OpcUA.Configuration;
 using OMP.PlantConnectivity.OpcUA.Extensions;
 using OMP.PlantConnectivity.OpcUA.Services;
@@ -9,14 +11,11 @@ using OMP.PlantConnectivity.OpcUA.Sessions.Auth;
 using OMP.PlantConnectivity.OpcUA.Sessions.Reconnect;
 using OMP.PlantConnectivity.OpcUA.Sessions.RegisteredNodes;
 using OMP.PlantConnectivity.OpcUA.Sessions.Types;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using OneOf;
 using Opc.Ua;
 
 namespace OMP.PlantConnectivity.OpcUA.Sessions.SessionManagement
 {
-    internal class SessionPoolStateManager : ISessionPoolStateManager
+    internal sealed class SessionPoolStateManager : ISessionPoolStateManager
     {
         private bool disposedValue;
 
@@ -109,8 +108,9 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions.SessionManagement
             {
                 await semaphoreSlim.WaitAsync(cancellationToken).ConfigureAwait(false);
                 sessionPool.Remove(opcUaServerUrl.ToValidBaseEndpointUrl(), out var session);
-                await session.DisconnectAsync(cancellationToken);
-                
+                if (session is not null)
+                    await session.DisconnectAsync(cancellationToken);
+
                 logger.LogInformation("Sessions for {endpoin} closed", opcUaServerUrl);
             }
             finally
@@ -151,7 +151,7 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions.SessionManagement
             }
         }
 
-        protected virtual void Dispose(bool disposing)
+        protected void Dispose(bool disposing)
         {
             if (!disposedValue)
             {

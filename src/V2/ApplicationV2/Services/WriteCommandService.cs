@@ -8,7 +8,7 @@ using Opc.Ua;
 
 namespace OMP.PlantConnectivity.OpcUA.Services
 {
-    internal class WriteCommandService : IWriteCommandService
+    internal sealed class WriteCommandService : IWriteCommandService
     {
         public Task<WriteResponseCollection> WriteAsync(IOpcUaSession opcSession, WriteCommandCollection commands, CancellationToken cancellationToken)
         {

@@ -10,7 +10,7 @@ using ReadValueResponse = OMP.PlantConnectivity.OpcUA.Models.Reads.ReadValueResp
 
 namespace OMP.PlantConnectivity.OpcUA.Services
 {
-    internal class ReadCommandService : IReadCommandService
+    internal sealed class ReadCommandService : IReadCommandService
     {
         public  Task<ReadNodeCommandResponseCollection> ReadNodesAsync(IOpcUaSession opcUaSession, ReadNodeCommandCollection commands, CancellationToken cancellationToken)
         {
