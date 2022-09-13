@@ -70,7 +70,9 @@ namespace OMP.Connector.EdgeModule
             serviceCollection.AddSingleton<ICommandProviderFactory, CommandProviderFactory>();
             serviceCollection.AddTransient<IDiscoveryProvider, DiscoveryProvider>();
             serviceCollection.AddTransient<IOpcSessionReconnectHandlerFactory, OpcSessionReconnectHandlerFactory>();
-            serviceCollection.AddTransient<IOpcMonitoredItemService, OpcMonitoredItemService>();
+
+            serviceCollection.AddSingleton<IOpcMonitoredItemServiceFactory, OpcMonitoredItemServiceFactory>();
+            serviceCollection.AddSingleton<IOpcAlarmMonitoredItemServiceFactory, OpcAlarmMonitoredItemServiceFactory>();
 
             serviceCollection.AddTransient<ConfigRestoreService>();
             serviceCollection.AddTransient<ConfigurationRestoreJob>();
