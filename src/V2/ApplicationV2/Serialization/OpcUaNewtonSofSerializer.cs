@@ -4,6 +4,7 @@
 using System.Diagnostics;
 using System.Xml;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using OMP.PlantConnectivity.OpcUA.Sessions;
 using Opc.Ua;
 
@@ -35,6 +36,21 @@ namespace OMP.PlantConnectivity.OpcUA.Serialization
             this.encoder = CreateEncoder(opcUaSession, useReversibleEncoding);
         }
 
+        public T? Deserialize<T>(string json, string? fieldName = default)
+        {
+            if (string.IsNullOrWhiteSpace(json))
+                return default;
+
+            //if (string.IsNullOrWhiteSpace(fieldName))
+            //    fieldName = string.Empty;
+
+            //var decoder = new JsonDecoder(json, opcUaSession.GetServiceMessageContext());
+            //var roterutn = decoder.ReadDataValue(fieldName) as T;
+            ////TODO: Implement this
+            return JsonConvert.DeserializeObject<T>(json);
+
+        }
+
         public string Serialize<T>(T value, string? fieldName = default)
         {
             if (string.IsNullOrWhiteSpace(fieldName))
@@ -64,7 +80,7 @@ namespace OMP.PlantConnectivity.OpcUA.Serialization
                 fieldName = string.Empty;
 
             //TODO: find a better way for this
-            //encoder.WriteArray
+            //encoder.WriteArray            
             if (value is bool boolean)
                 encoder.WriteBoolean(fieldName, boolean);
             else if (value is IList<bool> bools)
