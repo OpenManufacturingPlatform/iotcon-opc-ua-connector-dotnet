@@ -22,39 +22,6 @@ using TelemetryUtilities = OMP.Connector.Application.OpcUa.TelemetryUtilities;
 
 namespace OMP.Connector.Application.Services
 {
-    public interface IOpcMonitoredItemServiceFactory
-    {
-        IOpcMonitoredItemService Create(SubscriptionMonitoredItem monitoredItemCommand, IComplexTypeSystem complexTypeSystem, TelemetryMessageMetadata messageMetadata);
-    }
-
-    public class OpcMonitoredItemServiceFactory : IOpcMonitoredItemServiceFactory
-    {
-        private ILogger<OpcMonitoredItemService> logger;
-        private IMapper mapper;
-        private IOptions<ConnectorConfiguration> connectorConfiguration;
-        private IMessageSender messageSender;
-
-        public OpcMonitoredItemServiceFactory(
-            IOptions<ConnectorConfiguration> connectorConfiguration,
-            IMessageSender messageSender,
-            IMapper mapper,
-            ILogger<OpcMonitoredItemService> logger
-            )
-        {
-            this.logger = logger;
-            this.mapper = mapper;
-            this.connectorConfiguration = connectorConfiguration;
-            this.messageSender = messageSender;
-        }
-
-        public IOpcMonitoredItemService Create(SubscriptionMonitoredItem monitoredItemCommand, IComplexTypeSystem complexTypeSystem, TelemetryMessageMetadata messageMetadata)
-        {
-            var toreturn =  new OpcMonitoredItemService(connectorConfiguration, messageSender, mapper, logger);
-            toreturn.Initialize(monitoredItemCommand, complexTypeSystem, messageMetadata);
-            return toreturn;
-        }
-    }
-
     public class OpcMonitoredItemService : MonitoredItem, IOpcMonitoredItemService
     {
         private bool _disposedValue;
