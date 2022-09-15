@@ -19,6 +19,8 @@ using Opc.Ua;
 using Opc.Ua.Client;
 using EndpointConfiguration = Opc.Ua.EndpointConfiguration;
 using TypeInfo = Opc.Ua.TypeInfo;
+using OMP.PlantConnectivity.OpcUA.Models.Alarms;
+using OMP.PlantConnectivity.OpcUA.Services.Alarms;
 
 namespace OMP.PlantConnectivity.OpcUA.Sessions
 {
@@ -36,6 +38,7 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions
         private readonly ApplicationConfiguration applicationConfiguration;
         private readonly IComplexTypeSystemFactory complexTypeSystemFactory;
         private readonly IEnumerable<IMonitoredItemMessageProcessor> monitoredItemMessageProcessors;
+        private readonly IEnumerable<IAlarmMonitoredItemMessageProcessor> alarmMonitoredItemMessageProcessors;
         private IOpcUaSessionReconnectHandler? reconnectHandler;
         private readonly ILogger<OpcUaSession> logger;
         private readonly EndpointConfiguration endpointConfiguration;
@@ -52,6 +55,7 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions
             ApplicationConfiguration applicationConfiguration,
             IComplexTypeSystemFactory complexTypeSystemFactory,
             IEnumerable<IMonitoredItemMessageProcessor> monitoredItemMessageProcessors,
+            IEnumerable<IAlarmMonitoredItemMessageProcessor> alarmMonitoredItemMessageProcessors,
             ILogger<OpcUaSession> logger)
         {
             opcSessionSemaphore = new SemaphoreSlim(1);
@@ -63,6 +67,7 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions
             this.applicationConfiguration = applicationConfiguration;
             this.complexTypeSystemFactory = complexTypeSystemFactory;
             this.monitoredItemMessageProcessors = monitoredItemMessageProcessors;
+            this.alarmMonitoredItemMessageProcessors = alarmMonitoredItemMessageProcessors;
             this.logger = logger;
             endpointConfiguration = EndpointConfiguration.Create(applicationConfiguration);
         }
@@ -320,6 +325,17 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions
             }
         }
 
+        public void RefreshAlarmsOnAllSubscriptions()
+        {
+            CheckConnection();
+
+            foreach (var sub in session!.Subscriptions.Where(sub => !sub.PublishingEnabled))
+            {
+                logger.LogTrace($"Refreshing alarms for subscription {sub.Id}");
+                sub.ConditionRefresh();
+            }
+        }
+
         public IEnumerable<Subscription> GetSubscriptions()
         {
             CheckConnection();
@@ -337,6 +353,23 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions
             return session!.RemoveSubscriptionsAsync(subscriptions);
         }
 
+        #endregion
+
+        #region [Alarms]
+        public Subscription CreateOrUpdateAlarmSubscription(AlarmSubscriptionMonitoredItem alarmMonitoredItem, bool autoApplyChanges = false)
+        {
+            CheckConnection();
+            var opcUaSubscription = this.GetAlarmSubscription(alarmMonitoredItem);
+
+            var subscription = opcUaSubscription == default
+                            ? this.CreateNewAlarmSubscription(alarmMonitoredItem)
+                            : this.ModifyAlarmSubscription(opcUaSubscription, alarmMonitoredItem);
+
+            if (autoApplyChanges)
+                subscription.ApplyChanges();
+
+            return subscription;
+        }
         #endregion
 
         #region [Disposal]
@@ -647,13 +680,109 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions
             catch (Exception ex)
             {
                 logger.LogWarning("Unable to create monitored item with NodeId: [{nodeId}] | Error: {error}", subscriptionMonitoredItem.NodeId, ex);
-                //TODO: subscribe to all items we can but let the error buble up as well
+                //TODO: subscribe to all items we can but let the error bubble up as well
                 throw;
             }
         }
 
         private static bool SamplingIntervalsAreTheSame(SubscriptionMonitoredItem monitoredItem, List<MonitoredItem> existingItems)
             => existingItems.Any(m => m.SamplingInterval == monitoredItem.SamplingInterval);
+        #endregion
+
+        #region [Alarms]
+        private Subscription? GetAlarmSubscription(AlarmSubscriptionMonitoredItem alarmMonitoredItem)
+        {
+            if (alarmMonitoredItem == default)
+                return null;
+
+            var subscriptions = session!.Subscriptions
+                .Where(x => x.MonitoredItems.Any(y => alarmMonitoredItem.NodeId.Equals(y.ResolvedNodeId.ToString())));
+
+            return subscriptions.FirstOrDefault();
+        }
+
+        private Subscription CreateNewAlarmSubscription(AlarmSubscriptionMonitoredItem alarmMonitoredItem)
+        {
+            var keepAliveCount = Convert.ToUInt32(alarmMonitoredItem.HeartbeatInterval);
+            var subscription = session!.Subscriptions.FirstOrDefault(x => alarmMonitoredItem.PublishingInterval.Equals(x.PublishingInterval));
+            if (subscription == default)
+            {
+                subscription = new Subscription
+                {
+                    PublishingInterval = alarmMonitoredItem.PublishingInterval,
+                    LifetimeCount = 100000,
+                    KeepAliveCount = keepAliveCount > 0 ? keepAliveCount : 100000,
+                    MaxNotificationsPerPublish = 1000,
+                    Priority = 0,
+                    PublishingEnabled = false
+                };
+
+                session!.AddSubscription(subscription);
+                subscription.Create();
+            }
+            var item = this.CreateAlarmMonitoredItem(alarmMonitoredItem);
+            subscription.AddItem(item);
+            return subscription;
+        }
+
+        private Subscription ModifyAlarmSubscription(Subscription opcUaSubscription, AlarmSubscriptionMonitoredItem alarmMonitoredItem)
+        {
+            var existingItems = opcUaSubscription
+                .MonitoredItems
+                .Where(x => alarmMonitoredItem.NodeId.Equals(x.ResolvedNodeId.ToString()))
+                .ToList();
+
+            //TODO: Implement logic to detect a change in subscription, e.g. filter
+
+            opcUaSubscription.RemoveItems(existingItems);// Notification of intent
+            opcUaSubscription.ApplyChanges(); // enforces intent is executed
+            return this.CreateNewAlarmSubscription(alarmMonitoredItem); // now re-add the monitored item
+        }
+
+        private MonitoredItem CreateAlarmMonitoredItem(AlarmSubscriptionMonitoredItem alarmSubscriptionMonitoredItem)
+        {
+            try
+            {
+                var alarmTypeNodeIds = alarmSubscriptionMonitoredItem.GetAlarmTypesAsNodeIds();
+
+                var filter = new AlarmFilterDefinition
+                {
+                    AreaId = alarmSubscriptionMonitoredItem.NodeId,
+                    Severity = alarmSubscriptionMonitoredItem.Severity,
+                    IgnoreSuppressedOrShelved = alarmSubscriptionMonitoredItem.IgnoreSuppressedOrShelved,
+                    EventTypes = alarmTypeNodeIds
+                };
+
+                // generate select clauses for all fields of all alarm types
+                filter.SelectClauses = filter.ConstructSelectClauses(session, alarmTypeNodeIds);
+
+                // filter clauses based on the list of fields that should be included (if available in request)
+                if (alarmSubscriptionMonitoredItem.AlarmFields != null && alarmSubscriptionMonitoredItem.AlarmFields.Any())
+                {
+                    var filteredClauses = filter.SelectClauses.Where(clause => alarmSubscriptionMonitoredItem.AlarmFields.Any(field => field.Equals(clause.ToString())));
+                    filter.SelectClauses = new SimpleAttributeOperandCollection(filteredClauses);
+                }
+
+                // create monitored item based on the current filter settings
+                var monitoredItem = filter.CreateMonitoredItem(session);
+
+                foreach (var processor in this.alarmMonitoredItemMessageProcessors)
+                    monitoredItem.Notification += processor.ProcessMessage; //If processor throws error the application crashes
+
+                logger.LogTrace("Alarm monitored item with NodeId: {nodeId}, Sampling Interval: [{samplingInterval}] has been created successfully"
+                    , alarmSubscriptionMonitoredItem.NodeId
+                    , monitoredItem.SamplingInterval);
+
+                return monitoredItem;
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning("Unable to create monitored item with NodeId: [{nodeId}] | Error: {error}", alarmSubscriptionMonitoredItem.NodeId, ex);
+                //TODO: subscribe to all items we can but let the error buble up as well
+                throw;
+            }
+        }
+
         #endregion
 
         #region [Call]

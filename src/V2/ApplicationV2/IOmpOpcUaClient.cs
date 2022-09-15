@@ -1,6 +1,7 @@
 ﻿// SPDX-License-Identifier: MIT. 
 // Copyright Contributors to the Open Manufacturing Platform.
 
+using OMP.PlantConnectivity.OpcUA.Models.Alarms;
 using OMP.PlantConnectivity.OpcUA.Models.Browse;
 using OMP.PlantConnectivity.OpcUA.Models.Call;
 using OMP.PlantConnectivity.OpcUA.Models.Discovery;
@@ -75,6 +76,17 @@ namespace OMP.PlantConnectivity.OpcUA
 
         //TODO: Write comment
         Task<OneOf<RemoveAllSubscriptionsResponse, Exception>> RemoveAllSubscriptions(RemoveAllSubscriptionsCommand command, CancellationToken cancellationToken);
+        #endregion
+
+        #region [Alarm Subscriptions]
+        //TODO: Write comment
+        Task<OneOf<CreateAlarmSubscriptionResponse, Exception>> CreateAlarmSubscriptions(CreateAlarmSubscriptionsCommand command, CancellationToken CancellationToken);
+
+        //TODO: Write comment
+        Task<OneOf<RemoveAlarmSubscriptionsResponse, Exception>> RemoveAlarmSubscriptionsCommand(RemoveAlarmSubscriptionsCommand command, CancellationToken cancellationToken);
+
+        //TODO: Write comment
+        Task<OneOf<RemoveAllAlarmSubscriptionsResponse, Exception>> RemoveAllAlarmSubscriptions(RemoveAllAlarmSubscriptionsCommand command, CancellationToken cancellationToken);
         #endregion
 
         #region [Sessions]

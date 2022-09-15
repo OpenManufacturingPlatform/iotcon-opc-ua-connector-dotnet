@@ -1,6 +1,7 @@
 ﻿// SPDX-License-Identifier: MIT. 
 // Copyright Contributors to the Open Manufacturing Platform.
 
+using OMP.PlantConnectivity.OpcUA.Models.Alarms;
 using OMP.PlantConnectivity.OpcUA.Models.Call;
 using OMP.PlantConnectivity.OpcUA.Models.Subscriptions;
 using Opc.Ua;
@@ -57,7 +58,9 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions
 
         #region [Subscriptions]
         Subscription CreateOrUpdateSubscription(SubscriptionMonitoredItem monitoredItem, bool autoApplyChanges = false);
+        Subscription CreateOrUpdateAlarmSubscription(AlarmSubscriptionMonitoredItem monitoredItem, bool autoApplyChanges = false);
         void ActivatePublishingOnAllSubscriptions();
+        void RefreshAlarmsOnAllSubscriptions();
         IEnumerable<Subscription> GetSubscriptions();
         Task<bool> RemoveSubscriptionAsync(Subscription subscription);
         Task<bool> RemoveSubscriptionsAsync(IEnumerable<Subscription> subscriptions);

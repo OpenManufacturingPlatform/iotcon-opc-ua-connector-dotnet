@@ -16,6 +16,4 @@ namespace OMP.PlantConnectivity.OpcUA.Models
             Message = message;
         }
     }
-
-
 }

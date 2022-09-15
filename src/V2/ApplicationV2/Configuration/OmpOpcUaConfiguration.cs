@@ -16,6 +16,7 @@ namespace OMP.PlantConnectivity.OpcUA.Configuration
         public int ReconnectIntervalInSeconds { get; set; } = 10;
         public int KeepAliveIntervalInSeconds { get; set; } = 5;
         public bool DisableSubscriptionRestoreService { get; set; } = false;
+        public bool DisableAlarmSubscriptionRestoreService { get; set; } = false;
 
         public uint NodeMask => (uint)NodeClass.Object |
                                           (uint)NodeClass.Variable |

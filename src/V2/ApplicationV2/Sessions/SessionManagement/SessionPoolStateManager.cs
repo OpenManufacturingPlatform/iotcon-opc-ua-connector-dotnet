@@ -7,6 +7,7 @@ using Microsoft.Extensions.Options;
 using OMP.PlantConnectivity.OpcUA.Configuration;
 using OMP.PlantConnectivity.OpcUA.Extensions;
 using OMP.PlantConnectivity.OpcUA.Services;
+using OMP.PlantConnectivity.OpcUA.Services.Alarms;
 using OMP.PlantConnectivity.OpcUA.Sessions.Auth;
 using OMP.PlantConnectivity.OpcUA.Sessions.Reconnect;
 using OMP.PlantConnectivity.OpcUA.Sessions.RegisteredNodes;
@@ -28,6 +29,7 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions.SessionManagement
         private readonly ApplicationConfiguration applicationConfiguration;
         private readonly IComplexTypeSystemFactory complexTypeSystemFactory;
         private readonly IEnumerable<IMonitoredItemMessageProcessor> monitoredItemMessageProcessors;
+        private readonly IEnumerable<IAlarmMonitoredItemMessageProcessor> alarmMonitoredItemMessageProcessors;
         private readonly ILoggerFactory loggerFactory;
         private readonly ILogger<SessionPoolStateManager> logger;
 
@@ -39,6 +41,7 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions.SessionManagement
             ApplicationConfiguration applicationConfiguration,
             IComplexTypeSystemFactory complexTypeSystemFactory,
             IEnumerable<IMonitoredItemMessageProcessor> monitoredItemMessageProcessors,
+            IEnumerable<IAlarmMonitoredItemMessageProcessor> alarmMonitoredItemMessageProcessors,
             ILoggerFactory loggerFactory)
         {
             sessionPool = new ConcurrentDictionary<string, IOpcUaSession>();
@@ -50,6 +53,7 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions.SessionManagement
             this.applicationConfiguration = applicationConfiguration;
             this.complexTypeSystemFactory = complexTypeSystemFactory;
             this.monitoredItemMessageProcessors = monitoredItemMessageProcessors;
+            this.alarmMonitoredItemMessageProcessors = alarmMonitoredItemMessageProcessors;
             this.loggerFactory = loggerFactory;
             this.logger = loggerFactory.CreateLogger<SessionPoolStateManager>();
         }
@@ -129,6 +133,7 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions.SessionManagement
                 applicationConfiguration,
                 complexTypeSystemFactory,
                 monitoredItemMessageProcessors,
+                alarmMonitoredItemMessageProcessors,
                 loggerFactory.CreateLogger<OpcUaSession>());
 
             await session.ConnectAsync(opcUaServerUrl);

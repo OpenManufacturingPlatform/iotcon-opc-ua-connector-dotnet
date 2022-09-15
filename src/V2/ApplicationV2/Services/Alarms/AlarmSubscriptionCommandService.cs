@@ -3,7 +3,6 @@
 
 using System.Diagnostics;
 using OMP.PlantConnectivity.OpcUA.Configuration;
-using OMP.PlantConnectivity.OpcUA.Models.Subscriptions;
 using OMP.PlantConnectivity.OpcUA.Repositories;
 using OMP.PlantConnectivity.OpcUA.Sessions;
 using FluentValidation;
@@ -11,96 +10,98 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Opc.Ua;
 using Opc.Ua.Client;
-using CreateSubscriptionResponse = OMP.PlantConnectivity.OpcUA.Models.Subscriptions.CreateSubscriptionResponse;
+using CreateAlarmSubscriptionResponse = OMP.PlantConnectivity.OpcUA.Models.Alarms.CreateAlarmSubscriptionResponse;
+using OMP.PlantConnectivity.OpcUA.Models.Subscriptions;
+using OMP.PlantConnectivity.OpcUA.Models.Alarms;
 
-namespace OMP.PlantConnectivity.OpcUA.Services
+namespace OMP.PlantConnectivity.OpcUA.Services.Alarms
 {
-    internal class SubscriptionCommandService : ISubscriptionCommandService
+    internal class AlarmSubscriptionCommandService : IAlarmSubscriptionCommandService
     {
         private const bool DoNotAutoApplyChangesOnCreatedOrModify = false;
-        private readonly IValidator<SubscriptionMonitoredItem> monitoredItemValidator;
-        private readonly ISubscriptionRepository? subscriptionRepository;
+        private readonly IValidator<AlarmSubscriptionMonitoredItem> alarmMonitoredItemValidator;
+        private readonly IAlarmSubscriptionRepository? alarmSubscriptionRepository;
         private readonly IEnumerable<IMonitoredItemMessageProcessor> monitoredItemMessageProcessors;
-        private readonly ILogger<SubscriptionCommandService> logger;
+        private readonly ILogger<AlarmSubscriptionCommandService> logger;
         private readonly OmpOpcUaConfiguration opcUaConfiguration;
 
-        public SubscriptionCommandService(
+        public AlarmSubscriptionCommandService(
             IOptions<OmpOpcUaConfiguration> options,
-            IValidator<SubscriptionMonitoredItem> monitoredItemValidator,
-            ISubscriptionRepository? subscriptionRepository,
+            IValidator<AlarmSubscriptionMonitoredItem> alarmMonitoredItemValidator,
+            IAlarmSubscriptionRepository? alarmSubscriptionRepository,
             IEnumerable<IMonitoredItemMessageProcessor> monitoredItemMessageProcessors,
-            ILogger<SubscriptionCommandService> logger)
+            ILogger<AlarmSubscriptionCommandService> logger)
         {
-            this.monitoredItemValidator = monitoredItemValidator;
-            this.subscriptionRepository = subscriptionRepository;
+            this.alarmMonitoredItemValidator = alarmMonitoredItemValidator;
+            this.alarmSubscriptionRepository = alarmSubscriptionRepository;
             this.monitoredItemMessageProcessors = monitoredItemMessageProcessors;
             this.logger = logger;
-            this.opcUaConfiguration = options.Value;
+            opcUaConfiguration = options.Value;
 
             ValidateMonitoredItemMessageProcessors();//TODO: Discuss enhancement [Currently this will make entire app crash]
         }
-        public async Task<CreateSubscriptionResponse> CreateSubscriptions(IOpcUaSession opcUaSession, CreateSubscriptionsCommand command, CancellationToken CancellationToken)
+        public async Task<CreateAlarmSubscriptionResponse> CreateAlarmSubscriptions(IOpcUaSession opcUaSession, CreateAlarmSubscriptionsCommand command, CancellationToken CancellationToken)
         {
-            var errorMessages = await this.AddValidationErrorsAsync(command);
+            var errorMessages = await AddValidationErrorsAsync(command);
             if (errorMessages.Any())
             {
                 logger.LogDebug(
                     "Validation of {monitoredItems} was not successful. Errors: {errors}"
-                    , nameof(CreateSubscriptionsCommand.MonitoredItems), string.Join(" | ", errorMessages));
+                    , nameof(CreateAlarmSubscriptionsCommand.AlarmMonitoredItems), string.Join(" | ", errorMessages));
 
-                var errorResults = new CreateSubscriptionResult(errorMessages);
-                var responses = new CreateSubscriptionResponse(command, errorResults, false);
+                var errorResults = new CreateAlarmSubscriptionResult(errorMessages);
+                var responses = new CreateAlarmSubscriptionResponse(command, errorResults, false);
                 return responses;
             }
 
-            var globalResults = new List<MonitoredItemResult>();
+            var globalResults = new List<AlarmMonitoredItemResult>();
 
             try
             {
-                var monitoredItemGroups = command.MonitoredItems.GroupBy(item => item.PublishingInterval);
+                var alarmMonitoredItemGroups = command.AlarmMonitoredItems.GroupBy(item => item.PublishingInterval);
 
-                foreach (var group in monitoredItemGroups)
+                foreach (var group in alarmMonitoredItemGroups)
                 {
                     var groupItems = group.ToList();
-                    var batchHandler = new BatchHandler<SubscriptionMonitoredItem>(
-                        opcUaConfiguration.SubscriptionBatchSize,
+                    var batchHandler = new BatchHandler<AlarmSubscriptionMonitoredItem>(
+                        opcUaConfiguration.AlarmSubscriptionBatchSize,
                         SubscribeInBatchAndInsertResults(opcUaSession, globalResults));
 
                     batchHandler.RunBatches(groupItems);
-                    logger.LogTrace("Subscription with publishing interval {publishingInterval} ms: Subscribed to {nodes} nodes.", group.Key, groupItems.Count);
+                    logger.LogTrace("Alarm subscription with publishing interval {publishingInterval} ms: Subscribed to {nodes} nodes.", group.Key, groupItems.Count);
                 }
 
                 opcUaSession.ActivatePublishingOnAllSubscriptions();
+                opcUaSession.RefreshAlarmsOnAllSubscriptions();
             }
             catch (Exception ex)
             {
                 var error = ex.Demystify();
-                var errorResults = new CreateSubscriptionResult(errorMessages);
-                return new CreateSubscriptionResponse(
+                var errorResults = new CreateAlarmSubscriptionResult(errorMessages);
+                return new CreateAlarmSubscriptionResponse(
                        command,
                        errorResults,
                        false,
-                        $"Could not create / update subscriptions. {error.Message}");
+                        $"Could not create / update alarm subscriptions. {error.Message}");
             }
 
-
             var baseEndpointUrl = opcUaSession.GetBaseEndpointUrl();
-            subscriptionRepository?.Add(baseEndpointUrl, command.MonitoredItems);
+            alarmSubscriptionRepository?.Add(baseEndpointUrl, command.AlarmMonitoredItems);
 
             var allSucceeded = globalResults.All(r => r.StatusCode == StatusCodes.Good);
             if (allSucceeded)
-                logger.LogDebug("Created/Updated subscriptions on Endpoint: [{endpointUrl}]", command.EndpointUrl);
+                logger.LogDebug("Created/updated alarm subscriptions on Endpoint: [{endpointUrl}]", command.EndpointUrl);
             else
-                logger.LogError("Errors occred during subscriptions Create/update on Endpoint: [{endpointUrl}]", command.EndpointUrl);
+                logger.LogError("Errors occred during alarm subscriptions create/update on Endpoint: [{endpointUrl}]", command.EndpointUrl);
 
-            var results = new CreateSubscriptionResult(globalResults);
-            var response = new CreateSubscriptionResponse(command, results, allSucceeded);
+            var results = new CreateAlarmSubscriptionResult(globalResults);
+            var response = new CreateAlarmSubscriptionResponse(command, results, allSucceeded);
             return response;
         }
 
-        public async Task<RemoveAllSubscriptionsResponse> RemoveAllSubscriptions(IOpcUaSession opcUaSession, RemoveAllSubscriptionsCommand command, CancellationToken cancellationToken)
+        public async Task<RemoveAllAlarmSubscriptionsResponse> RemoveAllAlarmSubscriptions(IOpcUaSession opcUaSession, RemoveAllAlarmSubscriptionsCommand command, CancellationToken cancellationToken)
         {
-            var response = new RemoveAllSubscriptionsResponse
+            var response = new RemoveAllAlarmSubscriptionsResponse
             {
                 Succeeded = true,
                 Command = command
@@ -108,7 +109,7 @@ namespace OMP.PlantConnectivity.OpcUA.Services
 
             try
             {
-                RemoveAllSubscriptionsFromRepository(command.EndpointUrl);
+                RemoveAllAlarmSubscriptionsFromRepository(command.EndpointUrl);
 
                 var activeSubscriptions = opcUaSession.GetSubscriptions().ToArray();
                 foreach (var subscription in activeSubscriptions)
@@ -130,11 +131,11 @@ namespace OMP.PlantConnectivity.OpcUA.Services
             return response;
         }
 
-        public async Task<RemoveSubscriptionsResponse> RemoveSubscriptionsCommand(IOpcUaSession opcUaSession, RemoveSubscriptionsCommand command, CancellationToken cancellationToken)
+        public async Task<RemoveAlarmSubscriptionsResponse> RemoveAlarmSubscriptionsCommand(IOpcUaSession opcUaSession, RemoveAlarmSubscriptionsCommand command, CancellationToken cancellationToken)
         {
-            subscriptionRepository?.DeleteMonitoredItems(command.EndpointUrl, command.NodeIds);
+            alarmSubscriptionRepository?.DeleteAlarmMonitoredItems(command.EndpointUrl, command.NodeIds);
 
-            var response = await RemoveSubscriptionsFromSessionAsync(opcUaSession, command);
+            var response = await RemoveAlarmSubscriptionsFromSessionAsync(opcUaSession, command);
             if (!response.Succeeded)
             {
                 logger.LogError("Could not remove subscriptions from OPC UA session on Endpoint: [{endpointUrl}]", command.EndpointUrl);
@@ -149,30 +150,30 @@ namespace OMP.PlantConnectivity.OpcUA.Services
         }
 
         #region [Privates]
-        private async Task<List<MonitoredItemResult>> AddValidationErrorsAsync(CreateSubscriptionsCommand command)
+        private async Task<List<AlarmMonitoredItemResult>> AddValidationErrorsAsync(CreateAlarmSubscriptionsCommand command)
         {
-            var errorMessages = new List<MonitoredItemResult>();
-            for (var itemIndex = 0; itemIndex < command.MonitoredItems.Count; itemIndex++)
+            var errorMessages = new List<AlarmMonitoredItemResult>();
+            for (var itemIndex = 0; itemIndex < command.AlarmMonitoredItems.Count; itemIndex++)
             {
-                var monitoredItem = command.MonitoredItems[itemIndex];
-                var results = await monitoredItemValidator.ValidateAsync(monitoredItem);
+                var monitoredItem = command.AlarmMonitoredItems[itemIndex];
+                var results = await alarmMonitoredItemValidator.ValidateAsync(monitoredItem);
                 if (results.IsValid)
                     continue;
 
                 var validationMessages = $"{nameof(CreateSubscriptionsCommand.MonitoredItems)}[{itemIndex}]: {results.ToString(";")}.";
-                errorMessages.Add(new MonitoredItemResult(monitoredItem, StatusCodes.Bad, validationMessages));
+                errorMessages.Add(new AlarmMonitoredItemResult(monitoredItem, StatusCodes.Bad, validationMessages));
             }
             return errorMessages;
         }
 
-        private Action<SubscriptionMonitoredItem[]> SubscribeInBatchAndInsertResults(IOpcUaSession opcUaSession, List<MonitoredItemResult> results)
+        private Action<AlarmSubscriptionMonitoredItem[]> SubscribeInBatchAndInsertResults(IOpcUaSession opcUaSession, List<AlarmMonitoredItemResult> results)
         {
             return (monitoredItems) =>
             {
                 var subscriptionList = new HashSet<Subscription>();
                 foreach (var monitoredItem in monitoredItems)
                 {
-                    var subscription = opcUaSession.CreateOrUpdateSubscription(monitoredItem, DoNotAutoApplyChangesOnCreatedOrModify);
+                    var subscription = opcUaSession.CreateOrUpdateAlarmSubscription(monitoredItem, DoNotAutoApplyChangesOnCreatedOrModify);
                     subscriptionList.Add(subscription);
                 }
 
@@ -193,28 +194,28 @@ namespace OMP.PlantConnectivity.OpcUA.Services
             };
         }
 
-        private static IEnumerable<MonitoredItemResult> GetResults(SubscriptionMonitoredItem[] items, Subscription subscription)
+        private static IEnumerable<AlarmMonitoredItemResult> GetResults(AlarmSubscriptionMonitoredItem[] items, Subscription subscription)
         {
             var allMonotoredItemsInterestedIn = subscription.MonitoredItems
                                                             .Where(mi => items.Any(i => i.NodeId == mi.StartNodeId))
                                                             .Zip(items);
             return allMonotoredItemsInterestedIn
-                .Select(mi => GetMonitoredItemResult(mi.Second, mi.First))
+                .Select(mi => GetAlarmMonitoredItemResult(mi.Second, mi.First))
                 .ToArray();
         }
 
-        private static MonitoredItemResult GetMonitoredItemResult(SubscriptionMonitoredItem item, MonitoredItem monitoredItem)
+        private static AlarmMonitoredItemResult GetAlarmMonitoredItemResult(AlarmSubscriptionMonitoredItem item, MonitoredItem monitoredItem)
         {
             if (monitoredItem.Status.Error is null)
             {
                 if (monitoredItem.Created)
-                    return new MonitoredItemResult(item, StatusCodes.Good, nameof(StatusCodes.Good));
+                    return new AlarmMonitoredItemResult(item, StatusCodes.Good, nameof(StatusCodes.Good));
 
-                return new MonitoredItemResult(item, StatusCodes.Uncertain, $"{StatusCodes.Uncertain} of status but no error was detected");
+                return new AlarmMonitoredItemResult(item, StatusCodes.Uncertain, $"{StatusCodes.Uncertain} of status but no error was detected");
             }
 
 
-            return new MonitoredItemResult(item, monitoredItem.Status.Error.StatusCode, monitoredItem.Status.Error.AdditionalInfo);
+            return new AlarmMonitoredItemResult(item, monitoredItem.Status.Error.StatusCode, monitoredItem.Status.Error.AdditionalInfo);
         }
         private void ValidateMonitoredItemMessageProcessors()
         {
@@ -226,9 +227,9 @@ namespace OMP.PlantConnectivity.OpcUA.Services
         }
 
 
-        private async Task<RemoveSubscriptionsResponse> RemoveSubscriptionsFromSessionAsync(IOpcUaSession opcUaSession, RemoveSubscriptionsCommand command)
+        private async Task<RemoveAlarmSubscriptionsResponse> RemoveAlarmSubscriptionsFromSessionAsync(IOpcUaSession opcUaSession, RemoveAlarmSubscriptionsCommand command)
         {
-            var response = new RemoveSubscriptionsResponse
+            var response = new RemoveAlarmSubscriptionsResponse
             {
                 Succeeded = true
             };
@@ -249,7 +250,7 @@ namespace OMP.PlantConnectivity.OpcUA.Services
                     if (!subscription.MonitoredItems.Any())
                         await opcUaSession.RemoveSubscriptionAsync(subscription);
 
-                    response.NodesWithActiveSubscriptions.AddRange(subscription.MonitoredItems.Select(mi => mi.StartNodeId));
+                    response.NodesWithActiveAlarmSubscriptions.AddRange(subscription.MonitoredItems.Select(mi => mi.StartNodeId));
                 }
             }
             catch (Exception ex)
@@ -260,7 +261,7 @@ namespace OMP.PlantConnectivity.OpcUA.Services
             return response;
         }
 
-        private List<(Subscription, List<MonitoredItem>)> GetActiveMonitoredItems(IOpcUaSession opcUaSession, RemoveSubscriptionsCommand command)
+        private List<(Subscription, List<MonitoredItem>)> GetActiveMonitoredItems(IOpcUaSession opcUaSession, RemoveAlarmSubscriptionsCommand command)
         {
             var nodeIds = new List<NodeId>();
             foreach (var nodeId in command.NodeIds)
@@ -274,7 +275,7 @@ namespace OMP.PlantConnectivity.OpcUA.Services
                         )).ToList();
         }
 
-        private Action<MonitoredItem[]> UnsubscribeBatches(Subscription subscription, RemoveSubscriptionsResponse removeSubscriptionsResponse)
+        private Action<MonitoredItem[]> UnsubscribeBatches(Subscription subscription, RemoveAlarmSubscriptionsResponse removeAlarmSubscriptionsResponse)
         {
             return monitoredItems =>
             {
@@ -282,7 +283,7 @@ namespace OMP.PlantConnectivity.OpcUA.Services
                 {
                     subscription.RemoveItems(monitoredItems);
                     subscription.ApplyChanges();
-                    removeSubscriptionsResponse.NodesRemovedFromSubscriptions.AddRange(monitoredItems.Select(mi => mi.StartNodeId));
+                    removeAlarmSubscriptionsResponse.NodesRemovedFromAlarmSubscriptions.AddRange(monitoredItems.Select(mi => mi.StartNodeId));
                 }
                 catch (ServiceResultException sre)
                 {
@@ -292,20 +293,20 @@ namespace OMP.PlantConnectivity.OpcUA.Services
             };
         }
 
-        private bool RemoveAllSubscriptionsFromRepository(string endpointUrl)
+        private bool RemoveAllAlarmSubscriptionsFromRepository(string endpointUrl)
         {
-            if (subscriptionRepository is null)
+            if (alarmSubscriptionRepository is null)
                 return true;
 
             var isSuccess = true;
             try
             {
-                var subscriptions = subscriptionRepository.GetAllByEndpointUrl(endpointUrl);
+                var subscriptions = alarmSubscriptionRepository.GetAllByEndpointUrl(endpointUrl);
                 if (subscriptions is null || !subscriptions.Any())
                     return true;
 
                 foreach (var subscription in subscriptions)
-                    isSuccess = subscriptionRepository.Remove(subscription) && isSuccess;
+                    isSuccess = alarmSubscriptionRepository.Remove(subscription) && isSuccess;
             }
             catch (Exception ex)
             {

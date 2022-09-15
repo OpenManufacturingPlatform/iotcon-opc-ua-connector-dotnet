@@ -15,5 +15,4 @@ namespace OMP.PlantConnectivity.OpcUA.Models.Subscriptions
 
         public IDictionary<NodeId, SubscriptionMonitoredItem> MonitoredItems { get; set; } = new Dictionary<NodeId, SubscriptionMonitoredItem>();
     }
-
 }

@@ -10,19 +10,19 @@ using Opc.Ua;
 
 namespace OMP.PlantConnectivity.OpcUA.Serialization
 {
-    public class OpcUaNewtonSofSerializer : IOmpOpcUaSerializer
+    public class OpcUaNewtonsoftSerializer : IOmpOpcUaSerializer
     {
         private readonly IOpcUaSession opcUaSession;
         private readonly bool useReversibleEncoding;
         private readonly bool useGenericEncoderOnError;
-        private readonly ILogger<OpcUaNewtonSofSerializer> logger;
+        private readonly ILogger<OpcUaNewtonsoftSerializer> logger;
         private JsonEncoder encoder;
 
-        public OpcUaNewtonSofSerializer(
+        public OpcUaNewtonsoftSerializer(
             IOpcUaSession opcUaSession, 
             bool useReversibleEncoding,
             bool useGenericEncoderOnError,
-            ILogger<OpcUaNewtonSofSerializer> logger)
+            ILogger<OpcUaNewtonsoftSerializer> logger)
         {
             this.opcUaSession = opcUaSession;
             this.useReversibleEncoding = useReversibleEncoding;

@@ -9,9 +9,8 @@ namespace OMP.PlantConnectivity.OpcUA.Models.Browse
     [Obsolete]
     public record BrowseCommand : ReadNodeCommand
     {
-        public BrowseCommand(NodeId NodeId) : base(NodeId)
-        {
-        }
+        public BrowseCommand(NodeId NodeId) : base(NodeId) 
+        {}
     }
 
     [Obsolete]

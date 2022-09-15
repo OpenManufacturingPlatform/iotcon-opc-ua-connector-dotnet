@@ -3,6 +3,7 @@
 
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
+using OMP.PlantConnectivity.OpcUA.Models.Alarms;
 using OMP.PlantConnectivity.OpcUA.Models.Browse;
 using OMP.PlantConnectivity.OpcUA.Models.Call;
 using OMP.PlantConnectivity.OpcUA.Models.Discovery;
@@ -11,6 +12,7 @@ using OMP.PlantConnectivity.OpcUA.Models.Subscriptions;
 using OMP.PlantConnectivity.OpcUA.Models.Writes;
 using OMP.PlantConnectivity.OpcUA.Serialization;
 using OMP.PlantConnectivity.OpcUA.Services;
+using OMP.PlantConnectivity.OpcUA.Services.Alarms;
 using OMP.PlantConnectivity.OpcUA.Sessions;
 using OMP.PlantConnectivity.OpcUA.Sessions.SessionManagement;
 using OneOf;
@@ -25,6 +27,7 @@ namespace OMP.PlantConnectivity.OpcUA
         private readonly IWriteCommandService writeCommandService;
         private readonly IReadCommandService readCommandService;
         private readonly ISubscriptionCommandService subscriptionCommandsService;
+        private readonly IAlarmSubscriptionCommandService alarmSubscriptionCommandsService;
         private readonly ICallCommandService callCommandService;
         private readonly IBrowseService browseService;
         private readonly IOmpOpcUaSerializerFactory ompOpcUaSerializerFactory;
@@ -37,6 +40,7 @@ namespace OMP.PlantConnectivity.OpcUA
             IWriteCommandService writeCommandService,
             IReadCommandService readCommandService,
             ISubscriptionCommandService subscriptionCommandsService,
+            IAlarmSubscriptionCommandService alarmSubscriptionCommandsService,
             ICallCommandService callCommandService,
             IBrowseService browseService,
             IOmpOpcUaSerializerFactory ompOpcUaSerializerFactory,
@@ -47,6 +51,7 @@ namespace OMP.PlantConnectivity.OpcUA
             this.writeCommandService = writeCommandService;
             this.readCommandService = readCommandService;
             this.subscriptionCommandsService = subscriptionCommandsService;
+            this.alarmSubscriptionCommandsService = alarmSubscriptionCommandsService;
             this.callCommandService = callCommandService;
             this.browseService = browseService;
             this.ompOpcUaSerializerFactory = ompOpcUaSerializerFactory;
@@ -170,7 +175,7 @@ namespace OMP.PlantConnectivity.OpcUA
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "An error occurred while removing allsubscriptions: {errorMessage}", ex.Message);
+                logger.LogError(ex, "An error occurred while removing all subscriptions: {errorMessage}", ex.Message);
                 return ex.Demystify();
             }
         }
@@ -185,6 +190,50 @@ namespace OMP.PlantConnectivity.OpcUA
             catch (Exception ex)
             {
                 logger.LogError(ex, "An error occurred during the subscription removal: {errorMessage}", ex.Message);
+                return ex.Demystify();
+            }
+        }
+        #endregion
+
+        #region [Alarms]
+        public async Task<OneOf<CreateAlarmSubscriptionResponse, Exception>> CreateAlarmSubscriptions(CreateAlarmSubscriptionsCommand command, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var opcUaSession = await GetSession(command.EndpointUrl, cancellationToken);
+                return await alarmSubscriptionCommandsService.CreateAlarmSubscriptions(opcUaSession, command, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "An error occurred during the alarm subscription creation: {errorMessage}", ex.Message);
+                return ex.Demystify();
+            }
+        }
+
+        public async Task<OneOf<RemoveAllAlarmSubscriptionsResponse, Exception>> RemoveAllAlarmSubscriptions(RemoveAllAlarmSubscriptionsCommand command, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var opcUaSession = await GetSession(command.EndpointUrl, cancellationToken);
+                return await alarmSubscriptionCommandsService.RemoveAllAlarmSubscriptions(opcUaSession, command, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "An error occurred while removing all alarm subscriptions: {errorMessage}", ex.Message);
+                return ex.Demystify();
+            }
+        }
+
+        public async Task<OneOf<RemoveAlarmSubscriptionsResponse, Exception>> RemoveAlarmSubscriptionsCommand(RemoveAlarmSubscriptionsCommand command, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var opcUaSession = await GetSession(command.EndpointUrl, cancellationToken);
+                return await alarmSubscriptionCommandsService.RemoveAlarmSubscriptionsCommand(opcUaSession, command, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "An error occurred during the alarm subscription removal: {errorMessage}", ex.Message);
                 return ex.Demystify();
             }
         }

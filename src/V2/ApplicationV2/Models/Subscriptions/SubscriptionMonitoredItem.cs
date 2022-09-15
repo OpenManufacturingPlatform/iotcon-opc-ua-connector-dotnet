@@ -16,6 +16,4 @@ namespace OMP.PlantConnectivity.OpcUA.Models.Subscriptions
         public uint QueueSize { get; set; } = 1;
         public bool DiscardOldest { get; set; } = false;
     }
-
-
 }
