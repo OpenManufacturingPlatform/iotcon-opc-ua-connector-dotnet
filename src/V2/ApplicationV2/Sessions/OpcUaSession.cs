@@ -7,7 +7,6 @@ using OMP.PlantConnectivity.OpcUA.Configuration;
 using OMP.PlantConnectivity.OpcUA.Extensions;
 using OMP.PlantConnectivity.OpcUA.Models.Call;
 using OMP.PlantConnectivity.OpcUA.Models.Subscriptions;
-using OMP.PlantConnectivity.OpcUA.Services;
 using OMP.PlantConnectivity.OpcUA.Sessions.Auth;
 using OMP.PlantConnectivity.OpcUA.Sessions.Reconnect;
 using OMP.PlantConnectivity.OpcUA.Sessions.RegisteredNodes;
@@ -21,11 +20,18 @@ using EndpointConfiguration = Opc.Ua.EndpointConfiguration;
 using TypeInfo = Opc.Ua.TypeInfo;
 using OMP.PlantConnectivity.OpcUA.Models.Alarms;
 using OMP.PlantConnectivity.OpcUA.Services.Alarms;
+using OMP.PlantConnectivity.OpcUA.Services.Subscriptions;
 
 namespace OMP.PlantConnectivity.OpcUA.Sessions
 {
     internal class OpcUaSession : IOpcUaSession
     {
+        #region [Constants]
+        private const uint SessionTimeoutInMs = 100000;
+        private const uint SubscriptionLifetimeCountInMs = 100000;
+        private const uint SubscriptionKeepAliveCountInMs = 100000;
+        #endregion
+
         #region [Fields]
         private bool disposedValue;
         private SemaphoreSlim opcSessionSemaphore;
@@ -571,7 +577,7 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions
                     configuredEndpoint,
                     true,
                     sessionName,
-                    100000,
+                    SessionTimeoutInMs,
                     identity,
                     default);
 
@@ -617,17 +623,16 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions
 
         private Subscription CreateNewSubscription(SubscriptionMonitoredItem monitoredItem)
         {
-            var keepAliveCount = Convert.ToUInt32(monitoredItem.HeartbeatInterval);
             var subscription = session!.Subscriptions.FirstOrDefault(x => monitoredItem.PublishingInterval.Equals(x.PublishingInterval));
             if (subscription == default)
             {
                 subscription = new Subscription
                 {
                     PublishingInterval = monitoredItem.PublishingInterval,
-                    LifetimeCount = 100000,
-                    KeepAliveCount = keepAliveCount > 0 ? keepAliveCount : 100000,
+                    LifetimeCount = SubscriptionLifetimeCountInMs,
+                    KeepAliveCount = monitoredItem.KeepAliveCount > 0 ? monitoredItem.KeepAliveCount : SubscriptionKeepAliveCountInMs,
                     MaxNotificationsPerPublish = 1,
-                    Priority = 0,
+                    Priority = monitoredItem.Priority,
                     PublishingEnabled = false
                 };
 

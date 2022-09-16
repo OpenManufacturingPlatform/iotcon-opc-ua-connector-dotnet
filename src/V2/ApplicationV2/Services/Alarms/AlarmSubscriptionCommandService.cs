@@ -13,6 +13,7 @@ using Opc.Ua.Client;
 using CreateAlarmSubscriptionResponse = OMP.PlantConnectivity.OpcUA.Models.Alarms.CreateAlarmSubscriptionResponse;
 using OMP.PlantConnectivity.OpcUA.Models.Subscriptions;
 using OMP.PlantConnectivity.OpcUA.Models.Alarms;
+using OMP.PlantConnectivity.OpcUA.Services.Subscriptions;
 
 namespace OMP.PlantConnectivity.OpcUA.Services.Alarms
 {
@@ -37,11 +38,12 @@ namespace OMP.PlantConnectivity.OpcUA.Services.Alarms
             this.monitoredItemMessageProcessors = monitoredItemMessageProcessors;
             this.logger = logger;
             opcUaConfiguration = options.Value;
-
-            ValidateMonitoredItemMessageProcessors();//TODO: Discuss enhancement [Currently this will make entire app crash]
         }
+
         public async Task<CreateAlarmSubscriptionResponse> CreateAlarmSubscriptions(IOpcUaSession opcUaSession, CreateAlarmSubscriptionsCommand command, CancellationToken CancellationToken)
         {
+            EnsureAlarmMonitoredItemMessageProcessorsExist();
+
             var errorMessages = await AddValidationErrorsAsync(command);
             if (errorMessages.Any())
             {
@@ -50,8 +52,8 @@ namespace OMP.PlantConnectivity.OpcUA.Services.Alarms
                     , nameof(CreateAlarmSubscriptionsCommand.AlarmMonitoredItems), string.Join(" | ", errorMessages));
 
                 var errorResults = new CreateAlarmSubscriptionResult(errorMessages);
-                var responses = new CreateAlarmSubscriptionResponse(command, errorResults, false);
-                return responses;
+                var errorResponse = new CreateAlarmSubscriptionResponse(command, errorResults, false);
+                return errorResponse;
             }
 
             var globalResults = new List<AlarmMonitoredItemResult>();
@@ -217,12 +219,12 @@ namespace OMP.PlantConnectivity.OpcUA.Services.Alarms
 
             return new AlarmMonitoredItemResult(item, monitoredItem.Status.Error.StatusCode, monitoredItem.Status.Error.AdditionalInfo);
         }
-        private void ValidateMonitoredItemMessageProcessors()
+        private void EnsureAlarmMonitoredItemMessageProcessorsExist()
         {
             if (!monitoredItemMessageProcessors.Any())
             {
-                logger.LogError("No {MonitoredItemMessageProcessor} found", nameof(IMonitoredItemMessageProcessor));
-                throw new ArgumentException(nameof(monitoredItemMessageProcessors));
+                logger.LogError("{CreateAlarmSubscriptionsMethod} is not supported: No {AlarmMonitoredItemMessageProcessor} found.", nameof(CreateAlarmSubscriptions), nameof(IAlarmMonitoredItemMessageProcessor));
+                throw new NotSupportedException($"{nameof(CreateAlarmSubscriptions)} is not supported: No {nameof(IAlarmMonitoredItemMessageProcessor)} found.");
             }
         }
 
@@ -316,7 +318,6 @@ namespace OMP.PlantConnectivity.OpcUA.Services.Alarms
 
             return isSuccess;
         }
-
         #endregion
     }
 }

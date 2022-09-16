@@ -13,6 +13,7 @@ using OMP.PlantConnectivity.OpcUA.Models.Writes;
 using OMP.PlantConnectivity.OpcUA.Serialization;
 using OMP.PlantConnectivity.OpcUA.Services;
 using OMP.PlantConnectivity.OpcUA.Services.Alarms;
+using OMP.PlantConnectivity.OpcUA.Services.Subscriptions;
 using OMP.PlantConnectivity.OpcUA.Sessions;
 using OMP.PlantConnectivity.OpcUA.Sessions.SessionManagement;
 using OneOf;

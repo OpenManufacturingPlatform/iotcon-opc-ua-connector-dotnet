@@ -4,7 +4,7 @@
 using OMP.PlantConnectivity.OpcUA.Models.Subscriptions;
 using OMP.PlantConnectivity.OpcUA.Sessions;
 
-namespace OMP.PlantConnectivity.OpcUA.Services
+namespace OMP.PlantConnectivity.OpcUA.Services.Subscriptions
 {
 
     public interface ISubscriptionCommandService

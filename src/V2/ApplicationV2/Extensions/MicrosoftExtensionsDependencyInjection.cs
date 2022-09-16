@@ -12,6 +12,7 @@ using OMP.PlantConnectivity.OpcUA.Repositories;
 using OMP.PlantConnectivity.OpcUA.Serialization;
 using OMP.PlantConnectivity.OpcUA.Services;
 using OMP.PlantConnectivity.OpcUA.Services.Alarms;
+using OMP.PlantConnectivity.OpcUA.Services.Subscriptions;
 using OMP.PlantConnectivity.OpcUA.Sessions.Auth;
 using OMP.PlantConnectivity.OpcUA.Sessions.Reconnect;
 using OMP.PlantConnectivity.OpcUA.Sessions.RegisteredNodes;
