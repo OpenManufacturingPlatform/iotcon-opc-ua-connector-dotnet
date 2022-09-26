@@ -2,6 +2,7 @@
 // Copyright Contributors to the Open Manufacturing Platform.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -693,7 +694,7 @@ namespace OMP.Connector.Infrastructure.OpcUa
         }
 
         private static object CastArray<T>(object value, Type propertyType, Converter<object, T> converter)
-            => Activator.CreateInstance(propertyType, Array.ConvertAll((value as object[])!, converter));
+            => Activator.CreateInstance(propertyType, Array.ConvertAll((value as IList).Cast<object>().ToArray(), converter));
         #endregion
     }
 }
