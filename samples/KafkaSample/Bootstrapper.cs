@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OMP.Connector.Application.Factories;
 using OMP.Connector.Application.Providers;
+using OMP.Connector.Application.Repositories;
 using OMP.Connector.Application.Services;
 using OMP.Connector.Application.Validators;
 using OMP.Connector.Domain.Configuration;
@@ -71,6 +72,10 @@ namespace OMP.Connector.EdgeModule
 
             serviceCollection.AddSingleton<IOpcMonitoredItemServiceFactory, OpcMonitoredItemServiceFactory>();
             serviceCollection.AddSingleton<IOpcAlarmMonitoredItemServiceFactory, OpcAlarmMonitoredItemServiceFactory>();
+            serviceCollection.AddSingleton<IAlarmSubscriptionServiceStateManager, AlarmSubscriptionServiceStateManager>();
+            serviceCollection.AddSingleton<IAlarmSubscriptionServiceFactory, AlarmSubscriptionServiceFactory>();
+            serviceCollection.AddSingleton<IAlarmSubscriptionProviderFactory, AlarmSubscriptionProviderFactory>();
+            serviceCollection.AddSingleton<IAlarmSubscriptionRepository, LocalAlarmSubscriptionRepository>();
 
             serviceCollection.AddTransient<ConfigRestoreService>();
             serviceCollection.AddTransient<ConfigurationRestoreJob>();

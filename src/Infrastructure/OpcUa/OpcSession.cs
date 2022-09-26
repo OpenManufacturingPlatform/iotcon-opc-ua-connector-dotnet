@@ -556,11 +556,21 @@ namespace OMP.Connector.Infrastructure.OpcUa
 
             command.Value = builtInType == BuiltInType.ExtensionObject
                 ? await this.CreateOpcUaStructAsync(command, dataTypeId, session).ConfigureAwait(false)
-                : command.Value is WriteRequestStringValue wrsv
-                    ? builtInType == BuiltInType.DateTime
-                        ? XmlConvert.ToDateTime(wrsv.ToString(), XmlDateTimeSerializationMode.RoundtripKind)
-                        : TypeInfo.Cast(wrsv.ToString(), builtInType)
-                    : TypeInfo.Cast(command.Value, builtInType);
+                : ParseCommandValue(command, builtInType);
+        }
+
+        private object ParseCommandValue(WriteRequestWrapper command, BuiltInType builtInType)
+        {
+            if (command.Value is WriteRequestStringValue writeRequestStringValue)
+            {
+                command.Value = builtInType switch
+                {
+                    BuiltInType.DateTime => XmlConvert.ToDateTime(writeRequestStringValue.ToString(), XmlDateTimeSerializationMode.RoundtripKind),
+                    BuiltInType.Boolean => TypeInfo.Cast(writeRequestStringValue.ToString().ToLower(), builtInType),
+                    _ => TypeInfo.Cast(writeRequestStringValue.ToString(), builtInType)
+                };
+            }
+            return command.Value;
         }
 
         private static BuiltInType GetSuperTypeAsBuiltInType(Session session, NodeId dataTypeId)
