@@ -93,7 +93,7 @@ namespace OMP.Connector.Infrastructure.OpcUa
             var identity = _identityProvider.GetUserIdentity(endpointDescription);
             await ConnectAsync(endpointDescription, identity);
         }
-        
+
         private async Task ConnectAsync(EndpointDescription endpointDescription, IUserIdentity identity)
         {
             try
@@ -104,12 +104,12 @@ namespace OMP.Connector.Infrastructure.OpcUa
                 var locked = await LockSessionAsync().ConfigureAwait(false);
 
                 if (!locked) { return; }
-                
-                var sessionName = $"{_applicationConfiguration.ApplicationUri}:{Guid.NewGuid()}"; 
+
+                var sessionName = $"{_applicationConfiguration.ApplicationUri}:{Guid.NewGuid()}";
                 var endPointConfiguration = EndpointConfiguration.Create(_applicationConfiguration);
                 var configuredEndpoint = new ConfiguredEndpoint(endpointDescription.Server, endPointConfiguration);
                 configuredEndpoint.Update(endpointDescription);
-                
+
                 _session = await Session.Create(
                     _applicationConfiguration,
                     configuredEndpoint,
@@ -494,7 +494,7 @@ namespace OMP.Connector.Infrastructure.OpcUa
 
         private async Task ParseCommandArrayValueAsync(WriteRequestWrapper command, DataValue dataValue)
         {
-            var (dataTypeId, builtInType) = GetBuiltInType(dataValue.Value);
+            var builtInType = GetBuiltInType(dataValue.Value);
 
             if (IsArrayOfPrimitiveType(command.Value, out var primitiveArray))
             {
@@ -504,8 +504,19 @@ namespace OMP.Connector.Infrastructure.OpcUa
                     var systemType = TypeInfo.GetSystemType(builtInType, -1);
                     command.Value = CastDecimalArrayToIntegerArray((decimal[])array, systemType);
                 }
+                else if (builtInType == BuiltInType.Boolean)
+                {
+                    var booleanValues = new List<string>();
+                    foreach (var item in array)
+                    {
+                        booleanValues.Add(item.ToString()?.ToLower());
+                    }
+                    command.Value = TypeInfo.Cast(booleanValues.ToArray(), builtInType);
+                }
                 else
+                {
                     command.Value = TypeInfo.Cast(array, builtInType);
+                }
             }
             else
             {
@@ -548,14 +559,10 @@ namespace OMP.Connector.Infrastructure.OpcUa
 
         private async Task ParseCommandScalarValueAsync(WriteRequestWrapper command, DataValue dataValue, Session session)
         {
-            var (dataTypeId, builtInType) = GetBuiltInType(dataValue.Value);
-            if (builtInType == BuiltInType.Null)
-            {
-                builtInType = GetSuperTypeAsBuiltInType(session, dataTypeId);
-            }
+            var builtInType = GetBuiltInType(dataValue.Value);
 
             command.Value = builtInType == BuiltInType.ExtensionObject
-                ? await this.CreateOpcUaStructAsync(command, dataTypeId, session).ConfigureAwait(false)
+                ? await this.CreateOpcUaStructAsync(command, (NodeId)dataValue.Value, session).ConfigureAwait(false)
                 : ParseCommandValue(command, builtInType);
         }
 
@@ -585,10 +592,16 @@ namespace OMP.Connector.Infrastructure.OpcUa
             return builtInType;
         }
 
-        private (NodeId, BuiltInType) GetBuiltInType(object value)
+        private BuiltInType GetBuiltInType(object value)
         {
-            var dataTypeId = (NodeId)value;
-            return (dataTypeId, TypeInfo.GetBuiltInType(dataTypeId));
+            var builtInType = TypeInfo.GetBuiltInType((NodeId)value);
+
+            if (builtInType == BuiltInType.Null)
+            {
+                builtInType = GetSuperTypeAsBuiltInType(_session, (NodeId)value);
+            }
+
+            return builtInType;
         }
 
         private async Task<object> CreateOpcUaStructAsync(WriteRequestWrapper command, NodeId dataTypeId, Session session)
