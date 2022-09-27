@@ -10,7 +10,7 @@ using OMP.Connector.Infrastructure.MQTT.Common;
 using OMP.Connector.Infrastructure.MQTT.Common.Publishers;
 using OMP.Connector.Infrastructure.MQTT.Serialization;
 
-namespace OMP.Connector.Infrastructure.MQTT.ResponseEndpoint
+namespace OMP.Connector.Infrastructure.MQTT.AlarmEndpoint
 {
     public class MqttAlarmPublisher : MqttBaseListnerPublisher<IMqttClient, MqttClientSettings>, IMqttAlarmPublisher
     {
