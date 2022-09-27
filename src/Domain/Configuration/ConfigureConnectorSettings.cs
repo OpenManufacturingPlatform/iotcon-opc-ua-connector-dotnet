@@ -33,7 +33,8 @@ namespace OMP.Connector.Domain.Configuration
         {
             SetNativeAndSharedCommunicationSettings(communicationConfiguration?.RequestEndpoint, GetCommandEndpointCommunicationNativeConfiguration(), sharedConfiguration);
             SetNativeAndSharedCommunicationSettings(communicationConfiguration?.ResponseEndpoint, GetResponseEndpointCommunicationNativeConfiguration(), sharedConfiguration);
-            SetNativeAndSharedCommunicationSettings(communicationConfiguration?.TelemetryEndpoint, GetTelemetaryCommunicationNativeConfiguration(), sharedConfiguration);
+            SetNativeAndSharedCommunicationSettings(communicationConfiguration?.TelemetryEndpoint, GetTelemetryEndpointCommunicationNativeConfiguration(), sharedConfiguration);
+            SetNativeAndSharedCommunicationSettings(communicationConfiguration?.AlarmEndpoint, GetAlarmEndpointCommunicationNativeConfiguration(), sharedConfiguration);
         }
 
         private void SetNativeAndSharedCommunicationSettings(CommunicationChannelConfiguration communicationConfiguration, IConfiguration configuration, SharedConfiguration sharedConfiguration)
@@ -62,7 +63,9 @@ namespace OMP.Connector.Domain.Configuration
         private IConfiguration GetSharedCommunicationNativeConfiguration()
             => configuration.GetSection($"{nameof(ConnectorConfiguration.Communication)}{SectionSeparatorKey}{nameof(ConnectorConfiguration.Communication.Shared)}{SectionSeparatorKey}{NativeSettingsKey}");
 
-        private IConfiguration GetTelemetaryCommunicationNativeConfiguration()
+        private IConfiguration GetTelemetryEndpointCommunicationNativeConfiguration()
             => configuration.GetSection($"{nameof(ConnectorConfiguration.Communication)}{SectionSeparatorKey}{nameof(ConnectorConfiguration.Communication.TelemetryEndpoint)}{SectionSeparatorKey}{NativeSettingsKey}");
+        private IConfiguration GetAlarmEndpointCommunicationNativeConfiguration()
+            => configuration.GetSection($"{nameof(ConnectorConfiguration.Communication)}{SectionSeparatorKey}{nameof(ConnectorConfiguration.Communication.AlarmEndpoint)}{SectionSeparatorKey}{NativeSettingsKey}");
     }
 }
