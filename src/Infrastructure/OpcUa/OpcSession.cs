@@ -580,7 +580,7 @@ namespace OMP.Connector.Infrastructure.OpcUa
             }
             else
             {
-                value = TypeInfo.Cast(value.ToString(), builtInType);
+                value = TypeInfo.Cast(value, builtInType);
             }
             return value;
         }
