@@ -15,7 +15,7 @@ namespace OMP.PlantConnectivity.OpcUA.Serialization
             this.loggerFactory = loggerFactory;
         }
 
-        public IOmpOpcUaSerializer Create(IOpcUaSession opcUaSession, bool useReversibleEncoding = true, bool useGenericEncoderOnError = true)
+        public IOmpOpcUaSerializer Create(IOpcUaSession opcUaSession, bool useReversibleEncoding = false, bool useGenericEncoderOnError = true)
         {
             return new OpcUaNewtonsoftSerializer(opcUaSession, useReversibleEncoding, useGenericEncoderOnError, loggerFactory.CreateLogger<OpcUaNewtonsoftSerializer>());
         }
