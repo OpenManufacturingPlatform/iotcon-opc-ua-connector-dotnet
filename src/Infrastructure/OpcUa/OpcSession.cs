@@ -641,6 +641,11 @@ namespace OMP.Connector.Infrastructure.OpcUa
                     {
                         value = BuildOpcUaStructArray(propInfo.PropertyType.GetElementType(), UnboxStructArray(value));
                     }
+                    else if (value is WriteRequestValues values) //nested structs -> properties that have type of struct
+                    {
+                        var dictionary = values.ToDictionary(x => x.Key, y => y.Value as object);
+                        value = BuildOpcUaStruct(propInfo.PropertyType, dictionary);
+                    }
                     else if (propInfo.PropertyType.FullName != null && propInfo.PropertyType.FullName.StartsWith(Constants.NativeOpcUaNameSpace))
                     {
                         value = propInfo.PropertyType switch
