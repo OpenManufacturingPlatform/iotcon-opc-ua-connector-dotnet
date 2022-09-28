@@ -61,39 +61,43 @@ namespace OMP.PlantConnectivity.OpcUA
         #endregion
 
         #region [Browse]
-        public async Task<OneOf<BrowseChildNodesResponseCollection, Exception>> BrowseNodes(string endpointUrl, int browseDepth, CancellationToken cancellationToken)
+        public async Task<OneOf<BrowseChildNodesResponseCollection, Exception>> BrowseNodesAsync(string endpointUrl, int browseDepth, CancellationToken cancellationToken)
         {
             try
             {
-                var opcUaSession = await GetSession(endpointUrl, cancellationToken);
+                var opcUaSession = await GetSessionAsync(endpointUrl, cancellationToken);
                 var result = await browseService.BrowseNodes(opcUaSession, cancellationToken, browseDepth);
                 return result;
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "An error occurred during the Call command: {errorMessage}", ex.Message);
+                logger.LogError(ex, "An error occurred during the {BrowseNodesAsync} command: {errorMessage}", nameof(BrowseNodesAsync), ex.Message);
                 return ex.Demystify();
             }
         }
 
-        public async Task<OneOf<BrowseChildNodesResponse, Exception>> BrowseChildNodes(BrowseChildNodesCommand command, CancellationToken cancellationToken)
+        public async Task<OneOf<BrowseChildNodesResponse, Exception>> BrowseChildNodesAsync(BrowseChildNodesCommand command, CancellationToken cancellationToken)
         {
             try
             {
-                var opcUaSession = await GetSession(command.EndpointUrl, cancellationToken);
+                var opcUaSession = await GetSessionAsync(command.EndpointUrl, cancellationToken);
                 return await browseService.BrowseChildNodes(opcUaSession, command, cancellationToken);
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "An error occurred during the Call command: {errorMessage}", ex.Message);
+                logger.LogError(ex, "An error occurred during the {BrowseChildNodesAsync} command: {errorMessage}", nameof(BrowseChildNodesAsync), ex.Message);
                 return ex.Demystify();
             }
         }
 
+        //TODO: Should be completely removed. If you would like to use the new library you should anyway rewrite and use the new method
+        //TODO: Check with Ivan
         [Obsolete("Please use BrowseChildNodes")]
         public Task<OneOf<BrowseChildNodesResponse, Exception>> DiscoverChildNodes(DiscoveryChildNodesCommand command, CancellationToken cancellationToken)
-            => BrowseChildNodes(command, cancellationToken);
+            => BrowseChildNodesAsync(command, cancellationToken);
 
+        //TODO: Should be completely removed. If you would like to use the new library you should anyway rewrite and use the new method
+        //TODO: Check with Ivan
         [Obsolete("Please use ReadNodesAsync")]
         public Task<OneOf<ReadNodeCommandResponseCollection, Exception>> BrowseNodesAsync(BrowseCommandCollection commands, CancellationToken cancellationToken)
         {
@@ -104,21 +108,19 @@ namespace OMP.PlantConnectivity.OpcUA
         #endregion
 
         #region [Call]
-
         public async Task<OneOf<CallCommandCollectionResponse, Exception>> CallNodesAsync(CallCommandCollection commands, CancellationToken cancellationToken)
         {
             try
             {
-                var opcUaSession = await GetSession(commands.EndpointUrl, cancellationToken);
+                var opcUaSession = await GetSessionAsync(commands.EndpointUrl, cancellationToken);
                 return await callCommandService.CallNodesAsync(opcUaSession, commands, cancellationToken);
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "An error occurred during the Call command: {errorMessage}", ex.Message);
+                logger.LogError(ex, "An error occurred during the {CallNodesAsync} command: {errorMessage}", nameof(CallNodesAsync), ex.Message);
                 return ex.Demystify();
             }
         }
-
         #endregion
 
         #region [Read]
@@ -126,12 +128,12 @@ namespace OMP.PlantConnectivity.OpcUA
         {
             try
             {
-                var opcUaSession = await GetSession(commands.EndpointUrl, cancellationToken);
+                var opcUaSession = await GetSessionAsync(commands.EndpointUrl, cancellationToken);
                 return await readCommandService.ReadNodesAsync(opcUaSession, commands, cancellationToken);
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "An error occurred during the reading of nodes command: {errorMessage}", ex.Message);
+                logger.LogError(ex, "An error occurred during the {ReadNodesAsync} command: {errorMessage}", nameof(ReadNodesAsync), ex.Message);
                 return ex.Demystify();
             }
         }
@@ -140,101 +142,100 @@ namespace OMP.PlantConnectivity.OpcUA
         {
             try
             {
-                var opcUaSession = await GetSession(commands.EndpointUrl, cancellationToken);
+                var opcUaSession = await GetSessionAsync(commands.EndpointUrl, cancellationToken);
                 return await readCommandService.ReadValuesAsync(opcUaSession, commands, cancellationToken);
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "An error occurred during the reading of values command: {errorMessage}", ex.Message);
+                logger.LogError(ex, "An error occurred during the {ReadValuesAsync} command: {errorMessage}", nameof(ReadValuesAsync), ex.Message);
                 return ex.Demystify();
             }
         }
-
         #endregion
 
         #region [Subscriptions]
-        public async Task<OneOf<CreateSubscriptionResponse, Exception>> CreateSubscriptions(CreateSubscriptionsCommand command, CancellationToken cancellationToken)
+        public async Task<OneOf<CreateSubscriptionResponse, Exception>> CreateSubscriptionsAsync(CreateSubscriptionsCommand command, CancellationToken cancellationToken)
         {
             try
             {
-                var opcUaSession = await GetSession(command.EndpointUrl, cancellationToken);
+                var opcUaSession = await GetSessionAsync(command.EndpointUrl, cancellationToken);
                 return await subscriptionCommandsService.CreateSubscriptions(opcUaSession, command, cancellationToken);
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "An error occurred during the subscription creation: {errorMessage}", ex.Message);
+                logger.LogError(ex, "An error occurred during the {CreateSubscriptionsAsync} command: {errorMessage}", nameof(CreateSubscriptionsAsync), ex.Message);
                 return ex.Demystify();
             }
         }
 
-        public async Task<OneOf<RemoveAllSubscriptionsResponse, Exception>> RemoveAllSubscriptions(RemoveAllSubscriptionsCommand command, CancellationToken cancellationToken)
+        public async Task<OneOf<RemoveAllSubscriptionsResponse, Exception>> RemoveAllSubscriptionsAsync(RemoveAllSubscriptionsCommand command, CancellationToken cancellationToken)
         {
             try
             {
-                var opcUaSession = await GetSession(command.EndpointUrl, cancellationToken);
+                var opcUaSession = await GetSessionAsync(command.EndpointUrl, cancellationToken);
                 return await subscriptionCommandsService.RemoveAllSubscriptions(opcUaSession, command, cancellationToken);
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "An error occurred while removing all subscriptions: {errorMessage}", ex.Message);
+                logger.LogError(ex, "An error occurred during the {RemoveAllSubscriptionsAsync} command: {errorMessage}", nameof(RemoveAllSubscriptionsAsync), ex.Message);
                 return ex.Demystify();
             }
         }
 
-        public async Task<OneOf<RemoveSubscriptionsResponse, Exception>> RemoveSubscriptionsCommand(RemoveSubscriptionsCommand command, CancellationToken cancellationToken)
+        public async Task<OneOf<RemoveSubscriptionsResponse, Exception>> RemoveSubscriptionsAsync(RemoveSubscriptionsCommand command, CancellationToken cancellationToken)
         {
             try
             {
-                var opcUaSession = await GetSession(command.EndpointUrl, cancellationToken);
+                var opcUaSession = await GetSessionAsync(command.EndpointUrl, cancellationToken);
                 return await subscriptionCommandsService.RemoveSubscriptionsCommand(opcUaSession, command, cancellationToken);
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "An error occurred during the subscription removal: {errorMessage}", ex.Message);
+                logger.LogError(ex, "An error occurred during the {RemoveSubscriptionsAsync} command: {errorMessage}", nameof(RemoveSubscriptionsAsync), ex.Message);
                 return ex.Demystify();
             }
         }
         #endregion
 
         #region [Alarms]
-        public async Task<OneOf<CreateAlarmSubscriptionResponse, Exception>> CreateAlarmSubscriptions(CreateAlarmSubscriptionsCommand command, CancellationToken cancellationToken)
+        public async Task<OneOf<CreateAlarmSubscriptionResponse, Exception>> CreateAlarmSubscriptionsAsync(CreateAlarmSubscriptionsCommand command, CancellationToken cancellationToken)
         {
             try
             {
-                var opcUaSession = await GetSession(command.EndpointUrl, cancellationToken);
+                var opcUaSession = await GetSessionAsync(command.EndpointUrl, cancellationToken);
                 return await alarmSubscriptionCommandsService.CreateAlarmSubscriptions(opcUaSession, command, cancellationToken);
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "An error occurred during the alarm subscription creation: {errorMessage}", ex.Message);
+                logger.LogError(ex, "An error occurred during the {CreateAlarmSubscriptionsAsync} command: {errorMessage}", nameof(CreateAlarmSubscriptionsAsync), ex.Message);
                 return ex.Demystify();
             }
         }
 
-        public async Task<OneOf<RemoveAllAlarmSubscriptionsResponse, Exception>> RemoveAllAlarmSubscriptions(RemoveAllAlarmSubscriptionsCommand command, CancellationToken cancellationToken)
+        public async Task<OneOf<RemoveAllAlarmSubscriptionsResponse, Exception>> RemoveAllAlarmSubscriptionsAsync(RemoveAllAlarmSubscriptionsCommand command, CancellationToken cancellationToken)
         {
             try
             {
-                var opcUaSession = await GetSession(command.EndpointUrl, cancellationToken);
+                var opcUaSession = await GetSessionAsync(command.EndpointUrl, cancellationToken);
                 return await alarmSubscriptionCommandsService.RemoveAllAlarmSubscriptions(opcUaSession, command, cancellationToken);
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "An error occurred while removing all alarm subscriptions: {errorMessage}", ex.Message);
+                logger.LogError(ex, "An error occurred during the {RemoveAllAlarmSubscriptionsAsync} command: {errorMessage}", nameof(RemoveAllAlarmSubscriptionsAsync), ex.Message);
                 return ex.Demystify();
             }
         }
 
-        public async Task<OneOf<RemoveAlarmSubscriptionsResponse, Exception>> RemoveAlarmSubscriptionsCommand(RemoveAlarmSubscriptionsCommand command, CancellationToken cancellationToken)
+        public async Task<OneOf<RemoveAlarmSubscriptionsResponse, Exception>> RemoveAlarmSubscriptionsAsync(RemoveAlarmSubscriptionsCommand command, CancellationToken cancellationToken)
         {
             try
             {
-                var opcUaSession = await GetSession(command.EndpointUrl, cancellationToken);
+                var opcUaSession = await GetSessionAsync(command.EndpointUrl, cancellationToken);
                 return await alarmSubscriptionCommandsService.RemoveAlarmSubscriptionsCommand(opcUaSession, command, cancellationToken);
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "An error occurred during the alarm subscription removal: {errorMessage}", ex.Message);
+                logger.LogError(ex, "An error occurred during the {RemoveAlarmSubscriptionsAsync} command: {errorMessage}", nameof(RemoveAlarmSubscriptionsAsync), ex.Message);
                 return ex.Demystify();
             }
         }
@@ -245,12 +246,12 @@ namespace OMP.PlantConnectivity.OpcUA
         {
             try
             {
-                var opcUaSession = await GetSession(commands.EndpointUrl, cancellationToken);
+                var opcUaSession = await GetSessionAsync(commands.EndpointUrl, cancellationToken);
                 return await writeCommandService.WriteAsync(opcUaSession, commands, cancellationToken);
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "An error occurred during the write command: {errorMessage}", ex.Message);
+                logger.LogError(ex, "An error occurred during the {WriteAsync} command: {errorMessage}", nameof(WriteAsync), ex.Message);
                 return ex.Demystify();
             }
         }
@@ -261,7 +262,7 @@ namespace OMP.PlantConnectivity.OpcUA
         {
             try
             {
-                await GetSession(endpointUrl, cancellationToken);
+                await GetSessionAsync(endpointUrl, cancellationToken);
             }
             catch (Exception ex)
             {
@@ -303,7 +304,7 @@ namespace OMP.PlantConnectivity.OpcUA
         {
             try
             {
-                var opcUaSession = await GetSession(endpointUrl, cancellationToken);
+                var opcUaSession = await GetSessionAsync(endpointUrl, cancellationToken);
                 var toreturn = ompOpcUaSerializerFactory.Create(opcUaSession, useReversibleEncoding, useGenericEncoderOnError);
                 return OneOf<IOmpOpcUaSerializer, Exception>.FromT0(toreturn);
                 //return toreturn;
@@ -316,7 +317,7 @@ namespace OMP.PlantConnectivity.OpcUA
         }
         #endregion
 
-        protected Task<IOpcUaSession> GetSession(string endpointUrl, CancellationToken cancellationToken)
-            => sessionPoolStateManager.GetSessionAsync(endpointUrl, cancellationToken);
+        protected async Task<IOpcUaSession> GetSessionAsync(string endpointUrl, CancellationToken cancellationToken)
+            => await sessionPoolStateManager.GetSessionAsync(endpointUrl, cancellationToken);
     }
 }

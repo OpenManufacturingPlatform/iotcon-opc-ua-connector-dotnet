@@ -77,7 +77,7 @@ namespace TestApplicationV2
 
         private async Task BrowseServerNodesTest(CancellationToken stoppingToken)
         {
-            var results = await ompOpcUaClient.BrowseNodes(EndPointUrl, 2, stoppingToken);
+            var results = await ompOpcUaClient.BrowseNodesAsync(EndPointUrl, 2, stoppingToken);
             results.Switch(
                 result =>
                 {
@@ -102,7 +102,7 @@ namespace TestApplicationV2
             };
             var command = new BrowseChildNodesCommand(EndPointUrl, brwoseDescription, 2);
 
-            var results = await ompOpcUaClient.BrowseChildNodes(command, stoppingToken);
+            var results = await ompOpcUaClient.BrowseChildNodesAsync(command, stoppingToken);
             results.Switch(
                 result =>
                 {
@@ -211,7 +211,7 @@ namespace TestApplicationV2
                 NodeId = "i=2257"
             });
 
-            var results = await ompOpcUaClient.CreateSubscriptions(commandCollection, stoppingToken);
+            var results = await ompOpcUaClient.CreateSubscriptionsAsync(commandCollection, stoppingToken);
             results.Switch(
                result =>
                {
@@ -228,7 +228,7 @@ namespace TestApplicationV2
             await Task.Delay(TimeSpan.FromSeconds(55));
             var commandCollection = new RemoveSubscriptionsCommand(EndPointUrl, new List<string> { "ns=2;i=1587" });
 
-            var results = await ompOpcUaClient.RemoveSubscriptionsCommand(commandCollection, stoppingToken);
+            var results = await ompOpcUaClient.RemoveSubscriptionsAsync(commandCollection, stoppingToken);
             results.Switch(
                result =>
                {
@@ -250,7 +250,7 @@ namespace TestApplicationV2
                 new SubscriptionMonitoredItem { NodeId = "ns=2;i=1599", }
             });
 
-            var createSubscriptionResult = await ompOpcUaClient.CreateSubscriptions(commandCollection, stoppingToken);
+            var createSubscriptionResult = await ompOpcUaClient.CreateSubscriptionsAsync(commandCollection, stoppingToken);
             createSubscriptionResult.Switch(
                result =>
                {
@@ -269,7 +269,7 @@ namespace TestApplicationV2
         private async Task RemoveAllSubscriptions(CancellationToken stoppingToken)
         {
             var removeAllCommand = new RemoveAllSubscriptionsCommand(EndPointUrl);
-            var removeAllResult = await ompOpcUaClient.RemoveAllSubscriptions(removeAllCommand, stoppingToken);
+            var removeAllResult = await ompOpcUaClient.RemoveAllSubscriptionsAsync(removeAllCommand, stoppingToken);
 
             removeAllResult.Switch(
                result =>
