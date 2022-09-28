@@ -743,7 +743,7 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions
                 };
 
                 // generate select clauses for all fields of all alarm types
-                filter.SelectClauses = filter.ConstructSelectClauses(session, alarmTypeNodeIds);
+                filter.SelectClauses = this.ConstructSelectClauses(alarmTypeNodeIds);
 
                 // filter clauses based on the list of fields that should be included (if available in request)
                 if (alarmSubscriptionMonitoredItem.AlarmFields != null && alarmSubscriptionMonitoredItem.AlarmFields.Any())
@@ -753,7 +753,7 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions
                 }
 
                 // create monitored item based on the current filter settings
-                var monitoredItem = filter.CreateMonitoredItem(session);
+                var monitoredItem = filter.CreateMonitoredItem();
 
                 foreach (var processor in this.alarmMonitoredItemMessageProcessors)
                     monitoredItem.Notification += processor.ProcessMessage; //If processor throws error the application crashes
@@ -772,6 +772,273 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions
             }
         }
 
+        private SimpleAttributeOperandCollection ConstructSelectClauses(
+            params NodeId[] eventTypeIds)
+        {
+            // browse the type model in the server address space to find the fields available for the event type.
+            var selectClauses = new SimpleAttributeOperandCollection();
+
+            // must always request the NodeId for the condition instances.
+            // this can be done by specifying an operand with an empty browse path.
+            var operand = new SimpleAttributeOperand();
+
+            operand.TypeDefinitionId = ObjectTypeIds.BaseEventType;
+            operand.AttributeId = Attributes.NodeId;
+            operand.BrowsePath = new QualifiedNameCollection();
+
+            selectClauses.Add(operand);
+
+            // add the fields for the selected EventTypes.
+            if (eventTypeIds != null)
+            {
+                for (var ii = 0; ii < eventTypeIds.Length; ii++)
+                {
+                    CollectFields(eventTypeIds[ii], selectClauses);
+                }
+            }
+
+            // use BaseEventType as the default if no EventTypes specified.
+            else
+            {
+                CollectFields(ObjectTypeIds.BaseEventType, selectClauses);
+            }
+
+            return selectClauses;
+        }
+
+        private void CollectFields(NodeId eventTypeId, SimpleAttributeOperandCollection eventFields)
+        {
+            // get the supertypes.
+            var supertypes = BrowseSuperTypes(eventTypeId, false);
+
+            if (supertypes == null)
+            {
+                return;
+            }
+
+            // process the types starting from the top of the tree.
+            var foundNodes = new Dictionary<NodeId, QualifiedNameCollection>();
+            var parentPath = new QualifiedNameCollection();
+
+            for (var ii = supertypes.Count - 1; ii >= 0; ii--)
+            {
+                CollectFields((NodeId)supertypes[ii].NodeId, parentPath, eventFields, foundNodes);
+            }
+
+            // collect the fields for the selected type.
+            CollectFields(eventTypeId, parentPath, eventFields, foundNodes);
+        }
+
+        private void CollectFields(
+            NodeId nodeId,
+            QualifiedNameCollection parentPath,
+            SimpleAttributeOperandCollection eventFields,
+            Dictionary<NodeId, QualifiedNameCollection> foundNodes)
+        {
+            // find all of the children of the field.
+            var nodeToBrowse = new BrowseDescription();
+
+            nodeToBrowse.NodeId = nodeId;
+            nodeToBrowse.BrowseDirection = BrowseDirection.Forward;
+            nodeToBrowse.ReferenceTypeId = ReferenceTypeIds.Aggregates;
+            nodeToBrowse.IncludeSubtypes = true;
+            nodeToBrowse.NodeClassMask = (uint)(NodeClass.Object | NodeClass.Variable);
+            nodeToBrowse.ResultMask = (uint)BrowseResultMask.All;
+
+            var children = Browse(nodeToBrowse, false);
+
+            if (children == null)
+            {
+                return;
+            }
+
+            // process the children.
+            for (var ii = 0; ii < children.Count; ii++)
+            {
+                var child = children[ii];
+
+                if (child.NodeId.IsAbsolute)
+                {
+                    continue;
+                }
+
+                // construct browse path.
+                var browsePath = new QualifiedNameCollection(parentPath);
+                browsePath.Add(child.BrowseName);
+
+                // check if the browse path is already in the list.
+                if (!ContainsPath(eventFields, browsePath))
+                {
+                    var field = new SimpleAttributeOperand();
+
+                    field.TypeDefinitionId = ObjectTypeIds.BaseEventType;
+                    field.BrowsePath = browsePath;
+                    field.AttributeId = child.NodeClass == NodeClass.Variable ? Attributes.Value : Attributes.NodeId;
+
+                    eventFields.Add(field);
+                }
+
+                // recusively find all of the children.
+                var targetId = (NodeId)child.NodeId;
+
+                // need to guard against loops.
+                if (!foundNodes.ContainsKey(targetId))
+                {
+                    foundNodes.Add(targetId, browsePath);
+                    CollectFields((NodeId)child.NodeId, browsePath, eventFields, foundNodes);
+                }
+            }
+        }
+
+        private bool ContainsPath(SimpleAttributeOperandCollection selectClause, QualifiedNameCollection browsePath)
+        {
+            for (var ii = 0; ii < selectClause.Count; ii++)
+            {
+                var field = selectClause[ii];
+
+                if (field.BrowsePath.Count != browsePath.Count)
+                {
+                    continue;
+                }
+
+                var match = true;
+
+                for (var jj = 0; jj < field.BrowsePath.Count; jj++)
+                {
+                    if (field.BrowsePath[jj] != browsePath[jj])
+                    {
+                        match = false;
+                        break;
+                    }
+                }
+
+                if (match)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private ReferenceDescriptionCollection BrowseSuperTypes(NodeId typeId, bool throwOnError)
+        {
+            var supertypes = new ReferenceDescriptionCollection();
+
+            try
+            {
+                // find all of the children of the field.
+                var nodeToBrowse = new BrowseDescription();
+
+                nodeToBrowse.NodeId = typeId;
+                nodeToBrowse.BrowseDirection = BrowseDirection.Inverse;
+                nodeToBrowse.ReferenceTypeId = ReferenceTypeIds.HasSubtype;
+                nodeToBrowse.IncludeSubtypes = false; // more efficient to use IncludeSubtypes=False when possible.
+                nodeToBrowse.NodeClassMask = 0; // the HasSubtype reference already restricts the targets to Types. 
+                nodeToBrowse.ResultMask = (uint)BrowseResultMask.All;
+
+                var references = Browse(nodeToBrowse, throwOnError);
+
+                while (references != null && references.Count > 0)
+                {
+                    // should never be more than one supertype.
+                    supertypes.Add(references[0]);
+
+                    // only follow references within this server.
+                    if (references[0].NodeId.IsAbsolute)
+                    {
+                        break;
+                    }
+
+                    // get the references for the next level up.
+                    nodeToBrowse.NodeId = (NodeId)references[0].NodeId;
+                    references = Browse(nodeToBrowse, throwOnError);
+                }
+
+                // return complete list.
+                return supertypes;
+            }
+            catch (Exception exception)
+            {
+                if (throwOnError)
+                {
+                    throw new ServiceResultException(exception, StatusCodes.BadUnexpectedError);
+                }
+
+                return null;
+            }
+        }
+
+        private ReferenceDescriptionCollection Browse(BrowseDescription nodeToBrowse, bool throwOnError)
+        {
+            try
+            {
+                var references = new ReferenceDescriptionCollection();
+
+                // construct browse request.
+                var nodesToBrowse = new BrowseDescriptionCollection();
+                nodesToBrowse.Add(nodeToBrowse);
+
+                session.Browse(
+                    null,
+                    null,
+                    0,
+                    nodesToBrowse,
+                    out var results,
+                    out var diagnosticInfos);
+
+                ClientBase.ValidateResponse(results, nodesToBrowse);
+                ClientBase.ValidateDiagnosticInfos(diagnosticInfos, nodesToBrowse);
+
+                do
+                {
+                    // check for error.
+                    if (StatusCode.IsBad(results[0].StatusCode))
+                    {
+                        throw new ServiceResultException(results[0].StatusCode);
+                    }
+
+                    // process results.
+                    for (var ii = 0; ii < results[0].References.Count; ii++)
+                    {
+                        references.Add(results[0].References[ii]);
+                    }
+
+                    // check if all references have been fetched.
+                    if (results[0].References.Count == 0 || results[0].ContinuationPoint == null)
+                    {
+                        break;
+                    }
+
+                    // continue browse operation.
+                    var continuationPoints = new ByteStringCollection();
+                    continuationPoints.Add(results[0].ContinuationPoint);
+
+                    session.BrowseNext(
+                        null,
+                        false,
+                        continuationPoints,
+                        out results,
+                        out diagnosticInfos);
+
+                    ClientBase.ValidateResponse(results, continuationPoints);
+                    ClientBase.ValidateDiagnosticInfos(diagnosticInfos, continuationPoints);
+                }
+                while (true);
+
+                //return complete list.
+                return references;
+            }
+            catch (Exception exception)
+            {
+                if (throwOnError)
+                {
+                    throw new ServiceResultException(exception, StatusCodes.BadUnexpectedError);
+                }
+
+                return null;
+            }
+        }
         #endregion
 
         #region [Call]
