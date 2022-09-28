@@ -117,7 +117,7 @@ namespace OMP.PlantConnectivity.OpcUA.Services.Alarms
                 foreach (var subscription in activeSubscriptions)
                 {
                     subscription.SetPublishingMode(false);
-                    logger.LogTrace("Disabled publishing for subscription [Id: {subscriptionId}]", subscription.Id);
+                    logger.LogTrace("Disabled publishing for alarm subscription [Id: {subscriptionId}]", subscription.Id);
                 }
 
                 await opcUaSession.RemoveSubscriptionsAsync(activeSubscriptions);
@@ -127,7 +127,7 @@ namespace OMP.PlantConnectivity.OpcUA.Services.Alarms
                 var error = ex.Demystify();
                 response.Succeeded = false;
                 response.Message = error.Message;
-                logger.LogWarning(error, "Unable to remove all subscriptions from OPC UA server session: {error}", error.Message);
+                logger.LogWarning(error, "Unable to remove all alarm subscriptions from OPC UA server session: {error}", error.Message);
             }
 
             return response;
@@ -140,12 +140,12 @@ namespace OMP.PlantConnectivity.OpcUA.Services.Alarms
             var response = await RemoveAlarmSubscriptionsFromSessionAsync(opcUaSession, command);
             if (!response.Succeeded)
             {
-                logger.LogError("Could not remove subscriptions from OPC UA session on Endpoint: [{endpointUrl}]", command.EndpointUrl);
-                response.Message = "Could not remove subscriptions from OPC UA session.";
+                logger.LogError("Could not remove alarm subscriptions from OPC UA session on Endpoint: [{endpointUrl}]", command.EndpointUrl);
+                response.Message = "Could not remove alarm subscriptions from OPC UA session.";
             }
             else
             {
-                logger.LogDebug("Removed monitored items from subscription(s) on Endpoint: [{endpointUrl}]", command.EndpointUrl);
+                logger.LogDebug("Removed monitored items from alarm subscription(s) on Endpoint: [{endpointUrl}]", command.EndpointUrl);
             }
 
             return response;
@@ -246,7 +246,7 @@ namespace OMP.PlantConnectivity.OpcUA.Services.Alarms
                 {
                     var batchHandler = new BatchHandler<MonitoredItem>(opcUaConfiguration.SubscriptionBatchSize, UnsubscribeBatches(subscription, response));
                     batchHandler.RunBatches(items);
-                    logger.LogDebug("{items} monitored items were removed from subscription [Id: {subscriptionId}]",
+                    logger.LogDebug("{items} monitored items were removed from alarm subscription [Id: {subscriptionId}]",
                         items.Count, subscription.Id);
 
                     if (!subscription.MonitoredItems.Any())
@@ -258,7 +258,7 @@ namespace OMP.PlantConnectivity.OpcUA.Services.Alarms
             catch (Exception ex)
             {
                 response.Succeeded = false;
-                logger.LogWarning(ex, $"Unable to remove subscriptions from OPC UA server session");
+                logger.LogWarning(ex, $"Unable to remove alarm subscriptions from OPC UA server session");
             }
             return response;
         }
@@ -313,7 +313,7 @@ namespace OMP.PlantConnectivity.OpcUA.Services.Alarms
             catch (Exception ex)
             {
                 isSuccess = false;
-                logger.LogWarning(ex, "Unable to remove all subscriptions from the subscription repository.");
+                logger.LogWarning(ex, "Unable to remove all alarm subscriptions from the subscription repository.");
             }
 
             return isSuccess;

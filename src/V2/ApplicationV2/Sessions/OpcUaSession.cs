@@ -30,6 +30,7 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions
         private const uint SessionTimeoutInMs = 100000;
         private const uint SubscriptionLifetimeCountInMs = 100000;
         private const uint SubscriptionKeepAliveCountInMs = 100000;
+        private const uint RequestedMaxReferencesPerNode = 200u;
         #endregion
 
         #region [Fields]
@@ -89,18 +90,18 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions
                 try
                 {
                     await ConnectAsync(endpointDescription);
-                    logger.LogInformation("Session created to Endpoint with: [{endpointUrl}] with SecurityMode: [{securityMode}] and Level: [{securityLevel}]", endpointDescription.EndpointUrl, endpointDescription.SecurityMode, endpointDescription.SecurityLevel);
+                    logger.LogInformation("Session created to endpoint [{endpointUrl}] with SecurityMode: [{securityMode}] and Level: [{securityLevel}]", endpointDescription.EndpointUrl, endpointDescription.SecurityMode, endpointDescription.SecurityLevel);
                     break;
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
-                    logger.LogWarning("Unable to create to Endpoint with: [{endpointUrl}] with SecurityMode: [{securityMode}] and Level: [{securityLevel}]", endpointDescription.EndpointUrl, endpointDescription.SecurityMode, endpointDescription.SecurityLevel);
+                    logger.LogWarning("Unable to create to endpoint [{endpointUrl}] with SecurityMode: [{securityMode}] and Level: [{securityLevel}]", endpointDescription.EndpointUrl, endpointDescription.SecurityMode, endpointDescription.SecurityLevel);
                     await Task.Delay(500); // fix for Milo server not being happy with endpoint connections in quick succession
                 }
             }
 
             if (session == default)
-                throw new Exception($"Unable to create a session to OPC Server: [{endpointDescriptionCollection.FirstOrDefault()?.EndpointUrl}] on all its endpoints");
+                throw new Exception($"Unable to create a session to OPC UA Server: [{endpointDescriptionCollection.FirstOrDefault()?.EndpointUrl}] on all its endpoints");
         }
 
         public async Task ConnectAsync(EndpointDescription endpointDescription)
@@ -114,7 +115,10 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions
             try
             {
                 session!.KeepAlive -= SessionOnKeepAlive;
-                await session.CloseSessionAsync(null, true, stoppingToken);
+                if (session.Connected && !session.KeepAliveStopped)
+                {
+                    await session.CloseSessionAsync(null, true, stoppingToken);
+                }
             }
             catch (Exception ex)
             {
@@ -197,11 +201,11 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions
                     var reference = (ReferenceDescription)readValue.Handle;
 
                     if (reference.BrowseName == BrowseNames.InputArguments)
-                        inputArguments.AddRange((Argument[])ExtensionObject.ToArray(dataValue.GetValue<ExtensionObject[]>(null), typeof(Argument)));
+                        inputArguments.AddRange((Argument[])ExtensionObject.ToArray(dataValue.GetValue<ExtensionObject[]>(Array.Empty<ExtensionObject>()), typeof(Argument)));
 
 
                     if (reference.BrowseName == BrowseNames.OutputArguments)
-                        outArguments.AddRange((Argument[])ExtensionObject.ToArray(dataValue.GetValue<ExtensionObject[]>(null), typeof(Argument)));
+                        outArguments.AddRange((Argument[])ExtensionObject.ToArray(dataValue.GetValue<ExtensionObject[]>(Array.Empty<ExtensionObject>()), typeof(Argument)));
                 }
 
                 foreach (var inputArgument in inputArguments)
@@ -246,10 +250,10 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions
         public ResponseHeader RegisterNodes(NodeIdCollection nodesToRegister, out NodeIdCollection registeredNodeIds)
            => RegisterNodes(null, nodesToRegister, out registeredNodeIds);
 
-        public ResponseHeader RegisterNodes(RequestHeader requestHeader, NodeIdCollection nodesToRegister, out NodeIdCollection registeredNodeIds)
+        public ResponseHeader RegisterNodes(RequestHeader? requestHeader, NodeIdCollection nodesToRegister, out NodeIdCollection registeredNodeIds)
         {
             CheckConnection();
-            var result = session!.RegisterNodes(null, nodesToRegister, out registeredNodeIds);
+            var result = session!.RegisterNodes(requestHeader, nodesToRegister, out registeredNodeIds);
             return result;
         }
 
@@ -410,7 +414,6 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions
             reconnectHandler?.Dispose();
 
             opcSessionSemaphore?.Dispose();
-            //opcSessionSemaphore = null;
 
             registeredNodeStateManager?.Dispose();
 
@@ -429,6 +432,8 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions
         #endregion
 
         #region [Privates]
+
+        #region [Connection]
         private EndpointDescriptionCollection GetEndpoints(string endpointAddress)
         {
             var uri = new Uri(endpointAddress);
@@ -758,9 +763,9 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions
                 foreach (var processor in this.alarmMonitoredItemMessageProcessors)
                     monitoredItem.Notification += processor.ProcessMessage; //If processor throws error the application crashes
 
-                logger.LogTrace("Alarm monitored item with NodeId: {nodeId}, Sampling Interval: [{samplingInterval}] has been created successfully"
-                    , alarmSubscriptionMonitoredItem.NodeId
-                    , monitoredItem.SamplingInterval);
+                logger.LogTrace("Alarm monitored item with NodeId: {nodeId}, Sampling Interval: [{samplingInterval}] has been created successfully",
+                    alarmSubscriptionMonitoredItem.NodeId,
+                    monitoredItem.SamplingInterval);
 
                 return monitoredItem;
             }
@@ -1055,7 +1060,7 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions
             //TODO: Change to BrowseAsync
             session.Browse(default,
                 default,
-                200u,// TODO: Magic number => Turn into constant
+                RequestedMaxReferencesPerNode,
                 browseDescriptionCollection,
                 out var results,
                 out var diagnosticInfo);
@@ -1102,7 +1107,7 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions
         #endregion
 
         #region [Read]
-        public static string GetNodeFriendlyDataType(Session session, NodeId dataTypeNodeId, int valueRank)
+        private static string GetNodeFriendlyDataType(Session session, NodeId dataTypeNodeId, int valueRank)
         {
             var dataType = session.NodeCache.Find(dataTypeNodeId);
             var dataTypeDisplayName = dataType?.DisplayName?.Text.ToLower() ?? "Unknown";
