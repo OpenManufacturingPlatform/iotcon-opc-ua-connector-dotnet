@@ -271,20 +271,19 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions
             return session!.NodeCache.FetchNode(nodeId) ?? session!.ReadNode(nodeId);
         }
 
-        public List<object> ReadNodeValues(List<NodeId> nodeIds, int batchSize, out List<ServiceResult> errors)
+        public List<object> ReadNodeValues(List<NodeId> nodeIds, out List<ServiceResult> errors)
         {
             CheckConnection();
 
-            var omitExpectedTypes = nodeIds.Select(_ => (Type)null).ToList();
-            var values = new List<object>();
-            errors = new List<ServiceResult>();
+            var ignoreCheckForExpectedTypes = new Type[nodeIds.Count];
 
-            var batchHandler = new BatchHandler<NodeId>(batchSize, ReadValuesInBatch(session!, values, errors, omitExpectedTypes!));
-            batchHandler.RunBatches(nodeIds.ToList());
+            session!.ReadValues(
+                nodeIds,
+                ignoreCheckForExpectedTypes.ToList(),
+                out var values,
+                out errors);
 
-            logger.LogDebug("Executed Read commands. Endpoint: [{endpointUrl}]", session!.Endpoint.EndpointUrl);
-
-            return values.ToList();//TODO: Test and Check with Hermo if this is valid and working
+            return values;
         }
 
         public string GetNodeFriendlyDataType(NodeId dataTypeNodeId, int valueRank)
@@ -592,22 +591,7 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions
                 ReleaseSession();
             }
         }
-
-        private Action<NodeId[]> ReadValuesInBatch(Session session, List<object> values, List<ServiceResult> errors, List<Type> omitExpectedTypes)
-        {
-            return (items) =>
-            {
-                logger.LogTrace("Reading {items} nodes...", items.Length);
-                session.ReadValues(
-                    items,
-                    omitExpectedTypes.Take(items.Length).ToList(),
-                    out var batchValues,
-                    out var batchErrors);
-
-                values.AddRange(batchValues);
-                errors.AddRange(batchErrors);
-            };
-        }
+        #endregion
 
         #region [Subscriptions]
         private Subscription? GetSubscription(SubscriptionMonitoredItem monitoredItem)

@@ -20,7 +20,6 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions
         #region [Connection]
         Task ConnectAsync(string opcUaServerUrl);
         Task ConnectAsync(EndpointDescription endpointDescription);
-
         Task DisconnectAsync(CancellationToken stoppingToken);
         #endregion
 
@@ -44,7 +43,7 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions
 
         #region [Read]
         Node? ReadNode(NodeId nodeId);
-        List<object> ReadNodeValues(List<NodeId> nodeIds, int batchSize, out List<ServiceResult> errors);
+        List<object> ReadNodeValues(List<NodeId> nodeIds, out List<ServiceResult> errors);
 
         string GetNodeFriendlyDataType(NodeId dataTypeNodeId, int valueRank);
         #endregion

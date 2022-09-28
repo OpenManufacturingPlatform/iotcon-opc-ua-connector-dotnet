@@ -2,6 +2,9 @@
 // Copyright Contributors to the Open Manufacturing Platform.
 
 using System.Diagnostics;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using OMP.PlantConnectivity.OpcUA.Configuration;
 using OMP.PlantConnectivity.OpcUA.Models;
 using OMP.PlantConnectivity.OpcUA.Models.Reads;
 using OMP.PlantConnectivity.OpcUA.Sessions;
@@ -12,6 +15,17 @@ namespace OMP.PlantConnectivity.OpcUA.Services
 {
     internal sealed class ReadCommandService : IReadCommandService
     {
+        private readonly OmpOpcUaConfiguration opcUaConfiguration;
+        private readonly ILogger<ReadCommandService> logger;
+
+        public ReadCommandService(
+            IOptions<OmpOpcUaConfiguration> options,
+            ILogger<ReadCommandService> logger)
+        {
+            this.opcUaConfiguration = options.Value;
+            this.logger = logger;
+        }
+
         public  Task<ReadNodeCommandResponseCollection> ReadNodesAsync(IOpcUaSession opcUaSession, ReadNodeCommandCollection commands, CancellationToken cancellationToken)
         {
             var response = new ReadNodeCommandResponseCollection();
@@ -41,10 +55,16 @@ namespace OMP.PlantConnectivity.OpcUA.Services
             cancellationToken.ThrowIfCancellationRequested();
 
             var response = new ReadValueResponseCollection();
-            //TODO: Talk about error handling -> NULL NodeId            
+            
             var commandsWithRegisteredNodeIds = GetCommandsWithRegisterdNodeIds(opcSession, commands);
             var nodeIds = commands.Select(x => x.NodeId).ToList();
-            var values = opcSession.ReadNodeValues(nodeIds, 10, out var errors);
+
+            var values = new List<object>();
+            var errors = new List<ServiceResult>();
+
+            var batchHandler = new BatchHandler<NodeId>(opcUaConfiguration.ReadBatchSize, ReadValuesInBatch(opcSession, values, errors));
+            batchHandler.RunBatches(nodeIds.ToList());
+            logger.LogTrace("Executed {nrOfNodes} read commands in {nrOfBatches} batch(es).", nodeIds.Count(), (nodeIds.Count + opcUaConfiguration.ReadBatchSize - 1) / opcUaConfiguration.ReadBatchSize);
 
             response.AddRange(
                 commands.Zip(values.Zip(errors))
@@ -60,12 +80,12 @@ namespace OMP.PlantConnectivity.OpcUA.Services
             var results = commands.ToList();
 
             var registerdReadNodes = commands
-                                    .Where(c => c.DoRegisteredRead && !string.IsNullOrWhiteSpace(c.NodeId.ToString()))//TODO: Change the ToString().
+                                    .Where(c => c.DoRegisteredRead && !string.IsNullOrWhiteSpace(c.NodeId.ToString()))
                                     .ToList();
 
             if (registerdReadNodes.Any())
             {
-                var registeredNodeIds = opcSession.GetRegisteredNodeIds(registerdReadNodes.Select(c => c.NodeId.ToString()));//TODO: Change the ToString().
+                var registeredNodeIds = opcSession.GetRegisteredNodeIds(registerdReadNodes.Select(c => c.NodeId.ToString()));
 
                 foreach (var rn in registerdReadNodes)
                 {
@@ -78,6 +98,16 @@ namespace OMP.PlantConnectivity.OpcUA.Services
             }
 
             return results;
+        }
+
+        private Action<NodeId[]> ReadValuesInBatch(IOpcUaSession opcUaSession, List<object> values, List<ServiceResult> errors)
+        {
+            return (items) =>
+            {
+                logger.LogTrace("Current batch: Reading {items} nodes...", items.Length);
+                values.AddRange(opcUaSession.ReadNodeValues(items.ToList(), out var batchErrors));
+                errors.AddRange(batchErrors);
+            };
         }
     }
 }
