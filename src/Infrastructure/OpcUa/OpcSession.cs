@@ -560,24 +560,29 @@ namespace OMP.Connector.Infrastructure.OpcUa
         private async Task ParseCommandScalarValueAsync(WriteRequestWrapper command, DataValue dataValue, Session session)
         {
             var builtInType = GetBuiltInType(dataValue.Value);
+            var dataTypeId = (NodeId)dataValue.Value;
 
             command.Value = builtInType == BuiltInType.ExtensionObject
-                ? await this.CreateOpcUaStructAsync(command, (NodeId)dataValue.Value, session).ConfigureAwait(false)
-                : ParseCommandValue(command, builtInType);
+                ? await this.CreateOpcUaStructAsync(command, dataTypeId, session).ConfigureAwait(false)
+                : ParseCommandValue(command.Value, builtInType);
         }
 
-        private object ParseCommandValue(WriteRequestWrapper command, BuiltInType builtInType)
+        private object ParseCommandValue(object value, BuiltInType builtInType)
         {
-            if (command.Value is WriteRequestStringValue writeRequestStringValue)
+            if (value is WriteRequestStringValue writeRequestStringValue)
             {
-                command.Value = builtInType switch
+                value = builtInType switch
                 {
                     BuiltInType.DateTime => XmlConvert.ToDateTime(writeRequestStringValue.ToString(), XmlDateTimeSerializationMode.RoundtripKind),
                     BuiltInType.Boolean => TypeInfo.Cast(writeRequestStringValue.ToString().ToLower(), builtInType),
                     _ => TypeInfo.Cast(writeRequestStringValue.ToString(), builtInType)
                 };
             }
-            return command.Value;
+            else
+            {
+                value = TypeInfo.Cast(value.ToString(), builtInType);
+            }
+            return value;
         }
 
         private static BuiltInType GetSuperTypeAsBuiltInType(Session session, NodeId dataTypeId)
@@ -594,11 +599,12 @@ namespace OMP.Connector.Infrastructure.OpcUa
 
         private BuiltInType GetBuiltInType(object value)
         {
-            var builtInType = TypeInfo.GetBuiltInType((NodeId)value);
+            var dataTypeId = (NodeId)value;
+            var builtInType = TypeInfo.GetBuiltInType(dataTypeId);
 
             if (builtInType == BuiltInType.Null)
             {
-                builtInType = GetSuperTypeAsBuiltInType(_session, (NodeId)value);
+                builtInType = GetSuperTypeAsBuiltInType(_session, dataTypeId);
             }
 
             return builtInType;
