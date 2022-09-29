@@ -15,15 +15,14 @@ namespace TestApplicationV2
 {
     internal class CommandRunner : BackgroundService
     {
-        const string EndPointUrl = "opc.tcp://bw09861291:52210/UA/SampleServer"; // Ivan
+        const string EndPointUrl = "<SPECIFY_OPCUA_SERVER_ENDPOINT>";
         private const uint NodeMask = (uint)NodeClass.Object |
                                           (uint)NodeClass.Variable |
                                           (uint)NodeClass.Method |
                                           (uint)NodeClass.VariableType |
                                           (uint)NodeClass.ReferenceType |
                                           (uint)NodeClass.Unspecified;
-        //const string EndPointUrl = "opc.tcp://bw09937414:62544/Quickstarts/AlarmConditionServer"; //Hermo
-        //const string EndPointUrl = "opc.tcp://bw09937414:52210"; //Hermo
+        
         private readonly IOmpOpcUaClient ompOpcUaClient;
         private readonly ILogger<CommandRunner> logger;
         private readonly IHostApplicationLifetime applicationLifetime;
@@ -50,7 +49,7 @@ namespace TestApplicationV2
             //await CallMethodNodeWithArguments(stoppingToken); // This test depends on existence of a valid subscription so that subscription id can be passed in input args.
 
             //await UnSubscribeFromNodes(stoppingToken);
-            //await PssReadTestAsync(stoppingToken);
+            
             //await RunReadValuesTest(stoppingToken);
             //await RunWriteTest(stoppingToken);
         }
@@ -77,7 +76,7 @@ namespace TestApplicationV2
 
         private async Task BrowseServerNodesTest(CancellationToken stoppingToken)
         {
-            var results = await ompOpcUaClient.BrowseNodes(EndPointUrl, 2, stoppingToken);
+            var results = await ompOpcUaClient.BrowseNodesAsync(EndPointUrl, 2, stoppingToken);
             results.Switch(
                 result =>
                 {
@@ -102,7 +101,7 @@ namespace TestApplicationV2
             };
             var command = new BrowseChildNodesCommand(EndPointUrl, brwoseDescription, 2);
 
-            var results = await ompOpcUaClient.BrowseChildNodes(command, stoppingToken);
+            var results = await ompOpcUaClient.BrowseChildNodesAsync(command, stoppingToken);
             results.Switch(
                 result =>
                 {
@@ -111,27 +110,6 @@ namespace TestApplicationV2
                 exception =>
                 {
                     logger.LogCritical("ReadNodes failed");
-                });
-        }
-
-        private async Task PssReadTestAsync(CancellationToken stoppingToken)
-        {
-            //opc.tcp://160.52.61.130:4840
-            var commandCollection = new ReadValueCommandCollection("opc.tcp://160.52.61.130:4840")
-            {
-                new ReadValueCommand("ns=3;s=OrderNumber", doRegisteredRead: false),
-                new ReadValueCommand("ns=3;i=5204", doRegisteredRead: true)
-            };
-
-            var results = await ompOpcUaClient.ReadValuesAsync(commandCollection, stoppingToken);
-            results.Switch(
-                result =>
-                {
-                    logger.LogInformation("Read Succeeded: {results}", result.Select(s => (s.Succeeded, s.Response!.Value)));
-                },
-                exception =>
-                {
-                    logger.LogCritical("Read failed");
                 });
         }
 
@@ -211,7 +189,7 @@ namespace TestApplicationV2
                 NodeId = "i=2257"
             });
 
-            var results = await ompOpcUaClient.CreateSubscriptions(commandCollection, stoppingToken);
+            var results = await ompOpcUaClient.CreateSubscriptionsAsync(commandCollection, stoppingToken);
             results.Switch(
                result =>
                {
@@ -228,7 +206,7 @@ namespace TestApplicationV2
             await Task.Delay(TimeSpan.FromSeconds(55));
             var commandCollection = new RemoveSubscriptionsCommand(EndPointUrl, new List<string> { "ns=2;i=1587" });
 
-            var results = await ompOpcUaClient.RemoveSubscriptionsCommand(commandCollection, stoppingToken);
+            var results = await ompOpcUaClient.RemoveSubscriptionsAsync(commandCollection, stoppingToken);
             results.Switch(
                result =>
                {
@@ -250,7 +228,7 @@ namespace TestApplicationV2
                 new SubscriptionMonitoredItem { NodeId = "ns=2;i=1599", }
             });
 
-            var createSubscriptionResult = await ompOpcUaClient.CreateSubscriptions(commandCollection, stoppingToken);
+            var createSubscriptionResult = await ompOpcUaClient.CreateSubscriptionsAsync(commandCollection, stoppingToken);
             createSubscriptionResult.Switch(
                result =>
                {
@@ -269,7 +247,7 @@ namespace TestApplicationV2
         private async Task RemoveAllSubscriptions(CancellationToken stoppingToken)
         {
             var removeAllCommand = new RemoveAllSubscriptionsCommand(EndPointUrl);
-            var removeAllResult = await ompOpcUaClient.RemoveAllSubscriptions(removeAllCommand, stoppingToken);
+            var removeAllResult = await ompOpcUaClient.RemoveAllSubscriptionsAsync(removeAllCommand, stoppingToken);
 
             removeAllResult.Switch(
                result =>

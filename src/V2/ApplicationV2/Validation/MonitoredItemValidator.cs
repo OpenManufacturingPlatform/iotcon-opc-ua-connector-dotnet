@@ -21,10 +21,10 @@ namespace OMP.PlantConnectivity.OpcUA.Validation
                     $"{nameof(SubscriptionMonitoredItem.PublishingInterval)} must be greater than {nameof(SubscriptionMonitoredItem.SamplingInterval)}");
 
 
-            RuleFor(p => p.HeartbeatInterval)
+            RuleFor(p => p.KeepAliveCount)
             .Must((item, heartbeatInterval) =>  heartbeatInterval >= item.PublishingInterval)
             .WithMessage(
-                    $"{nameof(SubscriptionMonitoredItem.HeartbeatInterval)} must be greater than {nameof(SubscriptionMonitoredItem.PublishingInterval)}");
+                    $"{nameof(SubscriptionMonitoredItem.KeepAliveCount)} must be greater than {nameof(SubscriptionMonitoredItem.PublishingInterval)}");
         }
     }
 }

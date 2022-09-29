@@ -5,5 +5,5 @@ using Opc.Ua;
 
 namespace OMP.PlantConnectivity.OpcUA.Models.Reads
 {
-    public record ReadNodeCommand(NodeId NodeId);
+    public class ReadNodeCommandResponseCollection : List<CommandResult<ReadNodeCommand, Node?>> { }
 }

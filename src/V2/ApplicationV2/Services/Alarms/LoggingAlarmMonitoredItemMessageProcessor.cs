@@ -2,20 +2,21 @@
 // Copyright Contributors to the Open Manufacturing Platform.
 
 using Microsoft.Extensions.Logging;
+using OMP.PlantConnectivity.OpcUA.Services.Alarms;
 using Opc.Ua.Client;
 
 namespace OMP.PlantConnectivity.OpcUA.Services
 {
-    public class LoggingMonitoredItemMessageProcessor : IMonitoredItemMessageProcessor //This is the default OMP implimentations
+    public class LoggingAlarmMonitoredItemMessageProcessor : IAlarmMonitoredItemMessageProcessor //This is the default OMP implimentations
     {
-        private readonly ILogger<LoggingMonitoredItemMessageProcessor> logger;
+        private readonly ILogger<LoggingAlarmMonitoredItemMessageProcessor> logger;
 
-        public LoggingMonitoredItemMessageProcessor(ILogger<LoggingMonitoredItemMessageProcessor> logger)
+        public LoggingAlarmMonitoredItemMessageProcessor(ILogger<LoggingAlarmMonitoredItemMessageProcessor> logger)
         {
             this.logger = logger;
         }
 
-        public string Identifier { get; } = nameof(LoggingMonitoredItemMessageProcessor);
+        public string Identifier { get; } = nameof(LoggingAlarmMonitoredItemMessageProcessor);
         public virtual void ProcessMessage(MonitoredItem monitoredItem, MonitoredItemNotificationEventArgs eventArguments)
         {
             logger.LogInformation("Message Received: NodeId: {nodeId} | Value: {value}", monitoredItem.StartNodeId, eventArguments.NotificationValue);

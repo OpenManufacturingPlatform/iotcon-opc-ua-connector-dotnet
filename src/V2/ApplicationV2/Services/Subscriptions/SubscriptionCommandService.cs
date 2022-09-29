@@ -13,7 +13,7 @@ using Opc.Ua;
 using Opc.Ua.Client;
 using CreateSubscriptionResponse = OMP.PlantConnectivity.OpcUA.Models.Subscriptions.CreateSubscriptionResponse;
 
-namespace OMP.PlantConnectivity.OpcUA.Services
+namespace OMP.PlantConnectivity.OpcUA.Services.Subscriptions
 {
     internal class SubscriptionCommandService : ISubscriptionCommandService
     {
@@ -35,13 +35,13 @@ namespace OMP.PlantConnectivity.OpcUA.Services
             this.subscriptionRepository = subscriptionRepository;
             this.monitoredItemMessageProcessors = monitoredItemMessageProcessors;
             this.logger = logger;
-            this.opcUaConfiguration = options.Value;
-
-            ValidateMonitoredItemMessageProcessors();//TODO: Discuss enhancement [Currently this will make entire app crash]
+            opcUaConfiguration = options.Value;
         }
         public async Task<CreateSubscriptionResponse> CreateSubscriptions(IOpcUaSession opcUaSession, CreateSubscriptionsCommand command, CancellationToken CancellationToken)
         {
-            var errorMessages = await this.AddValidationErrorsAsync(command);
+            EnsureMonitoredItemMessageProcessorsExist();
+
+            var errorMessages = await AddValidationErrorsAsync(command);
             if (errorMessages.Any())
             {
                 logger.LogDebug(
@@ -199,11 +199,11 @@ namespace OMP.PlantConnectivity.OpcUA.Services
                                                             .Where(mi => items.Any(i => i.NodeId == mi.StartNodeId))
                                                             .Zip(items);
             return allMonotoredItemsInterestedIn
-                .Select(mi => GetMonitoriedItemResult(mi.Second, mi.First))
+                .Select(mi => GetMonitoredItemResult(mi.Second, mi.First))
                 .ToArray();
         }
 
-        private static MonitoredItemResult GetMonitoriedItemResult(SubscriptionMonitoredItem item, MonitoredItem monitoredItem)
+        private static MonitoredItemResult GetMonitoredItemResult(SubscriptionMonitoredItem item, MonitoredItem monitoredItem)
         {
             if (monitoredItem.Status.Error is null)
             {
@@ -216,12 +216,12 @@ namespace OMP.PlantConnectivity.OpcUA.Services
 
             return new MonitoredItemResult(item, monitoredItem.Status.Error.StatusCode, monitoredItem.Status.Error.AdditionalInfo);
         }
-        private void ValidateMonitoredItemMessageProcessors()
+        private void EnsureMonitoredItemMessageProcessorsExist()
         {
             if (!monitoredItemMessageProcessors.Any())
             {
-                logger.LogError("No {MonitoredItemMessageProcessor} found", nameof(IMonitoredItemMessageProcessor));
-                throw new ArgumentException(nameof(monitoredItemMessageProcessors));
+                logger.LogError("{CreateSubscriptionsMethod} is not supported: No {MonitoredItemMessageProcessor} found.", nameof(CreateSubscriptions), nameof(IMonitoredItemMessageProcessor));
+                throw new NotSupportedException($"{nameof(CreateSubscriptions)} is not supported: No {nameof(IMonitoredItemMessageProcessor)} found.");
             }
         }
 

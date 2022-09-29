@@ -1,6 +1,7 @@
 ﻿// SPDX-License-Identifier: MIT. 
 // Copyright Contributors to the Open Manufacturing Platform.
 
+using OMP.PlantConnectivity.OpcUA.Models.Alarms;
 using OMP.PlantConnectivity.OpcUA.Models.Call;
 using OMP.PlantConnectivity.OpcUA.Models.Subscriptions;
 using Opc.Ua;
@@ -19,7 +20,6 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions
         #region [Connection]
         Task ConnectAsync(string opcUaServerUrl);
         Task ConnectAsync(EndpointDescription endpointDescription);
-
         Task DisconnectAsync(CancellationToken stoppingToken);
         #endregion
 
@@ -32,9 +32,7 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions
         #endregion
 
         #region [Browse]
-        Task<ReferenceDescriptionCollection> BrowseAsync(BrowseDescription browseDescription);
-        ReferenceDescriptionCollection Browse(BrowseDescription browseDescription);
-
+        Task<ReferenceDescriptionCollection> BrowseAsync(BrowseDescription browseDescription, CancellationToken? cancellationToken = null);
         #endregion
 
         #region [Write]
@@ -43,7 +41,7 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions
 
         #region [Read]
         Node? ReadNode(NodeId nodeId);
-        List<object> ReadNodeValues(List<NodeId> nodeIds, int batchSize, out List<ServiceResult> errors);
+        List<object> ReadNodeValues(List<NodeId> nodeIds, out List<ServiceResult> errors);
 
         string GetNodeFriendlyDataType(NodeId dataTypeNodeId, int valueRank);
         #endregion
@@ -57,7 +55,9 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions
 
         #region [Subscriptions]
         Subscription CreateOrUpdateSubscription(SubscriptionMonitoredItem monitoredItem, bool autoApplyChanges = false);
+        Subscription CreateOrUpdateAlarmSubscription(AlarmSubscriptionMonitoredItem monitoredItem, bool autoApplyChanges = false);
         void ActivatePublishingOnAllSubscriptions();
+        void RefreshAlarmsOnAllSubscriptions();
         IEnumerable<Subscription> GetSubscriptions();
         Task<bool> RemoveSubscriptionAsync(Subscription subscription);
         Task<bool> RemoveSubscriptionsAsync(IEnumerable<Subscription> subscriptions);

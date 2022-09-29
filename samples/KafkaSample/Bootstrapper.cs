@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OMP.Connector.Application.Factories;
 using OMP.Connector.Application.Providers;
+using OMP.Connector.Application.Repositories;
 using OMP.Connector.Application.Services;
 using OMP.Connector.Application.Validators;
 using OMP.Connector.Domain.Configuration;
@@ -46,6 +47,10 @@ namespace OMP.Connector.EdgeModule
             serviceCollection.AddSingleton<ISubscriptionServiceStateManager, SubscriptionServiceStateManager>();
             serviceCollection.AddSingleton<ISubscriptionProviderFactory, SubscriptionProviderFactory>();
 
+            serviceCollection.AddSingleton<IAlarmSubscriptionServiceStateManager, AlarmSubscriptionServiceStateManager>();
+            serviceCollection.AddSingleton<IAlarmSubscriptionProviderFactory, AlarmSubscriptionProviderFactory>();
+            serviceCollection.AddSingleton<IAlarmSubscriptionRepository, LocalAlarmSubscriptionRepository>();
+
             serviceCollection.AddSingleton<ISessionPoolStateManager, SessionPoolStateManager>();
             serviceCollection.AddSingleton<IUserIdentityProvider, UserIdentityProvider>();
 
@@ -64,6 +69,7 @@ namespace OMP.Connector.EdgeModule
             serviceCollection.AddTransient<IDiscoveryService, DiscoveryService>();
             serviceCollection.AddTransient<ICommandService, CommandService>();
             serviceCollection.AddTransient<ISubscriptionServiceFactory, SubscriptionServiceFactory>();
+            serviceCollection.AddSingleton<IAlarmSubscriptionServiceFactory, AlarmSubscriptionServiceFactory>();
             serviceCollection.AddTransient<ISubscriptionRestoreService, SubscriptionRestoreService>();
             serviceCollection.AddSingleton<ICommandProviderFactory, CommandProviderFactory>();
             serviceCollection.AddTransient<IDiscoveryProvider, DiscoveryProvider>();

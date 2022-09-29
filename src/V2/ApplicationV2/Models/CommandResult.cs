@@ -23,7 +23,5 @@ namespace OMP.PlantConnectivity.OpcUA.Models
 
         public TCommand? Command { get; set; }
         public TResponse? Response { get; set; }
-    }
-
-    
+    }   
 }

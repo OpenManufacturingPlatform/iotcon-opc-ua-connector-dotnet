@@ -17,21 +17,21 @@ namespace OMP.PlantConnectivity.OpcUA.Services
             this.logger = logger;
         }
 
-        public Task<BrowseChildNodesResponse> BrowseChildNodes(IOpcUaSession session, BrowseChildNodesCommand command, CancellationToken cancellationToken)
+        public async Task<BrowseChildNodesResponse> BrowseChildNodes(IOpcUaSession session, BrowseChildNodesCommand command, CancellationToken cancellationToken)
         {
-            var result = BrowseNodeId(session, command.BrowseDescription, command.BrowseDepth);
+            var result = await BrowseNodeIdAsync(session, command.BrowseDescription, command.BrowseDepth);
             logger.LogDebug("{discoveredNodes} child nodes discovered of NodeId: [{nodeId}] on Endpoint: {endpointUrl}", result.DiscoveredNodes, command.BrowseDescription.NodeId, command.EndpointUrl);
             var response = new BrowseChildNodesResponse(command, result.BrowsedNode, true);
-            return Task.FromResult(response);
+            return response;
         }
 
-        public Task<BrowseChildNodesResponseCollection> BrowseNodes(IOpcUaSession session, CancellationToken cancellationToken, int browseDepth = 0)
+        public async Task<BrowseChildNodesResponseCollection> BrowseNodes(IOpcUaSession session, CancellationToken cancellationToken, int browseDepth = 0)
         {
             cancellationToken.ThrowIfCancellationRequested();
             var browsedNodes = new List<BrowsedNode>();
             var browseDescription = CreateBrowseDescription(ObjectIds.ObjectsFolder, ReferenceTypeIds.HierarchicalReferences);
 
-            var hierarchicalReferences = session.Browse(browseDescription);
+            var hierarchicalReferences = await session.BrowseAsync(browseDescription, cancellationToken);
             var discoveredNodes = 0;
 
             foreach (var node in hierarchicalReferences)
@@ -39,7 +39,7 @@ namespace OMP.PlantConnectivity.OpcUA.Services
                 logger.LogTrace("Browsing NodeId: [{nodeId}]", node.NodeId);
                 discoveredNodes++;
 
-                var result = GetChildNodes(session, node, browseDepth);
+                var result = await GetChildNodesAsync(session, node, browseDepth);
 
                 if (result != default)
                 {
@@ -50,23 +50,22 @@ namespace OMP.PlantConnectivity.OpcUA.Services
 
             logger.LogDebug("[{discoveredNodes}] nodes discovered on Endpoint: [{endpointUrl}]", discoveredNodes, session.GetBaseEndpointUrl());
             var response = new BrowseChildNodesResponseCollection(session.GetBaseEndpointUrl(), browsedNodes, true);
-            return Task.FromResult(response);
+            return response;
         }
 
-        private (int discoveredNodes, BrowsedNode BrowsedNode) GetChildNodes(IOpcUaSession session, ReferenceDescription referenceDescription, int browseDepth = 0)
+        private Task<(int discoveredNodes, BrowsedNode BrowsedNode)> GetChildNodesAsync(IOpcUaSession session, ReferenceDescription referenceDescription, int browseDepth = 0)
         {
             var nodeId = ExpandedNodeId.ToNodeId(referenceDescription.NodeId, session.GetNamespaceUris()!);
-            var browsedNode = BrowseNodeId(session, nodeId, browseDepth);
-            return browsedNode;
+            return BrowseNodeIdAsync(session, nodeId, browseDepth);
         }
 
-        private (int discoveredNodes, BrowsedNode BrowsedNode) BrowseNodeId(IOpcUaSession session, NodeId nodeId, int browseDepthLimit, int currentDepth = 0)
+        private Task<(int discoveredNodes, BrowsedNode BrowsedNode)> BrowseNodeIdAsync(IOpcUaSession session, NodeId nodeId, int browseDepthLimit, int currentDepth = 0)
         {
             var browseDescription = CreateBrowseDescription(nodeId, ReferenceTypeIds.HierarchicalReferences);
-            return BrowseNodeId(session, browseDescription, browseDepthLimit, currentDepth);
+            return BrowseNodeIdAsync(session, browseDescription, browseDepthLimit, currentDepth);
         }
 
-        private (int DiscoveredNodes, BrowsedNode BrowsedNode) BrowseNodeId(IOpcUaSession session, BrowseDescription browseDescription, int browseDepthLimit, int currentDepth = 0)
+        private async Task<(int DiscoveredNodes, BrowsedNode BrowsedNode)> BrowseNodeIdAsync(IOpcUaSession session, BrowseDescription browseDescription, int browseDepthLimit, int currentDepth = 0)
         {
             var node = session.ReadNode(browseDescription.NodeId);
             //this.EnrichNode(ref node);//TODO: Verify if this is needed
@@ -77,7 +76,7 @@ namespace OMP.PlantConnectivity.OpcUA.Services
             var browsedNode = new BrowsedNode { Node = node };
             var discoveredNodes = 1;
 
-            var children = session.Browse(browseDescription);
+            var children = await session.BrowseAsync(browseDescription);
             if (!children.Any() || currentDepth >= browseDepthLimit)
                 return (discoveredNodes, browsedNode);
 
@@ -85,7 +84,7 @@ namespace OMP.PlantConnectivity.OpcUA.Services
             {
                 discoveredNodes++;
                 var nodeIdDescription = ExpandedNodeId.ToNodeId(childReferenceDescription.NodeId, session.GetNamespaceUris()!);
-                var result = BrowseNodeId(session, nodeIdDescription, browseDepthLimit, currentDepth + 1);
+                var result = await BrowseNodeIdAsync(session, nodeIdDescription, browseDepthLimit, currentDepth + 1);
 
                 if (result == default)
                     continue;

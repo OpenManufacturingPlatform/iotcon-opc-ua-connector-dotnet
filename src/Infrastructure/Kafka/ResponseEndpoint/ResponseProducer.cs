@@ -9,7 +9,7 @@ using OMP.Connector.Infrastructure.Kafka.Common.Events;
 using OMP.Connector.Infrastructure.Kafka.Common.Producers;
 using OMP.Connector.Infrastructure.Kafka.Serialization;
 
-namespace OMP.Connector.Infrastructure.Kafka.ResponsesEndpoint
+namespace OMP.Connector.Infrastructure.Kafka.ResponseEndpoint
 {
     public class ResponseProducer : CustomKafkaProducer<string, CommandResponse>, IResponseProducer
     {

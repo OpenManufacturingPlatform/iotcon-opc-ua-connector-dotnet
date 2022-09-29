@@ -7,7 +7,6 @@ using OMP.PlantConnectivity.OpcUA.Configuration;
 using OMP.PlantConnectivity.OpcUA.Extensions;
 using OMP.PlantConnectivity.OpcUA.Models.Call;
 using OMP.PlantConnectivity.OpcUA.Models.Subscriptions;
-using OMP.PlantConnectivity.OpcUA.Services;
 using OMP.PlantConnectivity.OpcUA.Sessions.Auth;
 using OMP.PlantConnectivity.OpcUA.Sessions.Reconnect;
 using OMP.PlantConnectivity.OpcUA.Sessions.RegisteredNodes;
@@ -19,6 +18,9 @@ using Opc.Ua;
 using Opc.Ua.Client;
 using EndpointConfiguration = Opc.Ua.EndpointConfiguration;
 using TypeInfo = Opc.Ua.TypeInfo;
+using OMP.PlantConnectivity.OpcUA.Models.Alarms;
+using OMP.PlantConnectivity.OpcUA.Services.Alarms;
+using OMP.PlantConnectivity.OpcUA.Services.Subscriptions;
 
 namespace OMP.PlantConnectivity.OpcUA.Sessions
 {
@@ -36,6 +38,7 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions
         private readonly ApplicationConfiguration applicationConfiguration;
         private readonly IComplexTypeSystemFactory complexTypeSystemFactory;
         private readonly IEnumerable<IMonitoredItemMessageProcessor> monitoredItemMessageProcessors;
+        private readonly IEnumerable<IAlarmMonitoredItemMessageProcessor> alarmMonitoredItemMessageProcessors;
         private IOpcUaSessionReconnectHandler? reconnectHandler;
         private readonly ILogger<OpcUaSession> logger;
         private readonly EndpointConfiguration endpointConfiguration;
@@ -52,6 +55,7 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions
             ApplicationConfiguration applicationConfiguration,
             IComplexTypeSystemFactory complexTypeSystemFactory,
             IEnumerable<IMonitoredItemMessageProcessor> monitoredItemMessageProcessors,
+            IEnumerable<IAlarmMonitoredItemMessageProcessor> alarmMonitoredItemMessageProcessors,
             ILogger<OpcUaSession> logger)
         {
             opcSessionSemaphore = new SemaphoreSlim(1);
@@ -63,6 +67,7 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions
             this.applicationConfiguration = applicationConfiguration;
             this.complexTypeSystemFactory = complexTypeSystemFactory;
             this.monitoredItemMessageProcessors = monitoredItemMessageProcessors;
+            this.alarmMonitoredItemMessageProcessors = alarmMonitoredItemMessageProcessors;
             this.logger = logger;
             endpointConfiguration = EndpointConfiguration.Create(applicationConfiguration);
         }
@@ -78,18 +83,18 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions
                 try
                 {
                     await ConnectAsync(endpointDescription);
-                    logger.LogInformation("Session created to Endpoint with: [{endpointUrl}] with SecurityMode: [{securityMode}] and Level: [{securityLevel}]", endpointDescription.EndpointUrl, endpointDescription.SecurityMode, endpointDescription.SecurityLevel);
+                    logger.LogInformation("Session created to endpoint [{endpointUrl}] with SecurityMode: [{securityMode}] and Level: [{securityLevel}]", endpointDescription.EndpointUrl, endpointDescription.SecurityMode, endpointDescription.SecurityLevel);
                     break;
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
-                    logger.LogWarning("Unable to create to Endpoint with: [{endpointUrl}] with SecurityMode: [{securityMode}] and Level: [{securityLevel}]", endpointDescription.EndpointUrl, endpointDescription.SecurityMode, endpointDescription.SecurityLevel);
+                    logger.LogWarning("Unable to create to endpoint [{endpointUrl}] with SecurityMode: [{securityMode}] and Level: [{securityLevel}]", endpointDescription.EndpointUrl, endpointDescription.SecurityMode, endpointDescription.SecurityLevel);
                     await Task.Delay(500); // fix for Milo server not being happy with endpoint connections in quick succession
                 }
             }
 
             if (session == default)
-                throw new Exception($"Unable to create a session to OPC Server: [{endpointDescriptionCollection.FirstOrDefault()?.EndpointUrl}] on all its endpoints");
+                throw new Exception($"Unable to create a session to OPC UA Server: [{endpointDescriptionCollection.FirstOrDefault()?.EndpointUrl}] on all its endpoints");
         }
 
         public async Task ConnectAsync(EndpointDescription endpointDescription)
@@ -103,7 +108,10 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions
             try
             {
                 session!.KeepAlive -= SessionOnKeepAlive;
-                await session.CloseSessionAsync(null, true, stoppingToken);
+                if (session.Connected && !session.KeepAliveStopped)
+                {
+                    await session.CloseSessionAsync(null, true, stoppingToken);
+                }
             }
             catch (Exception ex)
             {
@@ -113,11 +121,8 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions
         #endregion
 
         #region [Browse]
-        public Task<ReferenceDescriptionCollection> BrowseAsync(BrowseDescription browseDescription)
-            => Task.FromResult(Browse(session!, browseDescription, logger));
-
-        public ReferenceDescriptionCollection Browse(BrowseDescription browseDescription)
-            => Browse(session!, browseDescription, logger);
+        public Task<ReferenceDescriptionCollection> BrowseAsync(BrowseDescription browseDescription, CancellationToken? cancellationToken = null)
+            => BrowseAsync(session!, browseDescription, logger, cancellationToken);
 
         #endregion
 
@@ -158,7 +163,7 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions
                     ResultMask = (uint)BrowseResultMask.BrowseName
                 };
 
-                var methodReferences = Browse(session!, browseDescription, logger);
+                var methodReferences = await BrowseAsync(session!, browseDescription, logger, cancellationToken);
 
                 var readValuesIds = (from reference in methodReferences
                                      where !reference.NodeId.IsAbsolute
@@ -186,11 +191,11 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions
                     var reference = (ReferenceDescription)readValue.Handle;
 
                     if (reference.BrowseName == BrowseNames.InputArguments)
-                        inputArguments.AddRange((Argument[])ExtensionObject.ToArray(dataValue.GetValue<ExtensionObject[]>(null), typeof(Argument)));
+                        inputArguments.AddRange((Argument[])ExtensionObject.ToArray(dataValue.GetValue<ExtensionObject[]>(Array.Empty<ExtensionObject>()), typeof(Argument)));
 
 
                     if (reference.BrowseName == BrowseNames.OutputArguments)
-                        outArguments.AddRange((Argument[])ExtensionObject.ToArray(dataValue.GetValue<ExtensionObject[]>(null), typeof(Argument)));
+                        outArguments.AddRange((Argument[])ExtensionObject.ToArray(dataValue.GetValue<ExtensionObject[]>(Array.Empty<ExtensionObject>()), typeof(Argument)));
                 }
 
                 foreach (var inputArgument in inputArguments)
@@ -235,10 +240,10 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions
         public ResponseHeader RegisterNodes(NodeIdCollection nodesToRegister, out NodeIdCollection registeredNodeIds)
            => RegisterNodes(null, nodesToRegister, out registeredNodeIds);
 
-        public ResponseHeader RegisterNodes(RequestHeader requestHeader, NodeIdCollection nodesToRegister, out NodeIdCollection registeredNodeIds)
+        public ResponseHeader RegisterNodes(RequestHeader? requestHeader, NodeIdCollection nodesToRegister, out NodeIdCollection registeredNodeIds)
         {
             CheckConnection();
-            var result = session!.RegisterNodes(null, nodesToRegister, out registeredNodeIds);
+            var result = session!.RegisterNodes(requestHeader, nodesToRegister, out registeredNodeIds);
             return result;
         }
 
@@ -260,20 +265,19 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions
             return session!.NodeCache.FetchNode(nodeId) ?? session!.ReadNode(nodeId);
         }
 
-        public List<object> ReadNodeValues(List<NodeId> nodeIds, int batchSize, out List<ServiceResult> errors)
+        public List<object> ReadNodeValues(List<NodeId> nodeIds, out List<ServiceResult> errors)
         {
             CheckConnection();
 
-            var omitExpectedTypes = nodeIds.Select(_ => (Type)null).ToList();
-            var values = new List<object>();
-            errors = new List<ServiceResult>();
+            var ignoreCheckForExpectedTypes = new Type[nodeIds.Count];
 
-            var batchHandler = new BatchHandler<NodeId>(batchSize, ReadValuesInBatch(session!, values, errors, omitExpectedTypes!));
-            batchHandler.RunBatches(nodeIds.ToList());
+            session!.ReadValues(
+                nodeIds,
+                ignoreCheckForExpectedTypes.ToList(),
+                out var values,
+                out errors);
 
-            logger.LogDebug("Executed Read commands. Endpoint: [{endpointUrl}]", session!.Endpoint.EndpointUrl);
-
-            return values.ToList();//TODO: Test and Check with Hermo if this is valid and working
+            return values;
         }
 
         public string GetNodeFriendlyDataType(NodeId dataTypeNodeId, int valueRank)
@@ -320,6 +324,17 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions
             }
         }
 
+        public void RefreshAlarmsOnAllSubscriptions()
+        {
+            CheckConnection();
+
+            foreach (var sub in session!.Subscriptions.Where(sub => !sub.PublishingEnabled))
+            {
+                logger.LogTrace($"Refreshing alarms for subscription {sub.Id}");
+                sub.ConditionRefresh();
+            }
+        }
+
         public IEnumerable<Subscription> GetSubscriptions()
         {
             CheckConnection();
@@ -337,6 +352,23 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions
             return session!.RemoveSubscriptionsAsync(subscriptions);
         }
 
+        #endregion
+
+        #region [Alarms]
+        public Subscription CreateOrUpdateAlarmSubscription(AlarmSubscriptionMonitoredItem alarmMonitoredItem, bool autoApplyChanges = false)
+        {
+            CheckConnection();
+            var opcUaSubscription = this.GetAlarmSubscription(alarmMonitoredItem);
+
+            var subscription = opcUaSubscription == default
+                            ? this.CreateNewAlarmSubscription(alarmMonitoredItem)
+                            : this.ModifyAlarmSubscription(opcUaSubscription, alarmMonitoredItem);
+
+            if (autoApplyChanges)
+                subscription.ApplyChanges();
+
+            return subscription;
+        }
         #endregion
 
         #region [Disposal]
@@ -372,7 +404,6 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions
             reconnectHandler?.Dispose();
 
             opcSessionSemaphore?.Dispose();
-            //opcSessionSemaphore = null;
 
             registeredNodeStateManager?.Dispose();
 
@@ -391,6 +422,8 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions
         #endregion
 
         #region [Privates]
+
+        #region [Connection]
         private EndpointDescriptionCollection GetEndpoints(string endpointAddress)
         {
             var uri = new Uri(endpointAddress);
@@ -538,11 +571,11 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions
                     configuredEndpoint,
                     true,
                     sessionName,
-                    100000,
+                    opcUaConfiguration.SessionTimeoutInMs,
                     identity,
                     default);
 
-                session.KeepAliveInterval = opcUaConfiguration.KeepAliveIntervalInSeconds.ToMilliseconds();
+                session.KeepAliveInterval = opcUaConfiguration.SessionKeepAliveIntervalInSeconds.ToMilliseconds();
                 session.KeepAlive += SessionOnKeepAlive;
                 session.OperationTimeout = opcUaConfiguration.OperationTimeoutInSeconds.ToMilliseconds();
 
@@ -553,22 +586,7 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions
                 ReleaseSession();
             }
         }
-
-        private Action<NodeId[]> ReadValuesInBatch(Session session, List<object> values, List<ServiceResult> errors, List<Type> omitExpectedTypes)
-        {
-            return (items) =>
-            {
-                logger.LogTrace("Reading {items} nodes...", items.Length);
-                session.ReadValues(
-                    items,
-                    omitExpectedTypes.Take(items.Length).ToList(),
-                    out var batchValues,
-                    out var batchErrors);
-
-                values.AddRange(batchValues);
-                errors.AddRange(batchErrors);
-            };
-        }
+        #endregion
 
         #region [Subscriptions]
         private Subscription? GetSubscription(SubscriptionMonitoredItem monitoredItem)
@@ -584,17 +602,16 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions
 
         private Subscription CreateNewSubscription(SubscriptionMonitoredItem monitoredItem)
         {
-            var keepAliveCount = Convert.ToUInt32(monitoredItem.HeartbeatInterval);
             var subscription = session!.Subscriptions.FirstOrDefault(x => monitoredItem.PublishingInterval.Equals(x.PublishingInterval));
             if (subscription == default)
             {
                 subscription = new Subscription
                 {
                     PublishingInterval = monitoredItem.PublishingInterval,
-                    LifetimeCount = 100000,
-                    KeepAliveCount = keepAliveCount > 0 ? keepAliveCount : 100000,
+                    LifetimeCount = opcUaConfiguration.SubscriptionLifetimeCountInMs,
+                    KeepAliveCount = monitoredItem.KeepAliveCount > 0 ? monitoredItem.KeepAliveCount : opcUaConfiguration.SubscriptionKeepAliveCountInMs,
                     MaxNotificationsPerPublish = 1,
-                    Priority = 0,
+                    Priority = monitoredItem.Priority,
                     PublishingEnabled = false
                 };
 
@@ -647,7 +664,7 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions
             catch (Exception ex)
             {
                 logger.LogWarning("Unable to create monitored item with NodeId: [{nodeId}] | Error: {error}", subscriptionMonitoredItem.NodeId, ex);
-                //TODO: subscribe to all items we can but let the error buble up as well
+                //TODO: subscribe to all items we can but let the error bubble up as well
                 throw;
             }
         }
@@ -656,37 +673,402 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions
             => existingItems.Any(m => m.SamplingInterval == monitoredItem.SamplingInterval);
         #endregion
 
+        #region [Alarms]
+        private Subscription? GetAlarmSubscription(AlarmSubscriptionMonitoredItem alarmMonitoredItem)
+        {
+            if (alarmMonitoredItem == default)
+                return null;
+
+            var subscriptions = session!.Subscriptions
+                .Where(x => x.MonitoredItems.Any(y => alarmMonitoredItem.NodeId.Equals(y.ResolvedNodeId.ToString())));
+
+            return subscriptions.FirstOrDefault();
+        }
+
+        private Subscription CreateNewAlarmSubscription(AlarmSubscriptionMonitoredItem alarmMonitoredItem)
+        {
+            var keepAliveCount = Convert.ToUInt32(alarmMonitoredItem.HeartbeatInterval);
+            var subscription = session!.Subscriptions.FirstOrDefault(x => alarmMonitoredItem.PublishingInterval.Equals(x.PublishingInterval));
+            if (subscription == default)
+            {
+                subscription = new Subscription
+                {
+                    PublishingInterval = alarmMonitoredItem.PublishingInterval,
+                    LifetimeCount = 100000,
+                    KeepAliveCount = keepAliveCount > 0 ? keepAliveCount : 100000,
+                    MaxNotificationsPerPublish = 1000,
+                    Priority = 0,
+                    PublishingEnabled = false
+                };
+
+                session!.AddSubscription(subscription);
+                subscription.Create();
+            }
+            var item = this.CreateAlarmMonitoredItem(alarmMonitoredItem);
+            subscription.AddItem(item);
+            return subscription;
+        }
+
+        private Subscription ModifyAlarmSubscription(Subscription opcUaSubscription, AlarmSubscriptionMonitoredItem alarmMonitoredItem)
+        {
+            var existingItems = opcUaSubscription
+                .MonitoredItems
+                .Where(x => alarmMonitoredItem.NodeId.Equals(x.ResolvedNodeId.ToString()))
+                .ToList();
+
+            //TODO: Implement logic to detect a change in subscription, e.g. filter
+
+            opcUaSubscription.RemoveItems(existingItems);// Notification of intent
+            opcUaSubscription.ApplyChanges(); // enforces intent is executed
+            return this.CreateNewAlarmSubscription(alarmMonitoredItem); // now re-add the monitored item
+        }
+
+        private MonitoredItem CreateAlarmMonitoredItem(AlarmSubscriptionMonitoredItem alarmSubscriptionMonitoredItem)
+        {
+            try
+            {
+                var alarmTypeNodeIds = alarmSubscriptionMonitoredItem.GetAlarmTypesAsNodeIds();
+
+                var filter = new AlarmFilterDefinition
+                {
+                    AreaId = alarmSubscriptionMonitoredItem.NodeId,
+                    Severity = alarmSubscriptionMonitoredItem.Severity,
+                    IgnoreSuppressedOrShelved = alarmSubscriptionMonitoredItem.IgnoreSuppressedOrShelved,
+                    EventTypes = alarmTypeNodeIds
+                };
+
+                // generate select clauses for all fields of all alarm types
+                filter.SelectClauses = this.ConstructSelectClauses(alarmTypeNodeIds);
+
+                // filter clauses based on the list of fields that should be included (if available in request)
+                if (alarmSubscriptionMonitoredItem.AlarmFields != null && alarmSubscriptionMonitoredItem.AlarmFields.Any())
+                {
+                    var filteredClauses = filter.SelectClauses.Where(clause => alarmSubscriptionMonitoredItem.AlarmFields.Any(field => field.Equals(clause.ToString())));
+                    filter.SelectClauses = new SimpleAttributeOperandCollection(filteredClauses);
+                }
+
+                // create monitored item based on the current filter settings
+                var monitoredItem = filter.CreateMonitoredItem();
+
+                foreach (var processor in this.alarmMonitoredItemMessageProcessors)
+                    monitoredItem.Notification += processor.ProcessMessage; //If processor throws error the application crashes
+
+                logger.LogTrace("Alarm monitored item with NodeId: {nodeId}, Sampling Interval: [{samplingInterval}] has been created successfully",
+                    alarmSubscriptionMonitoredItem.NodeId,
+                    monitoredItem.SamplingInterval);
+
+                return monitoredItem;
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning("Unable to create monitored item with NodeId: [{nodeId}] | Error: {error}", alarmSubscriptionMonitoredItem.NodeId, ex);
+                //TODO: subscribe to all items we can but let the error buble up as well
+                throw;
+            }
+        }
+
+        private SimpleAttributeOperandCollection ConstructSelectClauses(
+            params NodeId[] eventTypeIds)
+        {
+            // browse the type model in the server address space to find the fields available for the event type.
+            var selectClauses = new SimpleAttributeOperandCollection();
+
+            // must always request the NodeId for the condition instances.
+            // this can be done by specifying an operand with an empty browse path.
+            var operand = new SimpleAttributeOperand();
+
+            operand.TypeDefinitionId = ObjectTypeIds.BaseEventType;
+            operand.AttributeId = Attributes.NodeId;
+            operand.BrowsePath = new QualifiedNameCollection();
+
+            selectClauses.Add(operand);
+
+            // add the fields for the selected EventTypes.
+            if (eventTypeIds != null)
+            {
+                for (var ii = 0; ii < eventTypeIds.Length; ii++)
+                {
+                    CollectFields(eventTypeIds[ii], selectClauses);
+                }
+            }
+
+            // use BaseEventType as the default if no EventTypes specified.
+            else
+            {
+                CollectFields(ObjectTypeIds.BaseEventType, selectClauses);
+            }
+
+            return selectClauses;
+        }
+
+        private void CollectFields(NodeId eventTypeId, SimpleAttributeOperandCollection eventFields)
+        {
+            // get the supertypes.
+            var supertypes = BrowseSuperTypes(eventTypeId, false);
+
+            if (supertypes == null)
+            {
+                return;
+            }
+
+            // process the types starting from the top of the tree.
+            var foundNodes = new Dictionary<NodeId, QualifiedNameCollection>();
+            var parentPath = new QualifiedNameCollection();
+
+            for (var ii = supertypes.Count - 1; ii >= 0; ii--)
+            {
+                CollectFields((NodeId)supertypes[ii].NodeId, parentPath, eventFields, foundNodes);
+            }
+
+            // collect the fields for the selected type.
+            CollectFields(eventTypeId, parentPath, eventFields, foundNodes);
+        }
+
+        private void CollectFields(
+            NodeId nodeId,
+            QualifiedNameCollection parentPath,
+            SimpleAttributeOperandCollection eventFields,
+            Dictionary<NodeId, QualifiedNameCollection> foundNodes)
+        {
+            // find all of the children of the field.
+            var nodeToBrowse = new BrowseDescription();
+
+            nodeToBrowse.NodeId = nodeId;
+            nodeToBrowse.BrowseDirection = BrowseDirection.Forward;
+            nodeToBrowse.ReferenceTypeId = ReferenceTypeIds.Aggregates;
+            nodeToBrowse.IncludeSubtypes = true;
+            nodeToBrowse.NodeClassMask = (uint)(NodeClass.Object | NodeClass.Variable);
+            nodeToBrowse.ResultMask = (uint)BrowseResultMask.All;
+
+            var children = Browse(nodeToBrowse, false);
+
+            if (children == null)
+            {
+                return;
+            }
+
+            // process the children.
+            for (var ii = 0; ii < children.Count; ii++)
+            {
+                var child = children[ii];
+
+                if (child.NodeId.IsAbsolute)
+                {
+                    continue;
+                }
+
+                // construct browse path.
+                var browsePath = new QualifiedNameCollection(parentPath);
+                browsePath.Add(child.BrowseName);
+
+                // check if the browse path is already in the list.
+                if (!ContainsPath(eventFields, browsePath))
+                {
+                    var field = new SimpleAttributeOperand();
+
+                    field.TypeDefinitionId = ObjectTypeIds.BaseEventType;
+                    field.BrowsePath = browsePath;
+                    field.AttributeId = child.NodeClass == NodeClass.Variable ? Attributes.Value : Attributes.NodeId;
+
+                    eventFields.Add(field);
+                }
+
+                // recusively find all of the children.
+                var targetId = (NodeId)child.NodeId;
+
+                // need to guard against loops.
+                if (!foundNodes.ContainsKey(targetId))
+                {
+                    foundNodes.Add(targetId, browsePath);
+                    CollectFields((NodeId)child.NodeId, browsePath, eventFields, foundNodes);
+                }
+            }
+        }
+
+        private bool ContainsPath(SimpleAttributeOperandCollection selectClause, QualifiedNameCollection browsePath)
+        {
+            for (var ii = 0; ii < selectClause.Count; ii++)
+            {
+                var field = selectClause[ii];
+
+                if (field.BrowsePath.Count != browsePath.Count)
+                {
+                    continue;
+                }
+
+                var match = true;
+
+                for (var jj = 0; jj < field.BrowsePath.Count; jj++)
+                {
+                    if (field.BrowsePath[jj] != browsePath[jj])
+                    {
+                        match = false;
+                        break;
+                    }
+                }
+
+                if (match)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private ReferenceDescriptionCollection BrowseSuperTypes(NodeId typeId, bool throwOnError)
+        {
+            var supertypes = new ReferenceDescriptionCollection();
+
+            try
+            {
+                // find all of the children of the field.
+                var nodeToBrowse = new BrowseDescription();
+
+                nodeToBrowse.NodeId = typeId;
+                nodeToBrowse.BrowseDirection = BrowseDirection.Inverse;
+                nodeToBrowse.ReferenceTypeId = ReferenceTypeIds.HasSubtype;
+                nodeToBrowse.IncludeSubtypes = false; // more efficient to use IncludeSubtypes=False when possible.
+                nodeToBrowse.NodeClassMask = 0; // the HasSubtype reference already restricts the targets to Types. 
+                nodeToBrowse.ResultMask = (uint)BrowseResultMask.All;
+
+                var references = Browse(nodeToBrowse, throwOnError);
+
+                while (references != null && references.Count > 0)
+                {
+                    // should never be more than one supertype.
+                    supertypes.Add(references[0]);
+
+                    // only follow references within this server.
+                    if (references[0].NodeId.IsAbsolute)
+                    {
+                        break;
+                    }
+
+                    // get the references for the next level up.
+                    nodeToBrowse.NodeId = (NodeId)references[0].NodeId;
+                    references = Browse(nodeToBrowse, throwOnError);
+                }
+
+                // return complete list.
+                return supertypes;
+            }
+            catch (Exception exception)
+            {
+                if (throwOnError)
+                {
+                    throw new ServiceResultException(exception, StatusCodes.BadUnexpectedError);
+                }
+
+                return null;
+            }
+        }
+
+        private ReferenceDescriptionCollection Browse(BrowseDescription nodeToBrowse, bool throwOnError)
+        {
+            try
+            {
+                var references = new ReferenceDescriptionCollection();
+
+                // construct browse request.
+                var nodesToBrowse = new BrowseDescriptionCollection();
+                nodesToBrowse.Add(nodeToBrowse);
+
+                session.Browse(
+                    null,
+                    null,
+                    0,
+                    nodesToBrowse,
+                    out var results,
+                    out var diagnosticInfos);
+
+                ClientBase.ValidateResponse(results, nodesToBrowse);
+                ClientBase.ValidateDiagnosticInfos(diagnosticInfos, nodesToBrowse);
+
+                do
+                {
+                    // check for error.
+                    if (StatusCode.IsBad(results[0].StatusCode))
+                    {
+                        throw new ServiceResultException(results[0].StatusCode);
+                    }
+
+                    // process results.
+                    for (var ii = 0; ii < results[0].References.Count; ii++)
+                    {
+                        references.Add(results[0].References[ii]);
+                    }
+
+                    // check if all references have been fetched.
+                    if (results[0].References.Count == 0 || results[0].ContinuationPoint == null)
+                    {
+                        break;
+                    }
+
+                    // continue browse operation.
+                    var continuationPoints = new ByteStringCollection();
+                    continuationPoints.Add(results[0].ContinuationPoint);
+
+                    session.BrowseNext(
+                        null,
+                        false,
+                        continuationPoints,
+                        out results,
+                        out diagnosticInfos);
+
+                    ClientBase.ValidateResponse(results, continuationPoints);
+                    ClientBase.ValidateDiagnosticInfos(diagnosticInfos, continuationPoints);
+                }
+                while (true);
+
+                //return complete list.
+                return references;
+            }
+            catch (Exception exception)
+            {
+                if (throwOnError)
+                {
+                    throw new ServiceResultException(exception, StatusCodes.BadUnexpectedError);
+                }
+
+                return null;
+            }
+        }
+        #endregion
+
         #region [Call]
         private static void ValidateResponseDiagnostics(IList request, IList response, DiagnosticInfoCollection diagnosticInfoCollection)
         {
             ClientBase.ValidateResponse(response, request);
             ClientBase.ValidateDiagnosticInfos(diagnosticInfoCollection, request);
         }
+        #endregion
 
-        private static ReferenceDescriptionCollection Browse(Session session, BrowseDescription browseDescription, ILogger logger)
+        #region [Browse]
+        private async Task<ReferenceDescriptionCollection> BrowseAsync(Session session, BrowseDescription browseDescription, ILogger logger, CancellationToken? cancellationToken = null)
         {
             var browseDescriptionCollection = new BrowseDescriptionCollection { browseDescription };
-            
-            //TODO: Change to BrowseAsync
-            session.Browse(default,
-                default,
-                200u,// TODO: Magic number => Turn into constant
-                browseDescriptionCollection,
-                out var results,
-                out var diagnosticInfo);
 
-            ValidateResponseDiagnostics(browseDescriptionCollection, results, diagnosticInfo);
+            var stoppingToken = cancellationToken ?? CancellationToken.None;
+
+            var browseResult = await session.BrowseAsync(default,
+                                default,
+                                opcUaConfiguration.BrowseRequestedMaxReferencesPerNode,
+                                browseDescriptionCollection,
+                                stoppingToken);
+
+            ValidateResponseDiagnostics(browseDescriptionCollection, browseResult.Results, browseResult.DiagnosticInfos);
 
             var comparer = new ReferenceDescriptionEqualityComparer();
-            var continuationPoint = results[0].ContinuationPoint;
-            var references = results[0].References.Distinct(comparer).ToList();
+            var continuationPoint = browseResult.Results[0].ContinuationPoint;
+            var references = browseResult.Results[0].References.Distinct(comparer).ToList();
 
             logger.LogTrace("Browsed NodeId: {nodeId} and found [{referencesCount}] references!", browseDescription.NodeId, references.Count);
 
             while (continuationPoint != null)
             {
                 logger.LogTrace($"NodeId: {browseDescription.NodeId} has continuationPoint .....");
-                var additionalReferences = BrowseNext(session, ref continuationPoint).Distinct(comparer).ToList();
+                var additionalReferences = (await BrowseNextAsync(session, continuationPoint, stoppingToken)).Distinct(comparer).ToList();
 
                 if (additionalReferences.Any())
                     references.AddRange(additionalReferences);
@@ -696,28 +1078,26 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions
             return new ReferenceDescriptionCollection(references);
         }
 
-        private static ReferenceDescriptionCollection BrowseNext(SessionClient session, ref byte[] continuationPoint)
+        private static async Task<ReferenceDescriptionCollection> BrowseNextAsync(SessionClient session, byte[] continuationPoint, CancellationToken cancellationToken)
         {
             var continuationPoints = new ByteStringCollection { continuationPoint };
 
-            session.BrowseNext(
+            var browseNextResponse = await session.BrowseNextAsync(
                 null,
                 false,
                 continuationPoints,
-                out var results,
-                out var diagnosticInfo);
+                cancellationToken);
 
-            ClientBase.ValidateResponse(results, continuationPoints);
-            ClientBase.ValidateDiagnosticInfos(diagnosticInfo, continuationPoints);
+            ClientBase.ValidateResponse(browseNextResponse.Results, continuationPoints);
+            ClientBase.ValidateDiagnosticInfos(browseNextResponse.DiagnosticInfos, continuationPoints);
 
-            continuationPoint = results[0].ContinuationPoint;
-            return results[0].References;
+            continuationPoint = browseNextResponse.Results[0].ContinuationPoint;
+            return browseNextResponse.Results[0].References;
         }
-
         #endregion
 
         #region [Read]
-        public static string GetNodeFriendlyDataType(Session session, NodeId dataTypeNodeId, int valueRank)
+        private static string GetNodeFriendlyDataType(Session session, NodeId dataTypeNodeId, int valueRank)
         {
             var dataType = session.NodeCache.Find(dataTypeNodeId);
             var dataTypeDisplayName = dataType?.DisplayName?.Text.ToLower() ?? "Unknown";

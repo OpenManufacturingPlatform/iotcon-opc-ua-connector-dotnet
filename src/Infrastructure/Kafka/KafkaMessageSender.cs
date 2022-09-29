@@ -21,7 +21,7 @@ using OMP.Connector.Infrastructure.Kafka.Common.Configuration;
 using OMP.Connector.Infrastructure.Kafka.Common.Producers;
 using OMP.Connector.Infrastructure.Kafka.Common.Producers.Responses;
 using OMP.Connector.Infrastructure.Kafka.ConfigurationEndpoint;
-using OMP.Connector.Infrastructure.Kafka.ResponsesEndpoint;
+using OMP.Connector.Infrastructure.Kafka.ResponseEndpoint;
 using OMP.Connector.Infrastructure.Kafka.TelemetryEndpoint;
 using OneOf;
 

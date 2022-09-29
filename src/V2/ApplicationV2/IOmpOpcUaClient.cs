@@ -1,6 +1,7 @@
 ﻿// SPDX-License-Identifier: MIT. 
 // Copyright Contributors to the Open Manufacturing Platform.
 
+using OMP.PlantConnectivity.OpcUA.Models.Alarms;
 using OMP.PlantConnectivity.OpcUA.Models.Browse;
 using OMP.PlantConnectivity.OpcUA.Models.Call;
 using OMP.PlantConnectivity.OpcUA.Models.Discovery;
@@ -23,7 +24,7 @@ namespace OMP.PlantConnectivity.OpcUA
         /// <param name="browseDepth">How deep of a level to browse( eg. 3 levels deep). NB. This can have a major performance impact</param>
         /// <param name="cancellationToken">Token to signal cancellation of the process</param>
         /// <returns>List of nodes that was found or and Exception if an error occured</returns>
-        Task<OneOf<BrowseChildNodesResponseCollection, Exception>> BrowseNodes(string endpointUrl, int browseDepth, CancellationToken cancellationToken);
+        Task<OneOf<BrowseChildNodesResponseCollection, Exception>> BrowseNodesAsync(string endpointUrl, int browseDepth, CancellationToken cancellationToken);
 
         /// <summary>
         /// Browses the specified Node and it's children
@@ -31,16 +32,7 @@ namespace OMP.PlantConnectivity.OpcUA
         /// <param name="browseChildNodesCommand">The command containing the information of how to browse and where</param>
         /// <param name="cancellationToken">Token to signal cancellation of the process</param>
         /// <returns>The browsed node  or and Exception if an error occured</returns>
-        Task<OneOf<BrowseChildNodesResponse, Exception>> BrowseChildNodes(BrowseChildNodesCommand browseChildNodesCommand, CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Browses the specified Node and it's children
-        /// </summary>
-        /// <param name="discoveryChildNodesCommand">The command containing the information of how to browse and where</param>
-        /// <param name="cancellationToken">Token to signal cancellation of the process</param>
-        /// <returns>The browsed/discoverd node or and Exception if an error occured</returns>
-        [Obsolete("Please use BrowseChildNodes")]
-        Task<OneOf<BrowseChildNodesResponse, Exception>> DiscoverChildNodes(DiscoveryChildNodesCommand discoveryChildNodesCommand, CancellationToken cancellationToken);
+        Task<OneOf<BrowseChildNodesResponse, Exception>> BrowseChildNodesAsync(BrowseChildNodesCommand browseChildNodesCommand, CancellationToken cancellationToken);
         #endregion
 
         #region [Read]
@@ -49,10 +41,6 @@ namespace OMP.PlantConnectivity.OpcUA
 
         //TODO: Write comment
         Task<OneOf<ReadNodeCommandResponseCollection, Exception>> ReadNodesAsync(ReadNodeCommandCollection commands, CancellationToken cancellationToken);
-
-        //TODO: Write comment
-        [Obsolete("Please use ReadNodeAsync")]
-        Task<OneOf<ReadNodeCommandResponseCollection, Exception>> BrowseNodesAsync(BrowseCommandCollection commands, CancellationToken cancellationToken);
         #endregion
 
         #region [Call]
@@ -68,13 +56,24 @@ namespace OMP.PlantConnectivity.OpcUA
         #region [Subscriptions]
 
         //TODO: Write comment
-        Task<OneOf<CreateSubscriptionResponse, Exception>> CreateSubscriptions(CreateSubscriptionsCommand command, CancellationToken CancellationToken);
+        Task<OneOf<CreateSubscriptionResponse, Exception>> CreateSubscriptionsAsync(CreateSubscriptionsCommand command, CancellationToken CancellationToken);
 
         //TODO: Write comment
-        Task<OneOf<RemoveSubscriptionsResponse, Exception>> RemoveSubscriptionsCommand(RemoveSubscriptionsCommand command, CancellationToken cancellationToken);
+        Task<OneOf<RemoveSubscriptionsResponse, Exception>> RemoveSubscriptionsAsync(RemoveSubscriptionsCommand command, CancellationToken cancellationToken);
 
         //TODO: Write comment
-        Task<OneOf<RemoveAllSubscriptionsResponse, Exception>> RemoveAllSubscriptions(RemoveAllSubscriptionsCommand command, CancellationToken cancellationToken);
+        Task<OneOf<RemoveAllSubscriptionsResponse, Exception>> RemoveAllSubscriptionsAsync(RemoveAllSubscriptionsCommand command, CancellationToken cancellationToken);
+        #endregion
+
+        #region [Alarm Subscriptions]
+        //TODO: Write comment
+        Task<OneOf<CreateAlarmSubscriptionResponse, Exception>> CreateAlarmSubscriptionsAsync(CreateAlarmSubscriptionsCommand command, CancellationToken CancellationToken);
+
+        //TODO: Write comment
+        Task<OneOf<RemoveAlarmSubscriptionsResponse, Exception>> RemoveAlarmSubscriptionsAsync(RemoveAlarmSubscriptionsCommand command, CancellationToken cancellationToken);
+
+        //TODO: Write comment
+        Task<OneOf<RemoveAllAlarmSubscriptionsResponse, Exception>> RemoveAllAlarmSubscriptionsAsync(RemoveAllAlarmSubscriptionsCommand command, CancellationToken cancellationToken);
         #endregion
 
         #region [Sessions]

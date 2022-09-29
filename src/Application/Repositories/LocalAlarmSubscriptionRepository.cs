@@ -72,7 +72,7 @@ namespace OMP.Connector.Application.Repositories
             {
                 if (!this._managedSubscriptions.TryGetValue(subscriptionKey, out var subscriptionDto))
                     throw new Exception(
-                        $"{nameof(LocalSubscriptionRepository)} internal cache inconsistent. subscriptionsKey: {subscriptionKey}");
+                        $"{nameof(LocalAlarmSubscriptionRepository)} internal cache inconsistent. subscriptionsKey: {subscriptionKey}");
 
                 if (subscriptionDto.EndpointUrl != endpointUrl)
                     continue;

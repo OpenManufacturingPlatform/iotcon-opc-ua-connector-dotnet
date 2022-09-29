@@ -2,7 +2,7 @@
 // Copyright Contributors to the Open Manufacturing Platform.
 
 using OMP.Connector.Infrastructure.Kafka.ConfigurationEndpoint;
-using OMP.Connector.Infrastructure.Kafka.ResponsesEndpoint;
+using OMP.Connector.Infrastructure.Kafka.ResponseEndpoint;
 using OMP.Connector.Infrastructure.Kafka.TelemetryEndpoint;
 using OMP.Connector.Infrastructure.Kafka.AlarmEndpoint;
 

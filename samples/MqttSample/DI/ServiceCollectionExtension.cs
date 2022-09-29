@@ -8,6 +8,7 @@ using OMP.Connector.Application.Repositories;
 using OMP.Connector.Domain;
 using OMP.Connector.Domain.OpcUa;
 using OMP.Connector.Infrastructure.MQTT;
+using OMP.Connector.Infrastructure.MQTT.AlarmEndpoint;
 using OMP.Connector.Infrastructure.MQTT.CommandEndpoint;
 using OMP.Connector.Infrastructure.MQTT.Common;
 using OMP.Connector.Infrastructure.MQTT.Common.Consumers;
@@ -15,6 +16,7 @@ using OMP.Connector.Infrastructure.MQTT.Common.M2Mqtt;
 using OMP.Connector.Infrastructure.MQTT.Common.Publishers;
 using OMP.Connector.Infrastructure.MQTT.ResponseEndpoint;
 using OMP.Connector.Infrastructure.MQTT.Serialization;
+using OMP.Connector.Infrastructure.MQTT.TelemetryEndpoint;
 
 namespace OMP.Connector.EdgeModule
 {
@@ -32,6 +34,7 @@ namespace OMP.Connector.EdgeModule
         public static IServiceCollection AddMqttIntegration(this IServiceCollection serviceCollection)
         {
             serviceCollection.AddSingleton<ISubscriptionRepository, LocalSubscriptionRepository>();
+            serviceCollection.AddSingleton<IAlarmSubscriptionRepository, LocalAlarmSubscriptionRepository>();
 
             serviceCollection.TryAddScoped<IMqttCommndListner, MqttCommandListner>();
 

@@ -3,7 +3,7 @@
 
 using Opc.Ua.Client;
 
-namespace OMP.PlantConnectivity.OpcUA.Services
+namespace OMP.PlantConnectivity.OpcUA.Services.Subscriptions
 {
     public interface IMonitoredItemMessageProcessor
     {
