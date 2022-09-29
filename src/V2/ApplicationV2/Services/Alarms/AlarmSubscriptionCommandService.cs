@@ -17,7 +17,7 @@ using OMP.PlantConnectivity.OpcUA.Services.Subscriptions;
 
 namespace OMP.PlantConnectivity.OpcUA.Services.Alarms
 {
-    internal class AlarmSubscriptionCommandService : IAlarmSubscriptionCommandService
+    internal sealed class AlarmSubscriptionCommandService : IAlarmSubscriptionCommandService
     {
         private const bool DoNotAutoApplyChangesOnCreatedOrModify = false;
         private readonly IValidator<AlarmSubscriptionMonitoredItem> alarmMonitoredItemValidator;
