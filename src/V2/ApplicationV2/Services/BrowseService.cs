@@ -53,17 +53,16 @@ namespace OMP.PlantConnectivity.OpcUA.Services
             return response;
         }
 
-        private async Task<(int discoveredNodes, BrowsedNode BrowsedNode)> GetChildNodesAsync(IOpcUaSession session, ReferenceDescription referenceDescription, int browseDepth = 0)
+        private Task<(int discoveredNodes, BrowsedNode BrowsedNode)> GetChildNodesAsync(IOpcUaSession session, ReferenceDescription referenceDescription, int browseDepth = 0)
         {
             var nodeId = ExpandedNodeId.ToNodeId(referenceDescription.NodeId, session.GetNamespaceUris()!);
-            var browsedNode = await BrowseNodeIdAsync(session, nodeId, browseDepth);
-            return browsedNode;
+            return BrowseNodeIdAsync(session, nodeId, browseDepth);
         }
 
-        private async Task<(int discoveredNodes, BrowsedNode BrowsedNode)> BrowseNodeIdAsync(IOpcUaSession session, NodeId nodeId, int browseDepthLimit, int currentDepth = 0)
+        private Task<(int discoveredNodes, BrowsedNode BrowsedNode)> BrowseNodeIdAsync(IOpcUaSession session, NodeId nodeId, int browseDepthLimit, int currentDepth = 0)
         {
             var browseDescription = CreateBrowseDescription(nodeId, ReferenceTypeIds.HierarchicalReferences);
-            return await BrowseNodeIdAsync(session, browseDescription, browseDepthLimit, currentDepth);
+            return BrowseNodeIdAsync(session, browseDescription, browseDepthLimit, currentDepth);
         }
 
         private async Task<(int DiscoveredNodes, BrowsedNode BrowsedNode)> BrowseNodeIdAsync(IOpcUaSession session, BrowseDescription browseDescription, int browseDepthLimit, int currentDepth = 0)

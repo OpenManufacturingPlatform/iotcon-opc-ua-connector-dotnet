@@ -22,13 +22,6 @@ namespace OMP.PlantConnectivity.OpcUA.Configuration
         public bool DisableSubscriptionRestoreService { get; set; } = false;
         public bool DisableAlarmSubscriptionRestoreService { get; set; } = false;
 
-        public uint NodeMask => (uint)NodeClass.Object |
-                                          (uint)NodeClass.Variable |
-                                          (uint)NodeClass.Method |
-                                          (uint)NodeClass.VariableType |
-                                          (uint)NodeClass.ReferenceType |
-                                          (uint)NodeClass.Unspecified;
-
         public List<AuthenticationConfiguration> Authentication { get; set; } = new List<AuthenticationConfiguration>();
     }
 }

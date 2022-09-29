@@ -89,22 +89,6 @@ namespace OMP.PlantConnectivity.OpcUA
                 return ex.Demystify();
             }
         }
-
-        //TODO: Should be completely removed. If you would like to use the new library you should anyway rewrite and use the new method
-        //TODO: Check with Ivan
-        [Obsolete("Please use BrowseChildNodes")]
-        public Task<OneOf<BrowseChildNodesResponse, Exception>> DiscoverChildNodes(DiscoveryChildNodesCommand command, CancellationToken cancellationToken)
-            => BrowseChildNodesAsync(command, cancellationToken);
-
-        //TODO: Should be completely removed. If you would like to use the new library you should anyway rewrite and use the new method
-        //TODO: Check with Ivan
-        [Obsolete("Please use ReadNodesAsync")]
-        public Task<OneOf<ReadNodeCommandResponseCollection, Exception>> BrowseNodesAsync(BrowseCommandCollection commands, CancellationToken cancellationToken)
-        {
-            var commandCollection = new ReadNodeCommandCollection(commands.EndpointUrl);
-            commandCollection.AddRange(commands);
-            return ReadNodesAsync(commandCollection, cancellationToken);
-        }
         #endregion
 
         #region [Call]

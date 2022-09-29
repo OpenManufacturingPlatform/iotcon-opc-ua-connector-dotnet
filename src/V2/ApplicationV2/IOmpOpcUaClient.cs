@@ -33,15 +33,6 @@ namespace OMP.PlantConnectivity.OpcUA
         /// <param name="cancellationToken">Token to signal cancellation of the process</param>
         /// <returns>The browsed node  or and Exception if an error occured</returns>
         Task<OneOf<BrowseChildNodesResponse, Exception>> BrowseChildNodesAsync(BrowseChildNodesCommand browseChildNodesCommand, CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Browses the specified Node and it's children
-        /// </summary>
-        /// <param name="discoveryChildNodesCommand">The command containing the information of how to browse and where</param>
-        /// <param name="cancellationToken">Token to signal cancellation of the process</param>
-        /// <returns>The browsed/discoverd node or and Exception if an error occured</returns>
-        [Obsolete("Please use BrowseChildNodes")]
-        Task<OneOf<BrowseChildNodesResponse, Exception>> DiscoverChildNodes(DiscoveryChildNodesCommand discoveryChildNodesCommand, CancellationToken cancellationToken);
         #endregion
 
         #region [Read]
@@ -50,10 +41,6 @@ namespace OMP.PlantConnectivity.OpcUA
 
         //TODO: Write comment
         Task<OneOf<ReadNodeCommandResponseCollection, Exception>> ReadNodesAsync(ReadNodeCommandCollection commands, CancellationToken cancellationToken);
-
-        //TODO: Write comment
-        [Obsolete("Please use ReadNodeAsync")]
-        Task<OneOf<ReadNodeCommandResponseCollection, Exception>> BrowseNodesAsync(BrowseCommandCollection commands, CancellationToken cancellationToken);
         #endregion
 
         #region [Call]
