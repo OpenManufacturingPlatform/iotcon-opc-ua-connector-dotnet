@@ -64,7 +64,7 @@ namespace OMP.PlantConnectivity.OpcUA.Services
 
             var batchHandler = new BatchHandler<NodeId>(opcUaConfiguration.ReadBatchSize, ReadValuesInBatch(opcSession, values, errors));
             batchHandler.RunBatches(nodeIds.ToList());
-            logger.LogTrace("Executed {nrOfNodes} read commands in {nrOfBatches} batch(es).", nodeIds.Count(), (nodeIds.Count + opcUaConfiguration.ReadBatchSize - 1) / opcUaConfiguration.ReadBatchSize);
+            logger.LogTrace("Executed a total of {nrOfNodes} read commands. Batch size = {batchSize}", nodeIds.Count, opcUaConfiguration.ReadBatchSize);
 
             response.AddRange(
                 commands.Zip(values.Zip(errors))

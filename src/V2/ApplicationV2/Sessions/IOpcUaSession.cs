@@ -32,9 +32,7 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions
         #endregion
 
         #region [Browse]
-        Task<ReferenceDescriptionCollection> BrowseAsync(BrowseDescription browseDescription);
-        ReferenceDescriptionCollection Browse(BrowseDescription browseDescription);
-
+        Task<ReferenceDescriptionCollection> BrowseAsync(BrowseDescription browseDescription, CancellationToken? cancellationToken = null);
         #endregion
 
         #region [Write]

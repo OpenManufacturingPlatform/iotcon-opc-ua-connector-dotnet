@@ -14,11 +14,15 @@ namespace OMP.PlantConnectivity.OpcUA.Configuration
         public int AwaitSessionLockTimeoutSeconds { get; set; } = 3;
         public int OperationTimeoutInSeconds { get; set; } = 120;
         public int ReconnectIntervalInSeconds { get; set; } = 10;
-        public int KeepAliveIntervalInSeconds { get; set; } = 5;
+        public int SessionKeepAliveIntervalInSeconds { get; set; } = 5;
+        public uint SessionTimeoutInMs { get; set; } = 100000;
+        public uint SubscriptionLifetimeCountInMs { get; set; } = 100000;
+        public uint SubscriptionKeepAliveCountInMs { get; set; } = 100000;
+        public uint BrowseRequestedMaxReferencesPerNode { get; set; } = 200;
         public bool DisableSubscriptionRestoreService { get; set; } = false;
         public bool DisableAlarmSubscriptionRestoreService { get; set; } = false;
 
-        public uint NodeMask => (uint)NodeClass.Object |
+        public static uint NodeMask => (uint)NodeClass.Object |
                                           (uint)NodeClass.Variable |
                                           (uint)NodeClass.Method |
                                           (uint)NodeClass.VariableType |

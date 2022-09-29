@@ -17,7 +17,7 @@ using OMP.PlantConnectivity.OpcUA.Services.Subscriptions;
 
 namespace OMP.PlantConnectivity.OpcUA.Services.Alarms
 {
-    internal class AlarmSubscriptionCommandService : IAlarmSubscriptionCommandService
+    internal sealed class AlarmSubscriptionCommandService : IAlarmSubscriptionCommandService
     {
         private const bool DoNotAutoApplyChangesOnCreatedOrModify = false;
         private readonly IValidator<AlarmSubscriptionMonitoredItem> alarmMonitoredItemValidator;
@@ -190,7 +190,7 @@ namespace OMP.PlantConnectivity.OpcUA.Services.Alarms
                 }
                 catch (ServiceResultException sre)
                 {
-                    logger.LogError(sre, "Failed to call ApplyChanges() for batch with {monitoredItems} items: ", monitoredItems.Count());
+                    logger.LogError(sre, "Failed to call ApplyChanges() for batch with {monitoredItems} items: ", monitoredItems.Length);
                     throw;
                 }
             };

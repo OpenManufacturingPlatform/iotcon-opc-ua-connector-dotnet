@@ -266,10 +266,13 @@ namespace OMP.PlantConnectivity.OpcUA
             }
             catch (Exception ex)
             {
-                logger.LogWarning(ex, "Error(s) occurred while trying to open an session on {server}: {error}", endpointUrl, ex.Message);
+                logger.LogWarning(ex, "Error(s) occurred while trying to open a session on {server}: {error}", endpointUrl, ex.Message);
                 throw ex.Demystify();
             }
         }
+
+        private Task<IOpcUaSession> GetSessionAsync(string endpointUrl, CancellationToken cancellationToken)
+            => sessionPoolStateManager.GetSessionAsync(endpointUrl, cancellationToken);
 
         public async Task CloseAllActiveSessionsAsync(CancellationToken cancellationToken)
         {
@@ -316,8 +319,5 @@ namespace OMP.PlantConnectivity.OpcUA
             }
         }
         #endregion
-
-        protected async Task<IOpcUaSession> GetSessionAsync(string endpointUrl, CancellationToken cancellationToken)
-            => await sessionPoolStateManager.GetSessionAsync(endpointUrl, cancellationToken);
     }
 }

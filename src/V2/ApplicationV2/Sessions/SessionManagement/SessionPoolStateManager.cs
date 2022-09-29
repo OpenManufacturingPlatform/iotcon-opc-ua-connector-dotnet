@@ -72,7 +72,6 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions.SessionManagement
 
                 opcUaServerUrl = opcUaServerUrl.ToValidBaseEndpointUrl();
 
-
                 if (sessionPool.TryGetValue(opcUaServerUrl, out var session))
                     return session;
 

@@ -15,15 +15,14 @@ namespace TestApplicationV2
 {
     internal class CommandRunner : BackgroundService
     {
-        const string EndPointUrl = "opc.tcp://bw09861291:52210/UA/SampleServer"; // Ivan
+        const string EndPointUrl = "<SPECIFY_OPCUA_SERVER_ENDPOINT>";
         private const uint NodeMask = (uint)NodeClass.Object |
                                           (uint)NodeClass.Variable |
                                           (uint)NodeClass.Method |
                                           (uint)NodeClass.VariableType |
                                           (uint)NodeClass.ReferenceType |
                                           (uint)NodeClass.Unspecified;
-        //const string EndPointUrl = "opc.tcp://bw09937414:62544/Quickstarts/AlarmConditionServer"; //Hermo
-        //const string EndPointUrl = "opc.tcp://bw09937414:52210"; //Hermo
+        
         private readonly IOmpOpcUaClient ompOpcUaClient;
         private readonly ILogger<CommandRunner> logger;
         private readonly IHostApplicationLifetime applicationLifetime;
@@ -50,7 +49,7 @@ namespace TestApplicationV2
             //await CallMethodNodeWithArguments(stoppingToken); // This test depends on existence of a valid subscription so that subscription id can be passed in input args.
 
             //await UnSubscribeFromNodes(stoppingToken);
-            //await PssReadTestAsync(stoppingToken);
+            
             //await RunReadValuesTest(stoppingToken);
             //await RunWriteTest(stoppingToken);
         }
@@ -111,27 +110,6 @@ namespace TestApplicationV2
                 exception =>
                 {
                     logger.LogCritical("ReadNodes failed");
-                });
-        }
-
-        private async Task PssReadTestAsync(CancellationToken stoppingToken)
-        {
-            //opc.tcp://160.52.61.130:4840
-            var commandCollection = new ReadValueCommandCollection("opc.tcp://160.52.61.130:4840")
-            {
-                new ReadValueCommand("ns=3;s=OrderNumber", doRegisteredRead: false),
-                new ReadValueCommand("ns=3;i=5204", doRegisteredRead: true)
-            };
-
-            var results = await ompOpcUaClient.ReadValuesAsync(commandCollection, stoppingToken);
-            results.Switch(
-                result =>
-                {
-                    logger.LogInformation("Read Succeeded: {results}", result.Select(s => (s.Succeeded, s.Response!.Value)));
-                },
-                exception =>
-                {
-                    logger.LogCritical("Read failed");
                 });
         }
 

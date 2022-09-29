@@ -26,13 +26,6 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions
 {
     internal class OpcUaSession : IOpcUaSession
     {
-        #region [Constants]
-        private const uint SessionTimeoutInMs = 100000;
-        private const uint SubscriptionLifetimeCountInMs = 100000;
-        private const uint SubscriptionKeepAliveCountInMs = 100000;
-        private const uint RequestedMaxReferencesPerNode = 200u;
-        #endregion
-
         #region [Fields]
         private bool disposedValue;
         private SemaphoreSlim opcSessionSemaphore;
@@ -128,11 +121,8 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions
         #endregion
 
         #region [Browse]
-        public Task<ReferenceDescriptionCollection> BrowseAsync(BrowseDescription browseDescription)
-            => Task.FromResult(Browse(session!, browseDescription, logger));
-
-        public ReferenceDescriptionCollection Browse(BrowseDescription browseDescription)
-            => Browse(session!, browseDescription, logger);
+        public Task<ReferenceDescriptionCollection> BrowseAsync(BrowseDescription browseDescription, CancellationToken? cancellationToken = null)
+            => BrowseAsync(session!, browseDescription, logger, cancellationToken);
 
         #endregion
 
@@ -173,7 +163,7 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions
                     ResultMask = (uint)BrowseResultMask.BrowseName
                 };
 
-                var methodReferences = Browse(session!, browseDescription, logger);
+                var methodReferences = await BrowseAsync(session!, browseDescription, logger, cancellationToken);
 
                 var readValuesIds = (from reference in methodReferences
                                      where !reference.NodeId.IsAbsolute
@@ -581,11 +571,11 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions
                     configuredEndpoint,
                     true,
                     sessionName,
-                    SessionTimeoutInMs,
+                    opcUaConfiguration.SessionTimeoutInMs,
                     identity,
                     default);
 
-                session.KeepAliveInterval = opcUaConfiguration.KeepAliveIntervalInSeconds.ToMilliseconds();
+                session.KeepAliveInterval = opcUaConfiguration.SessionKeepAliveIntervalInSeconds.ToMilliseconds();
                 session.KeepAlive += SessionOnKeepAlive;
                 session.OperationTimeout = opcUaConfiguration.OperationTimeoutInSeconds.ToMilliseconds();
 
@@ -618,8 +608,8 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions
                 subscription = new Subscription
                 {
                     PublishingInterval = monitoredItem.PublishingInterval,
-                    LifetimeCount = SubscriptionLifetimeCountInMs,
-                    KeepAliveCount = monitoredItem.KeepAliveCount > 0 ? monitoredItem.KeepAliveCount : SubscriptionKeepAliveCountInMs,
+                    LifetimeCount = opcUaConfiguration.SubscriptionLifetimeCountInMs,
+                    KeepAliveCount = monitoredItem.KeepAliveCount > 0 ? monitoredItem.KeepAliveCount : opcUaConfiguration.SubscriptionKeepAliveCountInMs,
                     MaxNotificationsPerPublish = 1,
                     Priority = monitoredItem.Priority,
                     PublishingEnabled = false
@@ -1052,31 +1042,33 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions
             ClientBase.ValidateResponse(response, request);
             ClientBase.ValidateDiagnosticInfos(diagnosticInfoCollection, request);
         }
+        #endregion
 
-        private static ReferenceDescriptionCollection Browse(Session session, BrowseDescription browseDescription, ILogger logger)
+        #region [Browse]
+        private async Task<ReferenceDescriptionCollection> BrowseAsync(Session session, BrowseDescription browseDescription, ILogger logger, CancellationToken? cancellationToken = null)
         {
             var browseDescriptionCollection = new BrowseDescriptionCollection { browseDescription };
-            
-            //TODO: Change to BrowseAsync
-            session.Browse(default,
-                default,
-                RequestedMaxReferencesPerNode,
-                browseDescriptionCollection,
-                out var results,
-                out var diagnosticInfo);
 
-            ValidateResponseDiagnostics(browseDescriptionCollection, results, diagnosticInfo);
+            var stoppingToken = cancellationToken ?? CancellationToken.None;
+
+            var browseResult = await session.BrowseAsync(default,
+                                default,
+                                opcUaConfiguration.BrowseRequestedMaxReferencesPerNode,
+                                browseDescriptionCollection,
+                                stoppingToken);
+
+            ValidateResponseDiagnostics(browseDescriptionCollection, browseResult.Results, browseResult.DiagnosticInfos);
 
             var comparer = new ReferenceDescriptionEqualityComparer();
-            var continuationPoint = results[0].ContinuationPoint;
-            var references = results[0].References.Distinct(comparer).ToList();
+            var continuationPoint = browseResult.Results[0].ContinuationPoint;
+            var references = browseResult.Results[0].References.Distinct(comparer).ToList();
 
             logger.LogTrace("Browsed NodeId: {nodeId} and found [{referencesCount}] references!", browseDescription.NodeId, references.Count);
 
             while (continuationPoint != null)
             {
                 logger.LogTrace($"NodeId: {browseDescription.NodeId} has continuationPoint .....");
-                var additionalReferences = BrowseNext(session, ref continuationPoint).Distinct(comparer).ToList();
+                var additionalReferences = (await BrowseNextAsync(session, continuationPoint, stoppingToken)).Distinct(comparer).ToList();
 
                 if (additionalReferences.Any())
                     references.AddRange(additionalReferences);
@@ -1086,24 +1078,22 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions
             return new ReferenceDescriptionCollection(references);
         }
 
-        private static ReferenceDescriptionCollection BrowseNext(SessionClient session, ref byte[] continuationPoint)
+        private static async Task<ReferenceDescriptionCollection> BrowseNextAsync(SessionClient session, byte[] continuationPoint, CancellationToken cancellationToken)
         {
             var continuationPoints = new ByteStringCollection { continuationPoint };
 
-            session.BrowseNext(
+            var browseNextResponse = await session.BrowseNextAsync(
                 null,
                 false,
                 continuationPoints,
-                out var results,
-                out var diagnosticInfo);
+                cancellationToken);
 
-            ClientBase.ValidateResponse(results, continuationPoints);
-            ClientBase.ValidateDiagnosticInfos(diagnosticInfo, continuationPoints);
+            ClientBase.ValidateResponse(browseNextResponse.Results, continuationPoints);
+            ClientBase.ValidateDiagnosticInfos(browseNextResponse.DiagnosticInfos, continuationPoints);
 
-            continuationPoint = results[0].ContinuationPoint;
-            return results[0].References;
+            continuationPoint = browseNextResponse.Results[0].ContinuationPoint;
+            return browseNextResponse.Results[0].References;
         }
-
         #endregion
 
         #region [Read]
