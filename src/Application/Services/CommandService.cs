@@ -78,10 +78,8 @@ namespace OMP.Connector.Application.Services
 
         private async Task<IEnumerable<ICommandResponse>> ProcessCommandsAsync(CommandRequest commandRequest)
         {
-
-            //EK DINK MEESTE VAN DIE CODE GAAN ONS NIE NODIG Hê nie
             var commands = commandRequest.Payload.Requests;
-            var opcSession = await this._sessionPoolManager.GetSessionAsync(commandRequest.Payload.RequestTarget.EndpointUrl, new CancellationToken()); //DIE DEEL WEL
+            var opcSession = await this._sessionPoolManager.GetSessionAsync(commandRequest.Payload.RequestTarget.EndpointUrl, new CancellationToken());
             var commandResults = new List<ICommandResponse>();
             var processors = this._commandProcessorFactory.GetProcessors(commands, opcSession);
 

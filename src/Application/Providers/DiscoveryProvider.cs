@@ -144,9 +144,9 @@ namespace OMP.Connector.Application.Providers
             {
                 case VariableNode variableNode:
                     {
-                        var variableNodeWithType = this._mapper.Map<VariableNodeWithType>(variableNode);                        
+                        var variableNodeWithType = this._mapper.Map<VariableNodeWithType>(variableNode);
                         variableNodeWithType.DataTypeName = ClientSessionUtilities.GetNodeFriendlyDataType(this._session, variableNode.DataType, variableNode.ValueRank);
-                        
+
                         node = variableNodeWithType;
                         break;
                     }

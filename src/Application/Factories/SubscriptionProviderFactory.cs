@@ -5,7 +5,6 @@ using FluentValidation;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OMP.Connector.Application.Providers.Subscription;
-using OMP.Connector.Application.Services;
 using OMP.Connector.Domain.Configuration;
 using OMP.Connector.Domain.Models.Telemetry;
 using OMP.Connector.Domain.OpcUa;

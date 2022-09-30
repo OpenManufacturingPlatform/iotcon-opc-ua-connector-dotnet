@@ -15,5 +15,10 @@ namespace OMP.Connector.Domain.Schema.Request.Control.WriteValues.PrimitiveTypes
 
         Array IPrimitiveArray.ToArray()
             => this.ToArray();
+
+        public override string ToString()
+        {
+            return string.Join(",", this);
+        }
     }
 }
