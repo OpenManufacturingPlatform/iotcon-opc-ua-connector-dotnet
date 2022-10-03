@@ -1,6 +1,7 @@
 ﻿// SPDX-License-Identifier: MIT. 
 // Copyright Contributors to the Open Manufacturing Platform.
 
+using System.Linq;
 using OMP.PlantConnectivity.OpcUA.Models;
 using OMP.PlantConnectivity.OpcUA.Models.Writes;
 using OMP.PlantConnectivity.OpcUA.Sessions;
@@ -25,7 +26,11 @@ namespace OMP.PlantConnectivity.OpcUA.Services
 
             var writeResults = new WriteResponseCollection();
             writeResults.AddRange(commands.Zip(statusCodeCollection)
-                                    .Select(z => new CommandResult<WriteCommand, StatusCode>(z.First, z.Second)));
+                                    .Select(z => new CommandResult<WriteCommand, StatusCode>(
+                                        z.First,
+                                        z.Second,
+                                        StatusCode.IsNotBad(z.Second),
+                                        StatusCode.IsNotGood(z.Second) ? z.Second.ToString() : string.Empty)));
 
             return Task.FromResult(writeResults);
         }

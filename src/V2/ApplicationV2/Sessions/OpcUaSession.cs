@@ -21,6 +21,7 @@ using TypeInfo = Opc.Ua.TypeInfo;
 using OMP.PlantConnectivity.OpcUA.Models.Alarms;
 using OMP.PlantConnectivity.OpcUA.Services.Alarms;
 using OMP.PlantConnectivity.OpcUA.Services.Subscriptions;
+using OMP.PlantConnectivity.OpcUA.Models;
 
 namespace OMP.PlantConnectivity.OpcUA.Sessions
 {
@@ -293,6 +294,30 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions
             CheckConnection();
             var response = session!.Write(default, writeValues, out statusCodeCollection, out _);
             return response;
+        }
+
+        public async Task<VariableNodeDataTypeInfo> GetVariableNodeDataTypeInfoAsync(NodeId variableNodeId)
+        {
+            var nodeDataTypeAttribute = await session!.ReadAsync(
+                default,
+                default,
+                default,
+                GetDataTypeAndValueRankQuery(variableNodeId),
+                CancellationToken.None);
+
+            var nodeDataTypeId = nodeDataTypeAttribute.Results[0].Value as NodeId;
+            var valueRank = (int)nodeDataTypeAttribute.Results[1].Value;
+            var builtInType = GetBuiltInType(nodeDataTypeId!);
+            var systemType = builtInType != BuiltInType.ExtensionObject
+                ? TypeInfo.GetSystemType(builtInType, -1) //always retrieve scalar type instead of array type when valueRank > -1
+                : await complexTypeSystem!.LoadType(nodeDataTypeId);
+
+            return new VariableNodeDataTypeInfo()
+            {
+                BuiltInType = builtInType,
+                SystemDataType = systemType,
+                ValueRank = valueRank
+            };
         }
         #endregion
 
@@ -1102,6 +1127,49 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions
             var dataType = session.NodeCache.Find(dataTypeNodeId);
             var dataTypeDisplayName = dataType?.DisplayName?.Text.ToLower() ?? "Unknown";
             return valueRank >= ValueRanks.OneOrMoreDimensions ? $"{dataTypeDisplayName}[]" : dataTypeDisplayName;
+        }
+        #endregion
+
+        #region [Write]
+        private static ReadValueIdCollection GetDataTypeAndValueRankQuery(NodeId variableNodeId)
+        {
+            return new ReadValueIdCollection
+            {
+                new ReadValueId
+                {
+                    NodeId = variableNodeId,
+                    AttributeId = Attributes.DataType
+                },
+                new ReadValueId
+                {
+                    NodeId = variableNodeId,
+                    AttributeId = Attributes.ValueRank
+                }
+            };
+        }
+
+        private BuiltInType GetSuperTypeAsBuiltInType(NodeId dataTypeId)
+        {
+            var dataTypeNode = session!.NodeCache.Find(dataTypeId);
+            var superTypeNode = (NodeId)(dataTypeNode as Node)?.GetSuperType(session.TypeTree);
+            var builtInType = TypeInfo.GetBuiltInType(superTypeNode);
+
+            if (builtInType == BuiltInType.Null)
+                builtInType = GetSuperTypeAsBuiltInType(superTypeNode);
+
+            return builtInType;
+        }
+
+        private BuiltInType GetBuiltInType(NodeId dataTypeId)
+        {
+            var builtInType = TypeInfo.GetBuiltInType(dataTypeId);
+
+            if (builtInType == BuiltInType.Null)
+            {
+                builtInType = GetSuperTypeAsBuiltInType(dataTypeId);
+            }
+
+            return builtInType;
         }
         #endregion
         #endregion

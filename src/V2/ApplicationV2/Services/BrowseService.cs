@@ -2,7 +2,7 @@
 // Copyright Contributors to the Open Manufacturing Platform.
 
 using Microsoft.Extensions.Logging;
-using OMP.PlantConnectivity.OpcUA.Models.Discovery;
+using OMP.PlantConnectivity.OpcUA.Models.Browse;
 using OMP.PlantConnectivity.OpcUA.Sessions;
 using Opc.Ua;
 

@@ -1,6 +1,7 @@
 ﻿// SPDX-License-Identifier: MIT. 
 // Copyright Contributors to the Open Manufacturing Platform.
 
+using OMP.PlantConnectivity.OpcUA.Models;
 using OMP.PlantConnectivity.OpcUA.Models.Alarms;
 using OMP.PlantConnectivity.OpcUA.Models.Call;
 using OMP.PlantConnectivity.OpcUA.Models.Subscriptions;
@@ -44,6 +45,8 @@ namespace OMP.PlantConnectivity.OpcUA.Sessions
         List<object> ReadNodeValues(List<NodeId> nodeIds, out List<ServiceResult> errors);
 
         string GetNodeFriendlyDataType(NodeId dataTypeNodeId, int valueRank);
+
+        Task<VariableNodeDataTypeInfo> GetVariableNodeDataTypeInfoAsync(NodeId variableNodeId);
         #endregion
 
         #region [Registered Nodes]

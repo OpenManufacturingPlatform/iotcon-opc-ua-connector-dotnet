@@ -4,7 +4,7 @@
 using OMP.PlantConnectivity.OpcUA.Services;
 using Opc.Ua;
 
-namespace OMP.PlantConnectivity.OpcUA.Models.Discovery
+namespace OMP.PlantConnectivity.OpcUA.Models.Browse
 {
     public record BrowseChildNodesCommand
     {
@@ -33,28 +33,6 @@ namespace OMP.PlantConnectivity.OpcUA.Models.Discovery
                 ResultMask = (uint)BrowseResultMask.BrowseName
             };
         }
-    }
-
-    public record BrowseChildNodesResponse : CommandResult<BrowseChildNodesCommand, BrowsedNode>
-    {
-        public BrowseChildNodesResponse(BrowseChildNodesCommand command, BrowsedNode response, bool succeeded)
-            : base(command, response, succeeded) { }
-    }
-
-    public record BrowseChildNodesResponseCollection : CommandResult<string, List<BrowsedNode>>
-    {
-        public BrowseChildNodesResponseCollection(string endPointUrl, List<BrowsedNode> response, bool succeeded)
-            : base(endPointUrl, response, succeeded) { }
-    }
-
-    [Obsolete("Use BrowseChildNodesCommand instead")]
-    public record DiscoveryChildNodesCommand : BrowseChildNodesCommand
-    {
-        public DiscoveryChildNodesCommand(string endpointUrl, BrowseDescription browseDescription, int browseDepth = 1)
-        : base(endpointUrl, browseDescription, browseDepth) { }
-
-        public DiscoveryChildNodesCommand(string endpointUrl, NodeId nodeId, int browseDepth = 1)
-            : base(endpointUrl, nodeId, browseDepth) { }
     }
 
     public class BrowsedNode

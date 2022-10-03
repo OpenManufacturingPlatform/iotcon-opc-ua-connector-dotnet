@@ -3,10 +3,10 @@
 
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
+using OMP.PlantConnectivity.OpcUA.Models;
 using OMP.PlantConnectivity.OpcUA.Models.Alarms;
 using OMP.PlantConnectivity.OpcUA.Models.Browse;
 using OMP.PlantConnectivity.OpcUA.Models.Call;
-using OMP.PlantConnectivity.OpcUA.Models.Discovery;
 using OMP.PlantConnectivity.OpcUA.Models.Reads;
 using OMP.PlantConnectivity.OpcUA.Models.Subscriptions;
 using OMP.PlantConnectivity.OpcUA.Models.Writes;
@@ -299,6 +299,23 @@ namespace OMP.PlantConnectivity.OpcUA
             catch (Exception ex)
             {
                 logger.LogError(ex, "Unable to get {type}: {errorMessage}", nameof(IOmpOpcUaSerializer), ex.Message);
+                return ex.Demystify();
+            }
+        }
+        #endregion
+
+        #region [Misc]
+        public async Task<OneOf<VariableNodeDataTypeInfo, Exception>> GetVariableNodeDataTypeInfoAsync(string endpointUrl, Opc.Ua.NodeId nodeId, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var opcUaSession = await GetSessionAsync(endpointUrl, cancellationToken);
+                var toReturn = await opcUaSession.GetVariableNodeDataTypeInfoAsync(nodeId);
+                return OneOf<VariableNodeDataTypeInfo, Exception>.FromT0(toReturn);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "An error occurred during the {GetVariableNodeDataTypeInfoAsync} command: {errorMessage}", nameof(GetVariableNodeDataTypeInfoAsync), ex.Message);
                 return ex.Demystify();
             }
         }

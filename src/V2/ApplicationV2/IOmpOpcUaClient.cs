@@ -1,15 +1,16 @@
 ﻿// SPDX-License-Identifier: MIT. 
 // Copyright Contributors to the Open Manufacturing Platform.
 
+using OMP.PlantConnectivity.OpcUA.Models;
 using OMP.PlantConnectivity.OpcUA.Models.Alarms;
 using OMP.PlantConnectivity.OpcUA.Models.Browse;
 using OMP.PlantConnectivity.OpcUA.Models.Call;
-using OMP.PlantConnectivity.OpcUA.Models.Discovery;
 using OMP.PlantConnectivity.OpcUA.Models.Reads;
 using OMP.PlantConnectivity.OpcUA.Models.Subscriptions;
 using OMP.PlantConnectivity.OpcUA.Models.Writes;
 using OMP.PlantConnectivity.OpcUA.Serialization;
 using OneOf;
+using Opc.Ua;
 using CreateSubscriptionResponse = OMP.PlantConnectivity.OpcUA.Models.Subscriptions.CreateSubscriptionResponse;
 
 namespace OMP.PlantConnectivity.OpcUA
@@ -104,6 +105,10 @@ namespace OMP.PlantConnectivity.OpcUA
 
         #region [Serializer]
         Task<OneOf<IOmpOpcUaSerializer, Exception>> GetOmpOpcUaSerializer(string endpointUrl, CancellationToken cancellationToken, bool useReversibleEncoding = true, bool useGenericEncoderOnError = true);
+        #endregion
+
+        #region [Misc]
+        Task<OneOf<VariableNodeDataTypeInfo, Exception>> GetVariableNodeDataTypeInfoAsync(string endpointUrl, NodeId nodeId, CancellationToken cancellationToken);
         #endregion
     }
 }
