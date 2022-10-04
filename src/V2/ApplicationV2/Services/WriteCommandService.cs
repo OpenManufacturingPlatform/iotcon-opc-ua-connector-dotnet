@@ -11,14 +11,14 @@ namespace OMP.PlantConnectivity.OpcUa.Services
 {
     internal sealed class WriteCommandService : IWriteCommandService
     {
-        public Task<WriteResponseCollection> WriteAsync(IOpcUaSession opcSession, WriteCommandCollection commands, CancellationToken cancellationToken)
+        public Task<WriteResponseCollection> WriteAsync(IOpcUaSession opcUaSession, WriteCommandCollection commands, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var commandsWithRegisteredNodeIds = GetCommandsWithRegisterdNodeIds(opcSession, commands);
+            var commandsWithRegisteredNodeIds = GetCommandsWithRegisterdNodeIds(opcUaSession, commands);
 
             var writeValueCollection = new WriteValueCollection(commandsWithRegisteredNodeIds);
-            var responseHeader = opcSession.WriteNodes(writeValueCollection, out var statusCodeCollection);
+            var responseHeader = opcUaSession.WriteNodes(writeValueCollection, out var statusCodeCollection);
 
             //TODO: Retrun errors where WritValue was NULL
             //  - Wat gaan die OpcUaSession doen as ons 'n NULL WriteValue in stuur?? Ek dink ons hoef niks hier te doen nie
@@ -35,7 +35,7 @@ namespace OMP.PlantConnectivity.OpcUa.Services
             return Task.FromResult(writeResults);
         }
 
-        private static IEnumerable<WriteValue> GetCommandsWithRegisterdNodeIds(IOpcUaSession opcSession, WriteCommandCollection commands)
+        private static IEnumerable<WriteValue> GetCommandsWithRegisterdNodeIds(IOpcUaSession opcUaSession, WriteCommandCollection commands)
         {
             var results = commands.ToList();
 
@@ -45,7 +45,7 @@ namespace OMP.PlantConnectivity.OpcUa.Services
 
             if (registerdWriteNodes.Any())
             {
-                var registeredNodeIds = opcSession.GetRegisteredNodeIds(registerdWriteNodes.Select(c => c.Value!.NodeId.ToString()));
+                var registeredNodeIds = opcUaSession.GetRegisteredNodeIds(registerdWriteNodes.Select(c => c.Value!.NodeId.ToString()));
 
                 foreach (var rn in registerdWriteNodes)
                 {

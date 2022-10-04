@@ -50,19 +50,19 @@ namespace OMP.PlantConnectivity.OpcUa.Services
             return Task.FromResult(response);
         }
 
-        public Task<ReadValueResponseCollection> ReadValuesAsync(IOpcUaSession opcSession, ReadValueCommandCollection commands, CancellationToken cancellationToken)
+        public Task<ReadValueResponseCollection> ReadValuesAsync(IOpcUaSession opcUaSession, ReadValueCommandCollection commands, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
             var response = new ReadValueResponseCollection();
             
-            var commandsWithRegisteredNodeIds = GetCommandsWithRegisterdNodeIds(opcSession, commands);
+            var commandsWithRegisteredNodeIds = GetCommandsWithRegisterdNodeIds(opcUaSession, commands);
             var nodeIds = commands.Select(x => x.NodeId).ToList();
 
             var values = new List<object>();
             var errors = new List<ServiceResult>();
 
-            var batchHandler = new BatchHandler<NodeId>(opcUaConfiguration.ReadBatchSize, ReadValuesInBatch(opcSession, values, errors));
+            var batchHandler = new BatchHandler<NodeId>(opcUaConfiguration.ReadBatchSize, ReadValuesInBatch(opcUaSession, values, errors));
             batchHandler.RunBatches(nodeIds.ToList());
             logger.LogTrace("Executed a total of {nrOfNodes} read commands. Batch size = {batchSize}", nodeIds.Count, opcUaConfiguration.ReadBatchSize);
 
@@ -75,7 +75,7 @@ namespace OMP.PlantConnectivity.OpcUa.Services
             return Task.FromResult(response);
         }
 
-        private static IEnumerable<ReadValueCommand> GetCommandsWithRegisterdNodeIds(IOpcUaSession opcSession, ReadValueCommandCollection commands)
+        private static IEnumerable<ReadValueCommand> GetCommandsWithRegisterdNodeIds(IOpcUaSession opcUaSession, ReadValueCommandCollection commands)
         {
             var results = commands.ToList();
 
@@ -85,7 +85,7 @@ namespace OMP.PlantConnectivity.OpcUa.Services
 
             if (registerdReadNodes.Any())
             {
-                var registeredNodeIds = opcSession.GetRegisteredNodeIds(registerdReadNodes.Select(c => c.NodeId.ToString()));
+                var registeredNodeIds = opcUaSession.GetRegisteredNodeIds(registerdReadNodes.Select(c => c.NodeId.ToString()));
 
                 foreach (var rn in registerdReadNodes)
                 {
