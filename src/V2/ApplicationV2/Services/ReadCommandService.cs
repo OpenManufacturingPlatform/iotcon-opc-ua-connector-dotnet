@@ -4,14 +4,14 @@
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using OMP.PlantConnectivity.OpcUA.Configuration;
-using OMP.PlantConnectivity.OpcUA.Models;
-using OMP.PlantConnectivity.OpcUA.Models.Reads;
-using OMP.PlantConnectivity.OpcUA.Sessions;
+using OMP.PlantConnectivity.OpcUa.Configuration;
+using OMP.PlantConnectivity.OpcUa.Models;
+using OMP.PlantConnectivity.OpcUa.Models.Reads;
+using OMP.PlantConnectivity.OpcUa.Sessions;
 using Opc.Ua;
-using ReadValueResponse = OMP.PlantConnectivity.OpcUA.Models.Reads.ReadValueResponse;
+using ReadValueResponse = OMP.PlantConnectivity.OpcUa.Models.Reads.ReadValueResponse;
 
-namespace OMP.PlantConnectivity.OpcUA.Services
+namespace OMP.PlantConnectivity.OpcUa.Services
 {
     internal sealed class ReadCommandService : IReadCommandService
     {

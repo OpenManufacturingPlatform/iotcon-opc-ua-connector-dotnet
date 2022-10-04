@@ -2,18 +2,18 @@
 // Copyright Contributors to the Open Manufacturing Platform.
 
 using System.Diagnostics;
-using OMP.PlantConnectivity.OpcUA.Configuration;
-using OMP.PlantConnectivity.OpcUA.Models.Subscriptions;
-using OMP.PlantConnectivity.OpcUA.Repositories;
-using OMP.PlantConnectivity.OpcUA.Sessions;
+using OMP.PlantConnectivity.OpcUa.Configuration;
+using OMP.PlantConnectivity.OpcUa.Models.Subscriptions;
+using OMP.PlantConnectivity.OpcUa.Repositories;
+using OMP.PlantConnectivity.OpcUa.Sessions;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Opc.Ua;
 using Opc.Ua.Client;
-using CreateSubscriptionResponse = OMP.PlantConnectivity.OpcUA.Models.Subscriptions.CreateSubscriptionResponse;
+using CreateSubscriptionResponse = OMP.PlantConnectivity.OpcUa.Models.Subscriptions.CreateSubscriptionResponse;
 
-namespace OMP.PlantConnectivity.OpcUA.Services.Subscriptions
+namespace OMP.PlantConnectivity.OpcUa.Services.Subscriptions
 {
     internal class SubscriptionCommandService : ISubscriptionCommandService
     {

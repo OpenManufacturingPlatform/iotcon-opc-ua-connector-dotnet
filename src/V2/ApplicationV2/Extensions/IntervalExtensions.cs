@@ -1,7 +1,7 @@
 ﻿// SPDX-License-Identifier: MIT. 
 // Copyright Contributors to the Open Manufacturing Platform.
 
-namespace OMP.PlantConnectivity.OpcUA.Extensions
+namespace OMP.PlantConnectivity.OpcUa.Extensions
 {
     internal static class IntervalExtensions
     {

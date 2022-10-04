@@ -3,7 +3,7 @@
 
 using Opc.Ua.Client;
 
-namespace OMP.PlantConnectivity.OpcUA.Extensions
+namespace OMP.PlantConnectivity.OpcUa.Extensions
 {
     internal static class SessionExtensions
     {

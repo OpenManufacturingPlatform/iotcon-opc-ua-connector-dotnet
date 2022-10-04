@@ -5,10 +5,10 @@ using System.Diagnostics;
 using System.Xml;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using OMP.PlantConnectivity.OpcUA.Sessions;
+using OMP.PlantConnectivity.OpcUa.Sessions;
 using Opc.Ua;
 
-namespace OMP.PlantConnectivity.OpcUA.Serialization
+namespace OMP.PlantConnectivity.OpcUa.Serialization
 {
     public class OpcUaNewtonsoftSerializer : IOmpOpcUaSerializer
     {

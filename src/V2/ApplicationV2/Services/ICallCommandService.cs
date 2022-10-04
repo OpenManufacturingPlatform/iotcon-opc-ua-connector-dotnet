@@ -1,10 +1,10 @@
 ﻿// SPDX-License-Identifier: MIT. 
 // Copyright Contributors to the Open Manufacturing Platform.
 
-using OMP.PlantConnectivity.OpcUA.Models.Call;
-using OMP.PlantConnectivity.OpcUA.Sessions;
+using OMP.PlantConnectivity.OpcUa.Models.Call;
+using OMP.PlantConnectivity.OpcUa.Sessions;
 
-namespace OMP.PlantConnectivity.OpcUA.Services
+namespace OMP.PlantConnectivity.OpcUa.Services
 {
     public interface ICallCommandService
     {

@@ -3,7 +3,7 @@
 
 using Opc.Ua;
 
-namespace OMP.PlantConnectivity.OpcUA.Models.Subscriptions
+namespace OMP.PlantConnectivity.OpcUa.Models.Subscriptions
 {
     public record MonitoredItemResult(SubscriptionMonitoredItem MonitoredItem, StatusCode StatusCode, string Message);
 }

@@ -1,12 +1,12 @@
 ﻿// SPDX-License-Identifier: MIT. 
 // Copyright Contributors to the Open Manufacturing Platform.
 
-using OMP.PlantConnectivity.OpcUA.Configuration;
+using OMP.PlantConnectivity.OpcUa.Configuration;
 using Microsoft.Extensions.Options;
-using OMP.PlantConnectivity.OpcUA.Configuration;
+using OMP.PlantConnectivity.OpcUa.Configuration;
 using Opc.Ua;
 
-namespace OMP.PlantConnectivity.OpcUA.Sessions.Auth
+namespace OMP.PlantConnectivity.OpcUa.Sessions.Auth
 {
     internal class UserIdentityProvider : IUserIdentityProvider
     {

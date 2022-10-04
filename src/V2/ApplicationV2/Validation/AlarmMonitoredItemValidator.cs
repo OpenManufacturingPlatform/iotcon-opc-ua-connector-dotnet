@@ -2,7 +2,7 @@
 // Copyright Contributors to the Open Manufacturing Platform.
 
 using FluentValidation;
-using OMP.PlantConnectivity.OpcUA.Models.Alarms;
+using OMP.PlantConnectivity.OpcUa.Models.Alarms;
 
 namespace OMP.Connector.Application.Validators
 {

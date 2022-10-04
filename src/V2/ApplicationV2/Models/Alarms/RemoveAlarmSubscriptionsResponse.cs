@@ -3,7 +3,7 @@
 
 using Opc.Ua;
 
-namespace OMP.PlantConnectivity.OpcUA.Models.Alarms
+namespace OMP.PlantConnectivity.OpcUa.Models.Alarms
 {
     public record RemoveAlarmSubscriptionsResponse : CommandResultBase
     {

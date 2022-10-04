@@ -1,9 +1,9 @@
 ﻿// SPDX-License-Identifier: MIT. 
 // Copyright Contributors to the Open Manufacturing Platform.
 
-using OMP.PlantConnectivity.OpcUA.Models.Subscriptions;
+using OMP.PlantConnectivity.OpcUa.Models.Subscriptions;
 
-namespace OMP.PlantConnectivity.OpcUA.Repositories
+namespace OMP.PlantConnectivity.OpcUa.Repositories
 {
     public interface ISubscriptionRepository
     {

@@ -4,7 +4,7 @@
 using Microsoft.Extensions.Logging;
 using Opc.Ua.Client;
 
-namespace OMP.PlantConnectivity.OpcUA.Services.Subscriptions
+namespace OMP.PlantConnectivity.OpcUa.Services.Subscriptions
 {
     public class LoggingMonitoredItemMessageProcessor : IMonitoredItemMessageProcessor //This is the default OMP implimentations
     {

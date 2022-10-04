@@ -1,14 +1,14 @@
 ﻿// SPDX-License-Identifier: MIT. 
 // Copyright Contributors to the Open Manufacturing Platform.
 
-using OMP.PlantConnectivity.OpcUA;
+using OMP.PlantConnectivity.OpcUa;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using OMP.PlantConnectivity.OpcUA.Models.Call;
-using OMP.PlantConnectivity.OpcUA.Models.Discovery;
-using OMP.PlantConnectivity.OpcUA.Models.Reads;
-using OMP.PlantConnectivity.OpcUA.Models.Subscriptions;
-using OMP.PlantConnectivity.OpcUA.Models.Writes;
+using OMP.PlantConnectivity.OpcUa.Models.Call;
+using OMP.PlantConnectivity.OpcUa.Models.Browse;
+using OMP.PlantConnectivity.OpcUa.Models.Reads;
+using OMP.PlantConnectivity.OpcUa.Models.Subscriptions;
+using OMP.PlantConnectivity.OpcUa.Models.Writes;
 using Opc.Ua;
 
 namespace TestApplicationV2
@@ -39,7 +39,7 @@ namespace TestApplicationV2
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            await BrowseServerNodesTest(stoppingToken);
+            await BrowseNodesTest(stoppingToken);
             await BrowseChildNodesTest(stoppingToken);
             //await RemoveAllSubscribeToNodes(stoppingToken);
             //await CallNodesWithoutArguments(stoppingToken);
@@ -54,7 +54,7 @@ namespace TestApplicationV2
             //await RunWriteTest(stoppingToken);
         }
 
-        private async Task BrowseNodesTest(CancellationToken stoppingToken)
+        private async Task ReadNodesTest(CancellationToken stoppingToken)
         {
             var commandCollection = new ReadNodeCommandCollection(EndPointUrl)
             {
@@ -74,25 +74,27 @@ namespace TestApplicationV2
                 });
         }
 
-        private async Task BrowseServerNodesTest(CancellationToken stoppingToken)
+        // Browse nodes starting from the Objects folder - used for node discovery without having to specify a parent node
+        private async Task BrowseNodesTest(CancellationToken stoppingToken)
         {
-            var results = await ompOpcUaClient.BrowseNodesAsync(EndPointUrl, 2, stoppingToken);
+            var results = await ompOpcUaClient.BrowseNodesAsync(EndPointUrl, 1, stoppingToken);
             results.Switch(
                 result =>
                 {
-                    logger.LogInformation("ReadNodes Succeeded: {succeeded} | {node}", result.Succeeded, result.Response);
+                    logger.LogInformation("BrowseNodes Succeeded: {succeeded} | {node}", result.Succeeded, result.Response);
                 },
                 exception =>
                 {
-                    logger.LogCritical("ReadNodes failed");
+                    logger.LogCritical("BrowseNodes failed");
                 });
         }
 
+        // Browse child nodes of specified parent node
         private async Task BrowseChildNodesTest(CancellationToken stoppingToken)
         {
             var brwoseDescription = new BrowseDescription
             {
-                NodeId = "ns=5;i=1",
+                NodeId = "ns=4;i=1240", //Server -> Boilers
                 BrowseDirection = BrowseDirection.Forward,
                 ReferenceTypeId = ReferenceTypeIds.HierarchicalReferences,
                 IncludeSubtypes = true,
@@ -105,11 +107,11 @@ namespace TestApplicationV2
             results.Switch(
                 result =>
                 {
-                    logger.LogInformation("ReadNodes Succeeded: {succeeded} | {node}", result.Succeeded, result.Response);
+                    logger.LogInformation("BrowseChildNodes Succeeded: {succeeded} | {node}", result.Succeeded, result.Response);
                 },
                 exception =>
                 {
-                    logger.LogCritical("ReadNodes failed");
+                    logger.LogCritical("BrowseChildNodes failed");
                 });
         }
 
@@ -163,7 +165,7 @@ namespace TestApplicationV2
                     AttributeId = Attributes.Value,
                     Value = new DataValue
                     {
-                        Value = $"This is comming from the new OpcUA Code {DateTime.Now}"
+                        Value = $"This is comming from the new OpcUa Code {DateTime.Now}"
                     }
                 },
                 DoRegisteredWrite: false)

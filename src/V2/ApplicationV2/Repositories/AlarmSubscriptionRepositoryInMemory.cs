@@ -2,11 +2,11 @@
 // Copyright Contributors to the Open Manufacturing Platform.
 
 using Microsoft.Extensions.Options;
-using OMP.PlantConnectivity.OpcUA.Configuration;
+using OMP.PlantConnectivity.OpcUa.Configuration;
 using System.Collections.Concurrent;
-using OMP.PlantConnectivity.OpcUA.Models.Alarms;
+using OMP.PlantConnectivity.OpcUa.Models.Alarms;
 
-namespace OMP.PlantConnectivity.OpcUA.Repositories
+namespace OMP.PlantConnectivity.OpcUa.Repositories
 {
     internal sealed class AlarmSubscriptionRepositoryInMemory : IAlarmSubscriptionRepository
     {

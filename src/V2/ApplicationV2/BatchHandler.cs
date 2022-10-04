@@ -3,7 +3,7 @@
 
 using System.Threading.Tasks.Dataflow;
 
-namespace OMP.PlantConnectivity.OpcUA
+namespace OMP.PlantConnectivity.OpcUa
 {
     public sealed class BatchHandler<T>
     {

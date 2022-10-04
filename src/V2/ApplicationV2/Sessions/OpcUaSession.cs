@@ -3,27 +3,27 @@
 
 using System.Collections;
 using System.Diagnostics;
-using OMP.PlantConnectivity.OpcUA.Configuration;
-using OMP.PlantConnectivity.OpcUA.Extensions;
-using OMP.PlantConnectivity.OpcUA.Models.Call;
-using OMP.PlantConnectivity.OpcUA.Models.Subscriptions;
-using OMP.PlantConnectivity.OpcUA.Sessions.Auth;
-using OMP.PlantConnectivity.OpcUA.Sessions.Reconnect;
-using OMP.PlantConnectivity.OpcUA.Sessions.RegisteredNodes;
-using OMP.PlantConnectivity.OpcUA.Sessions.Types;
-using OMP.PlantConnectivity.OpcUA.Validation;
+using OMP.PlantConnectivity.OpcUa.Configuration;
+using OMP.PlantConnectivity.OpcUa.Extensions;
+using OMP.PlantConnectivity.OpcUa.Models.Call;
+using OMP.PlantConnectivity.OpcUa.Models.Subscriptions;
+using OMP.PlantConnectivity.OpcUa.Sessions.Auth;
+using OMP.PlantConnectivity.OpcUa.Sessions.Reconnect;
+using OMP.PlantConnectivity.OpcUa.Sessions.RegisteredNodes;
+using OMP.PlantConnectivity.OpcUa.Sessions.Types;
+using OMP.PlantConnectivity.OpcUa.Validation;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Opc.Ua;
 using Opc.Ua.Client;
 using EndpointConfiguration = Opc.Ua.EndpointConfiguration;
 using TypeInfo = Opc.Ua.TypeInfo;
-using OMP.PlantConnectivity.OpcUA.Models.Alarms;
-using OMP.PlantConnectivity.OpcUA.Services.Alarms;
-using OMP.PlantConnectivity.OpcUA.Services.Subscriptions;
-using OMP.PlantConnectivity.OpcUA.Models;
+using OMP.PlantConnectivity.OpcUa.Models.Alarms;
+using OMP.PlantConnectivity.OpcUa.Services.Alarms;
+using OMP.PlantConnectivity.OpcUa.Services.Subscriptions;
+using OMP.PlantConnectivity.OpcUa.Models;
 
-namespace OMP.PlantConnectivity.OpcUA.Sessions
+namespace OMP.PlantConnectivity.OpcUa.Sessions
 {
     internal class OpcUaSession : IOpcUaSession
     {

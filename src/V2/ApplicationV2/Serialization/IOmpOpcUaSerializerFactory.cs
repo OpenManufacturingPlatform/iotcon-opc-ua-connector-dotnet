@@ -1,9 +1,9 @@
 ﻿// SPDX-License-Identifier: MIT. 
 // Copyright Contributors to the Open Manufacturing Platform.
 
-using OMP.PlantConnectivity.OpcUA.Sessions;
+using OMP.PlantConnectivity.OpcUa.Sessions;
 
-namespace OMP.PlantConnectivity.OpcUA.Serialization
+namespace OMP.PlantConnectivity.OpcUa.Serialization
 {
     public interface IOmpOpcUaSerializerFactory
     {

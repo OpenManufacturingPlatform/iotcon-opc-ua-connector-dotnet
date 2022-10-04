@@ -2,10 +2,10 @@
 // Copyright Contributors to the Open Manufacturing Platform.
 
 using Microsoft.Extensions.Logging;
-using OMP.PlantConnectivity.OpcUA.Services.Alarms;
+using OMP.PlantConnectivity.OpcUa.Services.Alarms;
 using Opc.Ua.Client;
 
-namespace OMP.PlantConnectivity.OpcUA.Services
+namespace OMP.PlantConnectivity.OpcUa.Services
 {
     public class LoggingAlarmMonitoredItemMessageProcessor : IAlarmMonitoredItemMessageProcessor //This is the default OMP implimentations
     {

@@ -3,7 +3,7 @@
 
 using Opc.Ua;
 
-namespace OMP.PlantConnectivity.OpcUA.Sessions.RegisteredNodes
+namespace OMP.PlantConnectivity.OpcUa.Sessions.RegisteredNodes
 {
     public interface IRegisteredNodeStateManager : IDisposable
     {

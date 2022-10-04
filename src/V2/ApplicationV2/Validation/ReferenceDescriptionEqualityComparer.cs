@@ -3,7 +3,7 @@
 
 using Opc.Ua;
 
-namespace OMP.PlantConnectivity.OpcUA.Validation
+namespace OMP.PlantConnectivity.OpcUa.Validation
 {
     internal sealed class ReferenceDescriptionEqualityComparer : IEqualityComparer<ReferenceDescription>
     {

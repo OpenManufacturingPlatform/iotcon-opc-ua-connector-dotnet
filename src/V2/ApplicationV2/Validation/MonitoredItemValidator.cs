@@ -1,10 +1,10 @@
 ﻿// SPDX-License-Identifier: MIT. 
 // Copyright Contributors to the Open Manufacturing Platform.
 
-using OMP.PlantConnectivity.OpcUA.Models.Subscriptions;
+using OMP.PlantConnectivity.OpcUa.Models.Subscriptions;
 using FluentValidation;
 
-namespace OMP.PlantConnectivity.OpcUA.Validation
+namespace OMP.PlantConnectivity.OpcUa.Validation
 {
     public class MonitoredItemValidator : AbstractValidator<SubscriptionMonitoredItem>
     {

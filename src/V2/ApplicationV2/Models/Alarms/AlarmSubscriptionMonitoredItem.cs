@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 using System.ComponentModel;
 using Opc.Ua;
 
-namespace OMP.PlantConnectivity.OpcUA.Models.Alarms
+namespace OMP.PlantConnectivity.OpcUa.Models.Alarms
 {
     public record AlarmSubscriptionMonitoredItem
     {

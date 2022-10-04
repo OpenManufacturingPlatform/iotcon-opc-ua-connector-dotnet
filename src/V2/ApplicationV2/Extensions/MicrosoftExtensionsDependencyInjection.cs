@@ -4,21 +4,21 @@
 using FluentValidation;
 using Microsoft.Extensions.Configuration;
 using OMP.Connector.Application.Validators;
-using OMP.PlantConnectivity.OpcUA;
-using OMP.PlantConnectivity.OpcUA.Configuration;
-using OMP.PlantConnectivity.OpcUA.Models.Alarms;
-using OMP.PlantConnectivity.OpcUA.Models.Subscriptions;
-using OMP.PlantConnectivity.OpcUA.Repositories;
-using OMP.PlantConnectivity.OpcUA.Serialization;
-using OMP.PlantConnectivity.OpcUA.Services;
-using OMP.PlantConnectivity.OpcUA.Services.Alarms;
-using OMP.PlantConnectivity.OpcUA.Services.Subscriptions;
-using OMP.PlantConnectivity.OpcUA.Sessions.Auth;
-using OMP.PlantConnectivity.OpcUA.Sessions.Reconnect;
-using OMP.PlantConnectivity.OpcUA.Sessions.RegisteredNodes;
-using OMP.PlantConnectivity.OpcUA.Sessions.SessionManagement;
-using OMP.PlantConnectivity.OpcUA.Sessions.Types;
-using OMP.PlantConnectivity.OpcUA.Validation;
+using OMP.PlantConnectivity.OpcUa;
+using OMP.PlantConnectivity.OpcUa.Configuration;
+using OMP.PlantConnectivity.OpcUa.Models.Alarms;
+using OMP.PlantConnectivity.OpcUa.Models.Subscriptions;
+using OMP.PlantConnectivity.OpcUa.Repositories;
+using OMP.PlantConnectivity.OpcUa.Serialization;
+using OMP.PlantConnectivity.OpcUa.Services;
+using OMP.PlantConnectivity.OpcUa.Services.Alarms;
+using OMP.PlantConnectivity.OpcUa.Services.Subscriptions;
+using OMP.PlantConnectivity.OpcUa.Sessions.Auth;
+using OMP.PlantConnectivity.OpcUa.Sessions.Reconnect;
+using OMP.PlantConnectivity.OpcUa.Sessions.RegisteredNodes;
+using OMP.PlantConnectivity.OpcUa.Sessions.SessionManagement;
+using OMP.PlantConnectivity.OpcUa.Sessions.Types;
+using OMP.PlantConnectivity.OpcUa.Validation;
 
 namespace Microsoft.Extensions.DependencyInjection
 {

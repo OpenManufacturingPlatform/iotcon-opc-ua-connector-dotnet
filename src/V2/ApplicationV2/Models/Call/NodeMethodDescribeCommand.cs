@@ -3,7 +3,7 @@
 
 using Opc.Ua;
 
-namespace OMP.PlantConnectivity.OpcUA.Models.Call
+namespace OMP.PlantConnectivity.OpcUa.Models.Call
 {
     public record NodeMethodDescribeCommand
     {

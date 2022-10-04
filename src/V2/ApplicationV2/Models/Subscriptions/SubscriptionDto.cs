@@ -3,7 +3,7 @@
 
 using Opc.Ua;
 
-namespace OMP.PlantConnectivity.OpcUA.Models.Subscriptions
+namespace OMP.PlantConnectivity.OpcUa.Models.Subscriptions
 {
     public record SubscriptionDto //TODO: Object PostFixed with Dto while others are not - Decide on a standard & implements
     {

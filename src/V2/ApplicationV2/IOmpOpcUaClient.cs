@@ -1,19 +1,19 @@
 ﻿// SPDX-License-Identifier: MIT. 
 // Copyright Contributors to the Open Manufacturing Platform.
 
-using OMP.PlantConnectivity.OpcUA.Models;
-using OMP.PlantConnectivity.OpcUA.Models.Alarms;
-using OMP.PlantConnectivity.OpcUA.Models.Browse;
-using OMP.PlantConnectivity.OpcUA.Models.Call;
-using OMP.PlantConnectivity.OpcUA.Models.Reads;
-using OMP.PlantConnectivity.OpcUA.Models.Subscriptions;
-using OMP.PlantConnectivity.OpcUA.Models.Writes;
-using OMP.PlantConnectivity.OpcUA.Serialization;
+using OMP.PlantConnectivity.OpcUa.Models;
+using OMP.PlantConnectivity.OpcUa.Models.Alarms;
+using OMP.PlantConnectivity.OpcUa.Models.Browse;
+using OMP.PlantConnectivity.OpcUa.Models.Call;
+using OMP.PlantConnectivity.OpcUa.Models.Reads;
+using OMP.PlantConnectivity.OpcUa.Models.Subscriptions;
+using OMP.PlantConnectivity.OpcUa.Models.Writes;
+using OMP.PlantConnectivity.OpcUa.Serialization;
 using OneOf;
 using Opc.Ua;
-using CreateSubscriptionResponse = OMP.PlantConnectivity.OpcUA.Models.Subscriptions.CreateSubscriptionResponse;
+using CreateSubscriptionResponse = OMP.PlantConnectivity.OpcUa.Models.Subscriptions.CreateSubscriptionResponse;
 
-namespace OMP.PlantConnectivity.OpcUA
+namespace OMP.PlantConnectivity.OpcUa
 {
     public interface IOmpOpcUaClient
     {

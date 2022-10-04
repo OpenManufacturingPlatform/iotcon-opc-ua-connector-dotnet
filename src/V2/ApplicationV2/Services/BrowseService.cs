@@ -2,11 +2,11 @@
 // Copyright Contributors to the Open Manufacturing Platform.
 
 using Microsoft.Extensions.Logging;
-using OMP.PlantConnectivity.OpcUA.Models.Browse;
-using OMP.PlantConnectivity.OpcUA.Sessions;
+using OMP.PlantConnectivity.OpcUa.Models.Browse;
+using OMP.PlantConnectivity.OpcUa.Sessions;
 using Opc.Ua;
 
-namespace OMP.PlantConnectivity.OpcUA.Services
+namespace OMP.PlantConnectivity.OpcUa.Services
 {
     internal sealed class BrowseService : IBrowseService
     {

@@ -1,7 +1,7 @@
 ﻿// SPDX-License-Identifier: MIT. 
 // Copyright Contributors to the Open Manufacturing Platform.
 
-namespace OMP.PlantConnectivity.OpcUA.Models.Browse
+namespace OMP.PlantConnectivity.OpcUa.Models.Browse
 {
     public record BrowseChildNodesFromRootCommand
     {

@@ -3,7 +3,7 @@
 
 using Opc.Ua;
 
-namespace OMP.PlantConnectivity.OpcUA.Models
+namespace OMP.PlantConnectivity.OpcUa.Models
 {
     public sealed record VariableNodeDataTypeInfo
     {

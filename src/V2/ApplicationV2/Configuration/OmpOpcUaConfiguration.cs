@@ -3,7 +3,7 @@
 
 using Opc.Ua;
 
-namespace OMP.PlantConnectivity.OpcUA.Configuration
+namespace OMP.PlantConnectivity.OpcUa.Configuration
 {
     public record OmpOpcUaConfiguration
     {

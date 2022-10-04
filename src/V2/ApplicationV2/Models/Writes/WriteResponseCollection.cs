@@ -3,7 +3,7 @@
 
 using Opc.Ua;
 
-namespace OMP.PlantConnectivity.OpcUA.Models.Writes
+namespace OMP.PlantConnectivity.OpcUa.Models.Writes
 {
     public class WriteResponseCollection : List<CommandResult<WriteCommand, StatusCode>> { }
 }

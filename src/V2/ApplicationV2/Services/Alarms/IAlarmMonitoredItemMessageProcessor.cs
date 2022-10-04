@@ -3,7 +3,7 @@
 
 using Opc.Ua.Client;
 
-namespace OMP.PlantConnectivity.OpcUA.Services.Alarms
+namespace OMP.PlantConnectivity.OpcUa.Services.Alarms
 {
     public interface IAlarmMonitoredItemMessageProcessor
     {

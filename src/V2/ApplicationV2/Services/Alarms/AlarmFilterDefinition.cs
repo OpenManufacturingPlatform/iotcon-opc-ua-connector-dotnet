@@ -30,7 +30,7 @@
 using Opc.Ua;
 using Opc.Ua.Client;
 
-namespace OMP.PlantConnectivity.OpcUA.Services.Alarms
+namespace OMP.PlantConnectivity.OpcUa.Services.Alarms
 {
     internal sealed class AlarmFilterDefinition
     {

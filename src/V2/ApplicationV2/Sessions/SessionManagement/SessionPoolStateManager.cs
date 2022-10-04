@@ -4,17 +4,17 @@
 using System.Collections.Concurrent;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using OMP.PlantConnectivity.OpcUA.Configuration;
-using OMP.PlantConnectivity.OpcUA.Extensions;
-using OMP.PlantConnectivity.OpcUA.Services.Alarms;
-using OMP.PlantConnectivity.OpcUA.Services.Subscriptions;
-using OMP.PlantConnectivity.OpcUA.Sessions.Auth;
-using OMP.PlantConnectivity.OpcUA.Sessions.Reconnect;
-using OMP.PlantConnectivity.OpcUA.Sessions.RegisteredNodes;
-using OMP.PlantConnectivity.OpcUA.Sessions.Types;
+using OMP.PlantConnectivity.OpcUa.Configuration;
+using OMP.PlantConnectivity.OpcUa.Extensions;
+using OMP.PlantConnectivity.OpcUa.Services.Alarms;
+using OMP.PlantConnectivity.OpcUa.Services.Subscriptions;
+using OMP.PlantConnectivity.OpcUa.Sessions.Auth;
+using OMP.PlantConnectivity.OpcUa.Sessions.Reconnect;
+using OMP.PlantConnectivity.OpcUa.Sessions.RegisteredNodes;
+using OMP.PlantConnectivity.OpcUa.Sessions.Types;
 using Opc.Ua;
 
-namespace OMP.PlantConnectivity.OpcUA.Sessions.SessionManagement
+namespace OMP.PlantConnectivity.OpcUa.Sessions.SessionManagement
 {
     internal sealed class SessionPoolStateManager : ISessionPoolStateManager
     {

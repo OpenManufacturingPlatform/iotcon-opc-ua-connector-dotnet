@@ -2,12 +2,12 @@
 // Copyright Contributors to the Open Manufacturing Platform.
 
 using System.Linq;
-using OMP.PlantConnectivity.OpcUA.Models;
-using OMP.PlantConnectivity.OpcUA.Models.Writes;
-using OMP.PlantConnectivity.OpcUA.Sessions;
+using OMP.PlantConnectivity.OpcUa.Models;
+using OMP.PlantConnectivity.OpcUa.Models.Writes;
+using OMP.PlantConnectivity.OpcUa.Sessions;
 using Opc.Ua;
 
-namespace OMP.PlantConnectivity.OpcUA.Services
+namespace OMP.PlantConnectivity.OpcUa.Services
 {
     internal sealed class WriteCommandService : IWriteCommandService
     {

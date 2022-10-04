@@ -3,7 +3,7 @@
 
 using Opc.Ua;
 
-namespace OMP.PlantConnectivity.OpcUA.Sessions.Types
+namespace OMP.PlantConnectivity.OpcUa.Sessions.Types
 {
     public interface IComplexTypeSystem
     {

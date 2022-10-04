@@ -3,23 +3,23 @@
 
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
-using OMP.PlantConnectivity.OpcUA.Models;
-using OMP.PlantConnectivity.OpcUA.Models.Alarms;
-using OMP.PlantConnectivity.OpcUA.Models.Browse;
-using OMP.PlantConnectivity.OpcUA.Models.Call;
-using OMP.PlantConnectivity.OpcUA.Models.Reads;
-using OMP.PlantConnectivity.OpcUA.Models.Subscriptions;
-using OMP.PlantConnectivity.OpcUA.Models.Writes;
-using OMP.PlantConnectivity.OpcUA.Serialization;
-using OMP.PlantConnectivity.OpcUA.Services;
-using OMP.PlantConnectivity.OpcUA.Services.Alarms;
-using OMP.PlantConnectivity.OpcUA.Services.Subscriptions;
-using OMP.PlantConnectivity.OpcUA.Sessions;
-using OMP.PlantConnectivity.OpcUA.Sessions.SessionManagement;
+using OMP.PlantConnectivity.OpcUa.Models;
+using OMP.PlantConnectivity.OpcUa.Models.Alarms;
+using OMP.PlantConnectivity.OpcUa.Models.Browse;
+using OMP.PlantConnectivity.OpcUa.Models.Call;
+using OMP.PlantConnectivity.OpcUa.Models.Reads;
+using OMP.PlantConnectivity.OpcUa.Models.Subscriptions;
+using OMP.PlantConnectivity.OpcUa.Models.Writes;
+using OMP.PlantConnectivity.OpcUa.Serialization;
+using OMP.PlantConnectivity.OpcUa.Services;
+using OMP.PlantConnectivity.OpcUa.Services.Alarms;
+using OMP.PlantConnectivity.OpcUa.Services.Subscriptions;
+using OMP.PlantConnectivity.OpcUa.Sessions;
+using OMP.PlantConnectivity.OpcUa.Sessions.SessionManagement;
 using OneOf;
-using CreateSubscriptionResponse = OMP.PlantConnectivity.OpcUA.Models.Subscriptions.CreateSubscriptionResponse;
+using CreateSubscriptionResponse = OMP.PlantConnectivity.OpcUa.Models.Subscriptions.CreateSubscriptionResponse;
 
-namespace OMP.PlantConnectivity.OpcUA
+namespace OMP.PlantConnectivity.OpcUa
 {
     public sealed class OmpOpcUaClient : IOmpOpcUaClient
     {

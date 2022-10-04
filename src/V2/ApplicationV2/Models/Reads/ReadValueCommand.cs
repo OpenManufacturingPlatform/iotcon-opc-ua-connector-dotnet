@@ -3,7 +3,7 @@
 
 using Opc.Ua;
 
-namespace OMP.PlantConnectivity.OpcUA.Models.Reads
+namespace OMP.PlantConnectivity.OpcUa.Models.Reads
 {
     public record ReadValueCommand
     {

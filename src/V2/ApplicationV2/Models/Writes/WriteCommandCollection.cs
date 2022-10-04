@@ -1,7 +1,7 @@
 ﻿// SPDX-License-Identifier: MIT. 
 // Copyright Contributors to the Open Manufacturing Platform.
 
-namespace OMP.PlantConnectivity.OpcUA.Models.Writes
+namespace OMP.PlantConnectivity.OpcUa.Models.Writes
 {
     public class WriteCommandCollection : List<WriteCommand>
     {
