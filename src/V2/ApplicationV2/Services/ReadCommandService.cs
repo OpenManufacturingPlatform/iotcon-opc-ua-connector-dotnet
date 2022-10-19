@@ -68,8 +68,13 @@ namespace OMP.PlantConnectivity.OpcUa.Services
 
             response.AddRange(
                 commands.Zip(values.Zip(errors))
-                .Select(r => new CommandResult<ReadValueCommand, ReadValueResponse>
-                            (r.First, new ReadValueResponse(r.Second.First, r.Second.Second)))
+                .Select(r => new CommandResult<ReadValueCommand, ReadValueResponse>(
+                                r.First, 
+                                new ReadValueResponse(r.Second.First, r.Second.Second), 
+                                StatusCode.IsGood(r.Second.Second.StatusCode), 
+                                StatusCode.IsGood(r.Second.Second.StatusCode) ? String.Empty : r.Second.Second.StatusCode.ToString()
+                             )
+                       )
                 .ToList());
 
             return Task.FromResult(response);
