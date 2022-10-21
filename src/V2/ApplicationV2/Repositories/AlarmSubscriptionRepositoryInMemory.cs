@@ -8,7 +8,7 @@ using OMP.PlantConnectivity.OpcUa.Models.Alarms;
 
 namespace OMP.PlantConnectivity.OpcUa.Repositories
 {
-    internal sealed class AlarmSubscriptionRepositoryInMemory : IAlarmSubscriptionRepository
+    public sealed class AlarmSubscriptionRepositoryInMemory : IAlarmSubscriptionRepository
     {
         private OmpOpcUaConfiguration connectorConfiguration;
         private ConcurrentDictionary<string, List<AlarmSubscriptionDto>> pairs = new ConcurrentDictionary<string, List<AlarmSubscriptionDto>>();

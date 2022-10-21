@@ -6,7 +6,7 @@ using Opc.Ua.Client;
 
 namespace OMP.PlantConnectivity.OpcUa.Services.Subscriptions
 {
-    public class LoggingMonitoredItemMessageProcessor : IMonitoredItemMessageProcessor //This is the default OMP implimentations
+    public class LoggingMonitoredItemMessageProcessor : IMonitoredItemMessageProcessor //This is the default OMP implementations
     {
         private readonly ILogger<LoggingMonitoredItemMessageProcessor> logger;
 
