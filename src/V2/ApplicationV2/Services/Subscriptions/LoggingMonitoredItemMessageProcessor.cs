@@ -15,7 +15,6 @@ namespace OMP.PlantConnectivity.OpcUa.Services.Subscriptions
             this.logger = logger;
         }
 
-        public string Identifier { get; } = nameof(LoggingMonitoredItemMessageProcessor);
         public virtual void ProcessMessage(MonitoredItem monitoredItem, MonitoredItemNotificationEventArgs eventArguments)
         {
             logger.LogInformation("Message Received: NodeId: {nodeId} | Value: {value}", monitoredItem.StartNodeId, eventArguments.NotificationValue);

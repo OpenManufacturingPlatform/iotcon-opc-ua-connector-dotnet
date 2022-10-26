@@ -7,7 +7,6 @@ namespace OMP.PlantConnectivity.OpcUa.Services.Subscriptions
 {
     public interface IMonitoredItemMessageProcessor
     {
-        string Identifier { get; }
         void ProcessMessage(MonitoredItem monitoredItem, MonitoredItemNotificationEventArgs eventArguments);
     }
 }

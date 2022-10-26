@@ -115,6 +115,9 @@ namespace Microsoft.Extensions.DependencyInjection
             // Monitored Item Notifaction Processor
             serviceCollection.AddTransient<IMonitoredItemMessageProcessor, TProcessor>();
 
+            // Alarm Notifaction Processor
+            serviceCollection.AddTransient<IAlarmMonitoredItemMessageProcessor, TAlarmProcessor>();
+
             return serviceCollection;
         }
     }
