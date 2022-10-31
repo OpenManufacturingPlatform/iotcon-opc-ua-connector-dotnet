@@ -57,11 +57,12 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "nugets", "nugets", "{085C45A8-D5EE-49DF-8C8F-71007F3090C8}"
 	ProjectSection(SolutionItems) = preProject
 		.github\workflows\Application.yml = .github\workflows\Application.yml
+		.github\workflows\ApplicationV2.yml = .github\workflows\ApplicationV2.yml
 		.github\workflows\autoMapper.yml = .github\workflows\autoMapper.yml
 		.github\workflows\BaseNugetRelease.yml = .github\workflows\BaseNugetRelease.yml
 		.github\workflows\Domain.Release.yml = .github\workflows\Domain.Release.yml
-		.github\workflows\Domain.Shcema.Release.yml = .github\workflows\Domain.Shcema.Release.yml
 		.github\workflows\Kafka.yml = .github\workflows\Kafka.yml
+		.github\workflows\Domain.Schema.Release.yml = .github\workflows\Domain.Schema.Release.yml
 		.github\workflows\MQTT.yml = .github\workflows\MQTT.yml
 		.github\workflows\OpcUA.yml = .github\workflows\OpcUA.yml
 	EndProjectSection
@@ -74,9 +75,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastru
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpcUa.Tests", "tests\OpcUa.Tests\OpcUa.Tests.csproj", "{CD2B97C7-D0BA-4483-9D01-FB7527272B46}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApplicationV2", "src\V2\ApplicationV2\ApplicationV2.csproj", "{AD696E12-9E05-47DC-B0ED-733F53FB16C6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApplicationV2", "src\V2\ApplicationV2\ApplicationV2.csproj", "{AD696E12-9E05-47DC-B0ED-733F53FB16C6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestApplicationV2", "samples\TestApplicationV2\TestApplicationV2.csproj", "{D40ECD8C-139A-433E-B7E3-3CA36EF3B7E6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestApplicationV2", "samples\TestApplicationV2\TestApplicationV2.csproj", "{D40ECD8C-139A-433E-B7E3-3CA36EF3B7E6}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "V2", "V2", "{87586D5A-040A-4662-B617-81BBBB7D6D79}"
 EndProject

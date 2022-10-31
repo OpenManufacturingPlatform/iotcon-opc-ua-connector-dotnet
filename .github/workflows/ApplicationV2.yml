@@ -1,4 +1,4 @@
-name: Manually Release MQTT Nuget
+name: Manually Release ApplicationV2 Nuget
 
 on:  
   workflow_dispatch:
@@ -23,7 +23,7 @@ jobs:
       majorVersion: ${{ github.event.inputs.majorVersion }}
       minorVersion: ${{ github.event.inputs.minorVersion }}
       patchVersion: ${{ github.event.inputs.patchVersion }}
-      projectName: 'Kafka'
-      workingDirectory: 'src/Infrastructure/Kafka'
+      projectName: 'ApplicationV2'
+      workingDirectory: 'src/V2/ApplicationV2'
     secrets:
       PACKAGE_PUSH_KEY: ${{ secrets.PACKAGE_PUSH_KEY }}
