@@ -1,3 +1,5 @@
+> THIS REPOSITORY WAS ARCHIVED ON DECEMBER 8, 2022. OMP WILL CLOSE AT THE END OF DECEMBER, 2022.
+
 # OMP OPC UA Edge Connector 
 
 ![APM license](https://img.shields.io/badge/License-MIT-brightgreen)
