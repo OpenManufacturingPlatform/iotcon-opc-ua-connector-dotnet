@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <TargetFramework>net6.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>OMP.Connector.$(MSBuildProjectName)</AssemblyName>
+    <RootNamespace>OMP.Connector.$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
+    <VersionPrefix>2.0.0.1</VersionPrefix>
+    <RepositoryUrl>https://github.com/OpenManufacturingPlatform/iotcon-opc-ua-connector-dotnet</RepositoryUrl>
+    <Authors>OMP</Authors>
+    <PackageProjectUrl>https://github.com/OpenManufacturingPlatform/iotcon-opc-ua-connector-dotnet</PackageProjectUrl>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+
+
+  <ItemGroup>
+    <PackageReference Include="Ben.Demystifier" Version="0.4.1" />
+    <PackageReference Include="OneOf" Version="3.0.223" />
+    <PackageReference Include="OPCFoundation.NetStandard.Opc.Ua" Version="1.4.370.12" />
+    <PackageReference Include="OPCFoundation.NetStandard.Opc.Ua.Client.ComplexTypes" Version="1.4.370.12" />
+    <PackageReference Include="FluentValidation" Version="11.2.2" />
+  </ItemGroup>
+  
+</Project>

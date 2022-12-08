@@ -21,7 +21,8 @@ using OMP.Connector.Domain.Schema.Request.Subscription.Base;
 namespace OMP.Connector.Application.Providers.Subscription.Base
 {
     public abstract class SubscriptionProvider<TCommand, TResult> : ISubscriptionProvider
-        where TCommand : SubscriptionRequest where TResult : ICommandResponse, new()
+        where TCommand : SubscriptionRequest
+        where TResult : ICommandResponse, new()
     {
         protected IOpcSession OpcSession;
         protected readonly ILogger Logger;

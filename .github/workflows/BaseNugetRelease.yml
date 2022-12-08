@@ -4,17 +4,17 @@ on:
   workflow_call:
     inputs:
       majorVersion:
-        description: 'Major Verions for Semantic versioning'     
+        description: 'Major Versions for Semantic versioning'
         required: true
         default: '0'
         type: string
       minorVersion:
-        description: 'Minor Verions'     
+        description: 'Minor Versions'
         required: true
         default: '0'
         type: string
       patchVersion:
-        description: 'Patch Verions'     
+        description: 'Patch Versions'
         required: true
         default: '1'
         type: string
@@ -23,7 +23,7 @@ on:
         required: true
         type: string
       workingDirectory:
-        description: 'Directory of the Project to publish'     
+        description: 'Directory of the Project to publish'
         required: true
         type: string
     secrets:

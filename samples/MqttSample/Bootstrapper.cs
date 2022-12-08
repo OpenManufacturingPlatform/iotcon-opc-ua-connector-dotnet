@@ -44,7 +44,12 @@ namespace OMP.Connector.EdgeModule
             });
 
             serviceCollection.AddSingleton<ISubscriptionServiceStateManager, SubscriptionServiceStateManager>();
+            serviceCollection.AddSingleton<IOpcMonitoredItemServiceFactory, OpcMonitoredItemServiceFactory>();
             serviceCollection.AddSingleton<ISubscriptionProviderFactory, SubscriptionProviderFactory>();
+
+            serviceCollection.AddSingleton<IAlarmSubscriptionServiceStateManager, AlarmSubscriptionServiceStateManager>();
+            serviceCollection.AddSingleton<IOpcAlarmMonitoredItemServiceFactory, OpcAlarmMonitoredItemServiceFactory>();
+            serviceCollection.AddSingleton<IAlarmSubscriptionProviderFactory, AlarmSubscriptionProviderFactory>();
 
             serviceCollection.AddSingleton<ISessionPoolStateManager, SessionPoolStateManager>();
             serviceCollection.AddSingleton<IUserIdentityProvider, UserIdentityProvider>();
@@ -65,6 +70,7 @@ namespace OMP.Connector.EdgeModule
             serviceCollection.AddTransient<IDiscoveryService, DiscoveryService>();
             serviceCollection.AddTransient<ICommandService, CommandService>();
             serviceCollection.AddTransient<ISubscriptionServiceFactory, SubscriptionServiceFactory>();
+            serviceCollection.AddTransient<IAlarmSubscriptionServiceFactory, AlarmSubscriptionServiceFactory>();
             serviceCollection.AddTransient<ISubscriptionRestoreService, SubscriptionRestoreService>();
             serviceCollection.AddSingleton<ICommandProviderFactory, CommandProviderFactory>();
             serviceCollection.AddTransient<IDiscoveryProvider, DiscoveryProvider>();
