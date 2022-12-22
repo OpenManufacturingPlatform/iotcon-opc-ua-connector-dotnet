@@ -1,0 +1,15 @@
+{
+  "connectorId": "AA2A77F6-2246-4A60-BF3B-E2B322BEDAE5",
+  "timestamp": "2021-10-26T09:52:03+00:00",
+  "messageType": "telemetry",  
+  "endpointUrl": "opc.tcp://opcuaserverintegration:52210/",
+  "nodeId":"ns=2;i=16397",
+  "data": {  
+    "value": { ... },/* dynamic type */
+    "statusCode": "",
+    "dataType": "",
+    "sequenceNr": 2,
+    "sourceTimestamp": "2021-10-26T09:52:00+00:00", /* Time plc made the reading */
+    "serverTimestamp": "2021-10-26T09:52:02+00:00" /* Time the server sent the reading */
+  }
+}
